@@ -1,10 +1,16 @@
 # Architecture Decision Records (ADRs)
 
-This directory contains architecture decision records for discourse-observer. ADRs capture significant decisions that affect the structure, dependencies, or direction of the project.
+This directory contains architecture decision records for discourse-observer.
 
-## Why ADRs
+## What is an ADR?
+
+An ADR is a short document that captures a single architectural decision. Each ADR records what was decided, why it was decided, what alternatives were considered, and what consequences follow. ADRs are numbered, immutable once accepted, and accumulate over time to form a decision log for the project.
+
+## Why this repository uses ADRs
 
 Software projects accumulate decisions over time. Without a record of what was decided and why, contributors — both human and AI — are left guessing at intent. ADRs prevent this by providing lightweight, searchable documentation of the reasoning behind architectural choices.
+
+This project is designed for AI-assisted contribution. ADRs give AI tools the structured context they need to make decisions consistent with prior choices. They also help new human contributors understand the project without archaeology through git history.
 
 ## When to write an ADR
 
@@ -18,11 +24,58 @@ Write an ADR when:
 
 Do not write an ADR for routine code changes, bug fixes, or implementation details that are clear from the code.
 
+## ADR format
+
+This repository uses a modernized Nygard-style ADR format. It extends the original format from Michael Nygard's [Documenting Architecture Decisions](https://cognitect.com/blog/2011/11/15/documenting-architecture-decisions) with an explicit **Alternatives Considered** section.
+
+Each ADR contains these sections in this order:
+
+| Section                     | Purpose                                                      |
+| --------------------------- | ------------------------------------------------------------ |
+| **Title**                   | `# [Number]. [Title]` — one decision per ADR                 |
+| **Status**                  | Current lifecycle state (see below)                          |
+| **Date**                    | Date the ADR was created or last updated (`YYYY-MM-DD`)      |
+| **Context**                 | The situation, forces, and problem that require a decision   |
+| **Alternatives Considered** | Options that were evaluated, with brief trade-off notes      |
+| **Decision**                | What was decided and why                                     |
+| **Consequences**            | What follows from this decision — both positive and negative |
+
+A template is available at [template.md](template.md). Copy it when creating a new ADR.
+
+## Status model
+
+Each ADR has exactly one status:
+
+- **Proposed** — Under discussion, not yet accepted
+- **Accepted** — The decision has been made and is in effect
+- **Superseded** — Replaced by a later ADR
+- **Deprecated** — No longer relevant due to project changes
+
+Status transitions:
+
+```text
+Proposed → Accepted → Superseded
+                    → Deprecated
+```
+
+An ADR may skip `Proposed` and be created directly as `Accepted` when the decision is made at the time of writing.
+
+## How superseding works
+
+When a decision is replaced:
+
+1. Create a new ADR with the new decision
+2. In the new ADR's **Context**, reference the ADR it replaces
+3. Update the old ADR's status to `Superseded` and add a note:
+   `Superseded by [NNNN](NNNN-new-decision.md)`
+
+The old ADR is never deleted. It remains in the log as a record of what was previously decided and why.
+
 ## Naming convention
 
 ADRs are numbered sequentially:
 
-```
+```text
 0001-project-foundation.md
 0002-discourse-client-design.md
 0003-storage-backend-choice.md
@@ -30,38 +83,8 @@ ADRs are numbered sequentially:
 
 Use lowercase with hyphens. The number prefix ensures chronological ordering. The name should describe the decision topic, not the outcome.
 
-## Statuses
-
-Each ADR has a status:
-
-- **Proposed** — Under discussion, not yet accepted
-- **Accepted** — The decision has been made and is in effect
-- **Superseded** — Replaced by a later ADR (link to the replacement)
-- **Deprecated** — No longer relevant due to project changes
-
-## Template
-
-```markdown
-# [Number]. [Title]
-
-**Status:** Accepted | Proposed | Superseded | Deprecated
-**Date:** YYYY-MM-DD
-
-## Context
-
-What is the situation? What forces are at play? What problem needs a decision?
-
-## Decision
-
-What was decided and why.
-
-## Consequences
-
-What follows from this decision — both positive and negative.
-```
-
 ## Current ADRs
 
-| Number | Title | Status |
-|--------|-------|--------|
+| Number                             | Title              | Status   |
+| ---------------------------------- | ------------------ | -------- |
 | [0001](0001-project-foundation.md) | Project Foundation | Accepted |
