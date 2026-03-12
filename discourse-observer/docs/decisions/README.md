@@ -85,6 +85,8 @@ Use lowercase with hyphens. The number prefix ensures chronological ordering. Th
 
 ## Current ADRs
 
-| Number                             | Title              | Status   |
-| ---------------------------------- | ------------------ | -------- |
-| [0001](0001-project-foundation.md) | Project Foundation | Accepted |
+| Number                                     | Title                 | Status   |
+| ------------------------------------------ | --------------------- | -------- |
+| [0001](0001-project-foundation.md)         | Project Foundation    | Accepted |
+| [0002](0002-technology-choices.md)         | Technology Choices    | Accepted |
+| [0003](0003-programming-languages.md)      | Programming Languages | Accepted |

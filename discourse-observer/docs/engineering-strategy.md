@@ -180,8 +180,8 @@ These PRs go through normal CI before merge.
 
 These are real concerns that do not need solutions yet:
 
-- **Language/runtime choice** — decided when implementation starts.
-- **Database selection** — start with file-based storage, upgrade later.
+- **Language/runtime choice** — decided in [ADR 0003](decisions/0003-programming-languages.md): Go backend, TypeScript frontend.
+- **Database selection** — SQLite chosen in [ADR 0002](decisions/0002-technology-choices.md). Upgrade path deferred until data volume warrants it.
 - **Deployment strategy** — not relevant until there is something to deploy.
 - **Monitoring and alerting** — not relevant until the system runs in production.
 - **Multi-repo or monorepo decisions** — single repo until there is a reason to split.
