@@ -1,0 +1,15 @@
+#!/bin/sh
+set -e
+
+echo "Running pre-commit checks..."
+
+echo "Linting Markdown..."
+npx markdownlint "**/*.md" --ignore node_modules
+
+echo "Linting Go..."
+sh scripts/lint-go.sh
+
+echo "Running tests..."
+sh scripts/test-go.sh
+
+echo "All pre-commit checks passed."
