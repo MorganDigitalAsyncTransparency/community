@@ -26,8 +26,6 @@ Each of these uses starts from the same foundation but adapts it for their speci
 
 ## What this project does not do
 
-- It does not support multiple forums in a single deployment
-- It does not provide a ready-made dashboard (that comes later)
 - It does not prescribe a specific runtime platform or hosting model
 - It does not assume which parts of forum activity matter most — that is a decision for the team adapting it
 
