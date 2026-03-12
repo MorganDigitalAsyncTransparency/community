@@ -12,7 +12,7 @@ Read [ARCHITECTURE.md](ARCHITECTURE.md) for the layer diagram, dependency flow, 
 
 When executing delivery phases from the repository-level CLAUDE.md:
 
-- **Phase 7 (Rebase and PR):** After rebase, run `npm test` and `npm run lint:md` to confirm the branch is clean before creating the PR.
+- **Phase 7 (Rebase and PR):** After rebase, run `npm run lint` and `npm test` to confirm the branch is clean before creating the PR.
 - **Phase 8 (CI):** Wait for all checks to pass, including CodeQL and any other configured checks.
 
 ## Key constraints

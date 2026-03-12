@@ -59,7 +59,7 @@ Use **standard, language-native linters** for each file type, enforced by **nati
 
 - **golangci-lint** as the lint runner. It aggregates multiple Go linters behind one command and is the de facto standard in the Go ecosystem.
 - Configuration in `.golangci.yml` at the project root.
-- Invoked via `make lint` or `go run` with the golangci-lint binary.
+- Invoked via `npm run lint:go` or `make lint-go`.
 
 ### TypeScript (frontend, deferred)
 
@@ -81,10 +81,10 @@ Use **standard, language-native linters** for each file type, enforced by **nati
 - **markdownlint-cli** for Markdown files. Relevant immediately — the project is documentation-heavy.
 - Relaxed rules for line length (MD013), multiple H1s (MD025), ordered list style (MD029), inline HTML (MD033), and empty links (MD042).
 
-### Git hooks
+### Git hook mechanism
 
 - Hooks live in `.githooks/` committed to the repository.
-- `core.hooksPath` is set to `.githooks/` via a setup target (Makefile or npm prepare, depending on which toolchain is active).
+- `core.hooksPath` is set to `.githooks/` via `npm run setup` (or `make setup` on systems with make).
 - The pre-commit hook runs linters and tests. It grows as toolchains are added.
 - No external hook managers (Husky, lefthook, pre-commit framework).
 

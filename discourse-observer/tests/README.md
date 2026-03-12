@@ -29,7 +29,7 @@ Tests should produce the same result every time they run. Use recorded API respo
 
 Tests should mirror the source structure:
 
-```
+```text
 tests/
   discourse/    # Tests for API integration (using recorded responses)
   observer/     # Tests for observation logic and change detection

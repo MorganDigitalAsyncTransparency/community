@@ -13,6 +13,7 @@ Only model what is needed. The Discourse API exposes extensive data for each ent
 Topics are the primary unit of activity in a Discourse forum. A topic represents a conversation thread.
 
 Relevant fields:
+
 - **id** — Unique topic identifier
 - **title** — Topic title (may change over time)
 - **created_at** — When the topic was created
@@ -30,6 +31,7 @@ Relevant fields:
 Categories organize topics into groups. A forum typically has a fixed set of categories, though they can change over time.
 
 Relevant fields:
+
 - **id** — Unique category identifier
 - **name** — Category name
 - **slug** — URL-friendly identifier
@@ -42,6 +44,7 @@ Relevant fields:
 Tags provide cross-cutting classification for topics. A topic can have multiple tags.
 
 Relevant fields:
+
 - **id** — Unique tag identifier
 - **name** — Tag name (used as the primary identifier in most API contexts)
 - **topic_count** — Number of topics using this tag
@@ -51,6 +54,7 @@ Relevant fields:
 Revisions capture edits to topic posts. They are important for understanding how topic content evolves.
 
 Relevant fields:
+
 - **post_id** — The post that was revised
 - **revision_number** — Sequential revision number
 - **created_at** — When the revision was made

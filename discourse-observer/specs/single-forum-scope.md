@@ -7,6 +7,7 @@ This document explains the scoping decision that discourse-observer targets one 
 Each deployment of discourse-observer connects to exactly one Discourse forum. The configuration, data model, storage, and observation logic all assume a single forum as the data source.
 
 This means:
+
 - There is one set of API credentials
 - There is one base URL for the Discourse instance
 - There is one set of categories, tags, and topic namespaces
@@ -15,6 +16,7 @@ This means:
 ## Why not multi-tenant
 
 Multi-tenant systems add significant complexity:
+
 - Data isolation and access control between tenants
 - Per-tenant configuration and credential management
 - Routing and namespace disambiguation

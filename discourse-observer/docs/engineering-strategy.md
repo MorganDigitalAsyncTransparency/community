@@ -20,7 +20,7 @@ The goal is a simple, professional baseline — not a process framework.
 
 ### Module dependency rule
 
-```
+```text
 config ──→ model ←── observer ←── discourse
                 ↑
               storage
@@ -35,6 +35,7 @@ config ──→ model ←── observer ←── discourse
 ### File and function discipline
 
 Follow CLAUDE.md rules. In short:
+
 - Functions under 20 lines, files under 200 lines.
 - No deep nesting. No boolean flag parameters.
 - Names reveal intent.
@@ -115,6 +116,7 @@ All workflows use GitHub Actions. Keep them minimal and fast.
 Runs on every push to a PR branch and on pushes to `main`.
 
 Jobs:
+
 1. **lint** — Static analysis and formatting check.
 2. **test** — Run all unit and adapter tests.
 3. **build** — Verify the project compiles/builds cleanly.
@@ -126,6 +128,7 @@ All three must pass to merge. Each job runs independently (parallel).
 Runs when a version tag (`v*`) is pushed.
 
 Steps:
+
 1. Run full test suite.
 2. Build artifacts.
 3. Create GitHub release with changelog.

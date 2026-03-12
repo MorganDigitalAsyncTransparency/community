@@ -16,7 +16,7 @@ This directory contains the application source code for discourse-observer, orga
 
 Data flows through the layers in one direction:
 
-```
+```text
 discourse → observer → model → storage
                          ↑
                        config (read by all layers as needed)

@@ -26,7 +26,7 @@ Ambiguity in structure leads to inconsistent contributions. By establishing the 
 
 ## Project structure
 
-```
+```text
 discourse-observer/
   src/
     discourse/    # Raw Discourse API integration

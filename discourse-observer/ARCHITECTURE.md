@@ -6,7 +6,7 @@ This document describes the current architecture boundaries of discourse-observe
 
 discourse-observer is organized into layers that separate concerns cleanly. Each layer has a single responsibility and communicates with adjacent layers through well-defined interfaces.
 
-```
+```text
 ┌─────────────────────────────────┐
 │  Discourse Forum (external)     │
 └──────────────┬──────────────────┘
@@ -37,7 +37,8 @@ discourse-observer is organized into layers that separate concerns cleanly. Each
 ```
 
 Cross-cutting:
-```
+
+```text
 ┌─────────────────────────────────┐
 │  src/config/                    │
 │  Forum-specific configuration   │
