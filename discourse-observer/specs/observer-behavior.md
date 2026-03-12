@@ -13,17 +13,25 @@ The observer is the core logic layer of discourse-observer. It sits between the 
 The observer coordinates data retrieval from a single Discourse forum through the discourse client layer. It determines what to fetch, when to fetch it, and how to handle pagination and rate limits. The observer does not call the Discourse API directly — it delegates to the discourse module.
 
 Fetching includes:
+
 - Topics (new and updated)
 - Topic revisions and edits
 - Categories and category changes
 - Tags and tag assignments
 - User activity relevant to observed topics
 
+### Why revisions matter
+
+A snapshot of a topic's current state shows where it ended up, but not how it got there. In support workflows, the path matters: a topic may be created in one category, moved to another during triage, re-tagged as it is escalated, and moved again before resolution. These transitions are the workflow.
+
+Some of these changes are only visible through revision history. Without revisions, the observer would see a topic's current category and tags but not the sequence of changes that brought it there. Since understanding workflow movement is a primary goal, the observer must fetch and preserve revision data, not just current state.
+
 ### Normalize and model data
 
 Raw Discourse API responses contain more data than needed, in shapes dictated by the API rather than by the project's domain. The observer transforms this raw data into normalized internal types defined in the model module.
 
 Normalization includes:
+
 - Extracting only the fields that matter for observation
 - Converting API-specific formats (timestamps, IDs, nested structures) into internal representations
 - Establishing relationships between entities (topic belongs to category, topic has tags)
@@ -31,6 +39,7 @@ Normalization includes:
 ### Detect changes
 
 The observer compares current data with previously observed data to detect meaningful changes:
+
 - New topics appearing
 - Topics changing category or tags
 - Topics receiving new replies
@@ -42,6 +51,7 @@ Change detection produces observations — records of what changed, when, and in
 ### Expose reusable observer functionality
 
 The observer exposes its functionality as composable operations that can be used in different contexts:
+
 - A scheduled sync that runs periodically
 - An on-demand fetch for specific topics or categories
 - A backfill operation for historical data
@@ -62,6 +72,7 @@ This design allows a future event extraction layer to derive higher-level events
 ## Boundaries
 
 The observer does **not**:
+
 - Serve HTTP requests or expose an API
 - Render dashboards or reports
 - Make decisions about what observations mean (that is for analytics)

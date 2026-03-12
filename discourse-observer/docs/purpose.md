@@ -6,9 +6,13 @@ discourse-observer exists to watch a single Discourse forum and make its activit
 
 ## Why this project exists
 
-Discourse forums generate a continuous stream of activity: topics are created, edited, tagged, categorized, and responded to. Understanding patterns in this activity — response times, topic lifecycle, category health, contributor patterns — requires structured observation rather than ad-hoc API queries.
+The primary motivation is understanding how support work flows through a Discourse forum. Topics are created, triaged, moved between categories, tagged, responded to, and eventually resolved. Understanding these patterns — response times, topic lifecycle, category health, workflow bottlenecks — requires structured observation rather than ad-hoc API queries.
+
+Some of these workflow events (category changes, tag reassignments, title edits) cannot be reliably captured from snapshots of current state alone. Revisions and history matter, because the movement of a topic through categories and tags over time is where the support workflow becomes visible.
 
 This project provides the structured observation layer. It separates the concerns of fetching data, detecting changes, modeling domain concepts, and storing results so that each concern can evolve independently.
+
+While the project is built as a generic foundation (not hardcoded to any specific forum), the design is informed by the needs of support-focused forums where workflow visibility is the primary goal.
 
 ## Intended usage
 
