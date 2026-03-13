@@ -8,7 +8,7 @@ discourse-observer is organized into layers that separate concerns cleanly. Each
 
 ### Data flow
 
-This shows how data moves through the system at runtime:
+Data flow at runtime:
 
 ```text
 Discourse Forum (external)
@@ -57,7 +57,7 @@ The observer does not import `discourse` or `storage`. Those modules are injecte
 
 Contains the internal normalized types and domain concepts used throughout the project. These types are independent of the Discourse API shape and represent the project's own understanding of forum activity.
 
-The model module has no dependencies on other modules. It is a leaf dependency.
+The model module has no dependencies on other modules.
 
 ### src/config/
 

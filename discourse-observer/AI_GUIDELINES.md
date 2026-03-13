@@ -10,7 +10,7 @@ discourse-observer observes activity in a single Discourse forum — fetching da
 
 - **Single forum per deployment.** Do not generate code that assumes multiple forums, tenants, or data sources.
 - **Generic foundation.** Do not hardcode forum names, category IDs, tag names, or community-specific workflows. Forum-specific configuration belongs in `src/config/`.
-- **Designed to be forked** for specific forums. Keep the core generic.
+- **Designed to be forked.** Keep the core generic; forum-specific adaptation belongs in a fork.
 
 ## Module boundaries
 
@@ -35,7 +35,7 @@ Each directory under `src/` has a single responsibility. See [ARCHITECTURE.md](A
 
 - Prefer pure transformations. Reserve side effects for the edges of the system.
 - Do not introduce frameworks, ORMs, or libraries without a documented ADR.
-- Do not generate speculative code that is not yet needed.
+- Do not generate code that is not yet needed.
 - Do not create abstractions for patterns that appear only once.
 - Do not add configuration complexity before the feature it configures exists.
 - Do not generate placeholder implementations that will need to be entirely rewritten.

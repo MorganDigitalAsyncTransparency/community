@@ -4,13 +4,13 @@ This directory contains architecture decision records for discourse-observer.
 
 ## What is an ADR?
 
-An ADR is a short document that captures a single architectural decision. Each ADR records what was decided, why it was decided, what alternatives were considered, and what consequences follow. ADRs are numbered, immutable once accepted, and accumulate over time to form a decision log for the project.
+An ADR is a short document that captures a single architectural decision. Each ADR records what was decided, why, what alternatives were considered, and what consequences follow. ADRs are numbered, immutable once accepted, and accumulate over time to form a decision log for the project.
 
 ## Why this repository uses ADRs
 
 Software projects accumulate decisions over time. Without a record of what was decided and why, contributors — both human and AI — are left guessing at intent. ADRs prevent this by providing lightweight, searchable documentation of the reasoning behind architectural choices.
 
-This project is designed for AI-assisted contribution. ADRs give AI tools the structured context they need to make decisions consistent with prior choices. They also help new human contributors understand the project without archaeology through git history.
+This project is designed for AI-assisted contribution. ADRs give AI tools the structured context they need to make decisions consistent with prior choices. They also help new contributors understand the project without digging through git history.
 
 ## When to write an ADR
 
@@ -58,7 +58,7 @@ Proposed → Accepted → Superseded
                     → Deprecated
 ```
 
-An ADR may skip `Proposed` and be created directly as `Accepted` when the decision is made at the time of writing.
+An ADR may be created directly as `Accepted` when the decision is already made.
 
 ## How superseding works
 

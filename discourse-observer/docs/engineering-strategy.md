@@ -86,7 +86,7 @@ External systems (Discourse API, storage backends, future APIs) must be isolated
 ### Principles
 
 - **Test behavior, not implementation.** Assert on outputs and side effects, not internal method calls.
-- **Use fixtures and recorded responses.** No live API calls in CI. Record real responses once, replay in tests.
+- **Use fixtures and recorded responses.** No live API calls in CI.
 - **Keep tests deterministic.** No time-dependent, order-dependent, or network-dependent tests.
 - **Tests run in CI on every PR.** If tests are too slow for that, they are too slow.
 - **Test the important paths first.** Data transformation and change detection are the core value — test those heavily. Configuration loading and logging can wait.
@@ -114,7 +114,7 @@ All workflows use GitHub Actions. Keep them minimal and fast.
 
 #### `ci.yml` — Pull request validation
 
-Runs on every push to a PR branch and on pushes to `main`.
+Runs on every push to a PR branch and on `main`.
 
 Jobs:
 

@@ -21,7 +21,7 @@ Key considerations:
 
 ### TypeScript for both backend and frontend
 
-One language across the entire stack. The strongest choice for maximizing AI-assisted development: TypeScript has the most training data, the most examples online, and the best AI tooling support. Shared types across frontend and backend reduce duplication. However, Node.js is heavier at runtime, brings more dependencies and tooling overhead, and the async-heavy style can obscure control flow in a service that is fundamentally sequential: poll, process, store, serve. Without strict discipline, TypeScript codebases tend toward loose structure.
+One language across the entire stack. A strong choice for maximizing AI-assisted development: TypeScript has the most training data, the most examples online, and the best AI tooling support. Shared types across frontend and backend reduce duplication. However, Node.js is heavier at runtime, brings more dependencies and tooling overhead, and the async-heavy style can obscure control flow in a service that is fundamentally sequential: poll, process, store, serve. Without strict discipline, TypeScript codebases tend toward loose structure.
 
 ### Python backend with TypeScript frontend
 

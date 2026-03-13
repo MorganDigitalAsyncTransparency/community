@@ -5,7 +5,7 @@
 
 ## Context
 
-We want to build tools for observing and analyzing activity from a Discourse forum. The project needs a starting point, and the approach we choose will shape how easily the project can be understood, extended, and forked.
+The goal is to build tools for observing and analyzing activity from a Discourse forum. The project needs a starting point, and the approach chosen here will shape how easily the project can be understood, extended, and forked.
 
 This project is expected to be forked or adapted for different Discourse forums. A well-structured foundation makes that adaptation straightforward. A poorly structured one makes every fork diverge unnecessarily.
 

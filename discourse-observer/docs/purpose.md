@@ -8,7 +8,7 @@ discourse-observer exists to watch a single Discourse forum and make its activit
 
 The primary motivation is understanding how support work flows through a Discourse forum. Topics are created, triaged, moved between categories, tagged, responded to, and eventually resolved. Understanding these patterns — response times, topic lifecycle, category health, workflow bottlenecks — requires structured observation rather than ad-hoc API queries.
 
-Some of these workflow events (category changes, tag reassignments, title edits) cannot be reliably captured from snapshots of current state alone. Revisions and history matter, because the movement of a topic through categories and tags over time is where the support workflow becomes visible.
+Some of these workflow events (category changes, tag reassignments, title edits) cannot be reliably captured from snapshots of current state alone. Revisions and history matter: the movement of a topic through categories and tags over time is what makes the support workflow visible.
 
 This project provides the structured observation layer. It separates the concerns of fetching data, detecting changes, modeling domain concepts, and storing results so that each concern can evolve independently.
 
@@ -19,8 +19,8 @@ While the project is built as a generic foundation (not hardcoded to any specifi
 One deployment of discourse-observer watches one Discourse forum. The project is designed as a generic starting point:
 
 - A team running a Discourse-based support forum can fork this project, configure it for their forum, and build analysis tools on top of it
-- A community manager can adapt it to track engagement patterns specific to their community
-- A developer relations team can extend it to observe developer forum activity and feed it into their own reporting tools
+- A community manager can adapt it to track engagement patterns and community health
+- A developer relations team can extend it to observe developer forum activity and feed data into their own reporting tools
 
 Each of these uses starts from the same foundation but adapts it for their specific forum's categories, tags, workflows, and reporting needs.
 

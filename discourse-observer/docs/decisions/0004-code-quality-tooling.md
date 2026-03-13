@@ -45,7 +45,7 @@ The tooling must cover two languages (Go and TypeScript), plus Markdown document
 
 ### Git hooks
 
-**Husky** — Popular Node-based hook manager. Adds a dependency and its own lifecycle (`prepare` script, `.husky/` directory). Works well in pure Node projects but adds a moving part for a problem git solves natively.
+**Husky** — Popular Node-based hook manager. Adds a dependency and its own lifecycle (`prepare` script, `.husky/` directory). Works well in pure Node projects, but adds overhead for a problem git already solves natively.
 
 **lefthook** — Go-based hook manager. Requires a separate binary install. More powerful than needed for running a few lint commands.
 

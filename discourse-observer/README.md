@@ -15,7 +15,7 @@ discourse-observer is a starter project for building tools that watch a Discours
 
 ## Why documentation comes first
 
-This project is designed to be developed with AI-assisted contributors. That means:
+This project is designed for AI-assisted contribution. That means:
 
 - Module responsibilities must be explicit
 - Architecture decisions must be recorded
