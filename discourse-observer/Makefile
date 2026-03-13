@@ -1,4 +1,4 @@
-.PHONY: setup lint lint-go lint-md test
+.PHONY: setup lint lint-go lint-md test up down build
 
 ## Setup — install dependencies and configure git hooks
 setup:
@@ -15,8 +15,18 @@ lint-go:
 
 ## Markdown linting
 lint-md:
-	npx markdownlint "**/*.md" --ignore node_modules
+	npx markdownlint "**/*.md" --ignore node_modules --ignore web
 
 ## Tests (skips if no Go files exist)
 test:
 	@sh scripts/test-go.sh
+
+## Docker — build and run containers
+build:
+	docker compose build
+
+up:
+	docker compose up -d
+
+down:
+	docker compose down

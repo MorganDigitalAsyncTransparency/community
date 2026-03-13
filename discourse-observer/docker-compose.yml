@@ -1,0 +1,39 @@
+# discourse-observer — deployment topology
+#
+# Two containers on one internal network:
+#
+#   Browser ──:3000──▸ nginx (frontend)
+#                       ├── /*    → serves React static build
+#                       └── /api/ → proxies to backend:8080
+#                                        │
+#                                   Go API (backend)
+#                                        │
+#                                   Discourse API (external, via HTTPS + API token)
+#
+# Only the frontend is exposed. The backend is internal-only.
+# Dashboard is reachable from localhost and from other machines on the local network.
+
+services:
+  backend:
+    build:
+      context: .
+      dockerfile: docker/backend.Dockerfile
+    env_file: .env
+    volumes:
+      - data:/app/data
+    expose:
+      - "8080"
+    restart: unless-stopped
+
+  frontend:
+    build:
+      context: .
+      dockerfile: docker/frontend.Dockerfile
+    ports:
+      - "3000:80"
+    depends_on:
+      - backend
+    restart: unless-stopped
+
+volumes:
+  data:
