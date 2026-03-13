@@ -20,6 +20,7 @@ Edit `.env`:
 ```sh
 DISCOURSE_BASE_URL=https://your-forum.example.com
 DISCOURSE_API_TOKEN=your-api-token-here
+DISCOURSE_API_USER=nickname
 ```
 
 The `.env` file is gitignored and will not be committed.
