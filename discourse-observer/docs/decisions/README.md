@@ -81,7 +81,7 @@ Never modify the content of an Accepted ADR to retroactively align it with a new
 
 ## Naming convention
 
-ADRs are numbered sequentially:
+ADRs are numbered sequentially across the entire repository. Project-specific ADRs live here; repository-wide ADRs live in [`docs/decisions/`](../../../docs/decisions/) at the repository root. Both directories share one numbering sequence to avoid conflicts.
 
 \`\`\`text
 0001-project-foundation.md
