@@ -79,6 +79,10 @@ Frameworks, APIs, file systems, and external services are details. Do not let th
 
 For significant work, follow these phases in order.
 
+**Execution ownership:** Run all phases end-to-end without stopping for check-ins between them. Present the result when all phases are complete and the work is genuinely ready for review — not before. The role of the reviewer is to evaluate a finished deliverable, not to co-drive each step.
+
+**Phase commits:** After any phase that produces a stable artifact (documentation, design decisions, implementation, review fixes), commit before moving to the next phase. This makes it possible to identify where something went wrong and return to a known-good state without losing earlier work.
+
 ### Phase 0 — Alignment
 
 - Understand the request. Identify ambiguity, risk, and hidden assumptions.
