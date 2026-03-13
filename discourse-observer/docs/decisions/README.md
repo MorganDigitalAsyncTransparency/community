@@ -91,3 +91,4 @@ Use lowercase with hyphens. The number prefix ensures chronological ordering. Th
 | [0002](0002-technology-choices.md)         | Technology Choices    | Accepted |
 | [0003](0003-programming-languages.md)      | Programming Languages | Accepted |
 | [0004](0004-code-quality-tooling.md)       | Code Quality Tooling  | Accepted |
+| [0005](0005-storage-format.md)             | Raw Data Storage Format | Proposed |
