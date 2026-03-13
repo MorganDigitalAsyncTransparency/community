@@ -6,45 +6,38 @@ This document describes the current architecture boundaries of discourse-observe
 
 discourse-observer is organized into layers that separate concerns cleanly. Each layer has a single responsibility and communicates with adjacent layers through well-defined interfaces.
 
+### Data flow
+
+This shows how data moves through the system at runtime:
+
 ```text
-┌─────────────────────────────────┐
-│  Discourse Forum (external)     │
-└──────────────┬──────────────────┘
-               │ API calls
-┌──────────────▼──────────────────┐
-│  src/discourse/                 │
-│  Raw API integration            │
-│  Fetches data from Discourse    │
-└──────────────┬──────────────────┘
-               │ Raw API responses
-┌──────────────▼──────────────────┐
-│  src/observer/                  │
-│  Observation logic              │
-│  Detects changes, normalizes    │
-└──────────────┬──────────────────┘
-               │ Normalized observations
-┌──────────────▼──────────────────┐
-│  src/model/                     │
-│  Internal domain types          │
-│  Normalized, API-independent    │
-└──────────────┬──────────────────┘
-               │ Domain objects
-┌──────────────▼──────────────────┐
-│  src/storage/                   │
-│  Persistence abstraction        │
-│  Stores observations for later  │
-└─────────────────────────────────┘
+Discourse Forum (external)
+        │ HTTP
+        ▼
+  src/discourse/          — fetches raw API data, handles auth and pagination
+        │ raw API data
+        ▼
+  src/observer/           — normalizes, detects changes, coordinates fetch and store
+        │ model types
+        ▼
+  src/storage/            — persists observations (SQLite initially)
 ```
 
 Cross-cutting:
 
 ```text
-┌─────────────────────────────────┐
-│  src/config/                    │
-│  Forum-specific configuration   │
-│  Adaptation points              │
-└─────────────────────────────────┘
+  src/model/   — shared domain types, used by all modules above
+  src/config/  — forum-specific configuration, provided at startup
 ```
+
+### Dependency direction
+
+The arrows above show *data flow*, not *import dependencies*. Imports follow dependency inversion:
+
+- `model` has no imports. It is the innermost layer.
+- `observer` imports only `model`. It defines interfaces (`FetchClient`, `StorageBackend`) for the adapters.
+- `discourse` and `storage` import `model`. They implement the interfaces defined by `observer`. At runtime they are injected into the observer — the observer never imports them.
+- `config` has no imports. Config values are read at startup and passed into module constructors.
 
 ## Layer responsibilities
 
@@ -56,9 +49,9 @@ This isolation means that if the Discourse API changes, only this module needs t
 
 ### src/observer/
 
-Responsible for turning raw Discourse data into meaningful observations. This is where change detection, filtering, and normalization happen. The observer takes raw API data from the discourse module and produces structured observations using types from the model module.
+Responsible for change detection, normalization, and coordinating the fetch-observe-store cycle. The observer defines interfaces for its dependencies (`FetchClient`, `StorageBackend`) and works entirely in terms of `model` types.
 
-The observer does not call the Discourse API directly — it receives data from the discourse layer.
+The observer does not import `discourse` or `storage`. Those modules are injected at startup. This keeps the core logic independent of API details and persistence implementation.
 
 ### src/model/
 
@@ -70,11 +63,11 @@ The model module has no dependencies on other modules. It is a leaf dependency.
 
 Holds forum-specific configuration and adaptation points. This is where a deployment specifies its forum URL, API credentials, polling intervals, and any forum-specific mappings (such as which categories to observe or which tags to track).
 
-The config module is read by other modules but does not depend on them.
+The config module has no imports. Config values are provided to other modules at startup — passed into constructors or init functions — rather than being imported directly by those modules.
 
 ### src/storage/
 
-An abstraction point for persisting observed data. This module defines how observations are stored and retrieved. The initial implementation may be as simple as local file storage or an in-memory store. More sophisticated backends (databases, cloud storage) can be added later behind this abstraction.
+An abstraction point for persisting observed data. This module defines how observations are stored and retrieved. The initial implementation uses SQLite (decided in [ADR 0002](docs/decisions/0002-technology-choices.md)). An in-memory implementation may be added for testing. More sophisticated backends can be added later without touching the observer or model layers.
 
 ## What is intentionally not included
 

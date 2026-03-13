@@ -10,7 +10,7 @@ The observer is the core logic layer of discourse-observer. It sits between the 
 
 ### Fetch data from Discourse
 
-The observer coordinates data retrieval from a single Discourse forum through the discourse client layer. It determines what to fetch, when to fetch it, and how to handle pagination and rate limits. The observer does not call the Discourse API directly — it delegates to the discourse module.
+The observer coordinates data retrieval from a single Discourse forum through the discourse client layer. It determines what to fetch and when to fetch it. The observer does not call the Discourse API directly — it delegates to the discourse module. Pagination, rate limits, and retries are handled by the discourse adapter, not the observer.
 
 Fetching includes:
 
@@ -18,7 +18,8 @@ Fetching includes:
 - Topic revisions and edits
 - Categories and category changes
 - Tags and tag assignments
-- User activity relevant to observed topics
+
+User activity (authorship, assignment) is not part of the initial model but may be added later if observation needs require it (see [discourse-source-model.md](discourse-source-model.md)).
 
 ### Why revisions matter
 

@@ -20,12 +20,13 @@ Each directory under `src/` has a single responsibility. See [ARCHITECTURE.md](A
 | --- | --- | --- |
 | `src/model/` | Domain types | nothing |
 | `src/config/` | Configuration and adaptation | nothing |
-| `src/discourse/` | Discourse API integration | `config/` |
+| `src/discourse/` | Discourse API integration | `model/`, `config/` |
 | `src/storage/` | Persistence abstraction | `model/`, `config/` |
-| `src/observer/` | Change detection and normalization | `discourse/`, `model/`, `config/`, `storage/` |
+| `src/observer/` | Change detection and normalization | `model/` |
 
 **Rules:**
 
+- `observer` defines interfaces for fetching and storing data. `discourse` and `storage` implement those interfaces. At runtime they are injected into the observer. The observer never imports `discourse` or `storage` directly.
 - Do not mix responsibilities across modules.
 - Discourse API data shapes, pagination, and authentication stay in `src/discourse/`. Other modules work with normalized types from `src/model/`.
 - If unsure where something belongs, check the module README.

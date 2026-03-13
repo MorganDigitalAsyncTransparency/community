@@ -8,11 +8,11 @@ The storage module defines how observations are saved and retrieved. It acts as 
 
 ## Current status
 
-This module is not yet fully implemented. The abstraction point exists so that the observer can be built against a storage interface without committing to a specific backend.
+This module is not yet implemented. The abstraction point exists so that the observer can be built against a storage interface without coupling to a specific backend.
 
 ## Planned approach
 
-The initial implementation will likely be simple — local file storage, SQLite, or an in-memory store for development. The abstraction allows swapping to a more capable backend (PostgreSQL, cloud storage, a time-series database) later without changing the observer or model layers.
+The initial implementation will use SQLite (decided in [ADR 0002](../../docs/decisions/0002-technology-choices.md)). An in-memory implementation may be added for testing. The abstraction allows swapping to a more capable backend (PostgreSQL, cloud storage, a time-series database) later without changing the observer or model layers.
 
 ## Boundaries
 

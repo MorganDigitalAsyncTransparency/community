@@ -21,16 +21,17 @@ The goal is a simple, professional baseline — not a process framework.
 ### Module dependency rule
 
 ```text
-config ──→ model ←── observer ←── discourse
-                ↑
-              storage
+model         ← has no dependencies (leaf)
+observer      ← depends on model
+discourse     ← depends on model (implements interfaces defined in observer or model)
+storage       ← depends on model (implements interfaces defined in observer or model)
+config        ← depends on nothing; read by all modules at startup
 ```
 
-- `model` depends on nothing.
-- Everything else depends on `model`.
-- `observer` depends on `model` only.
-- `discourse` and `storage` implement interfaces defined by `observer` or `model`.
-- `config` feeds into runtime setup, not into module internals.
+- `model` depends on nothing. It is the innermost layer.
+- `observer` depends on `model` only. It defines interfaces for fetching and storing data but does not import `discourse` or `storage` directly.
+- `discourse` and `storage` implement interfaces defined by `observer` or `model`. They depend on `model` for types. At runtime, they are injected into the observer — the observer never imports them.
+- `config` provides values at startup. Modules read config but do not depend on it structurally.
 
 ### File and function discipline
 
@@ -179,12 +180,20 @@ These PRs go through normal CI before merge.
 
 ---
 
-## 6. What is deliberately deferred
+## 6. Decisions and deferrals
+
+Some concerns have been decided. Others are deliberately deferred.
+
+### Decided
+
+- **Language/runtime choice** — Go backend, TypeScript frontend ([ADR 0003](decisions/0003-programming-languages.md)).
+- **Database selection** — SQLite ([ADR 0002](decisions/0002-technology-choices.md)). Upgrade path deferred until data volume warrants it.
+- **Code quality tooling** — golangci-lint, markdownlint-cli, native git hooks ([ADR 0004](decisions/0004-code-quality-tooling.md)).
+
+### Deliberately deferred
 
 These are real concerns that do not need solutions yet:
 
-- **Language/runtime choice** — decided in [ADR 0003](decisions/0003-programming-languages.md): Go backend, TypeScript frontend.
-- **Database selection** — SQLite chosen in [ADR 0002](decisions/0002-technology-choices.md). Upgrade path deferred until data volume warrants it.
 - **Deployment strategy** — not relevant until there is something to deploy.
 - **Monitoring and alerting** — not relevant until the system runs in production.
 - **Multi-repo or monorepo decisions** — single repo until there is a reason to split.
