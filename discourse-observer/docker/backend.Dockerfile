@@ -8,6 +8,9 @@
 # It is not exposed externally — nginx proxies /api/ requests to it.
 #
 # CGO_ENABLED=1 is required for SQLite (ADR 0006).
+#
+# NOTE: This Dockerfile is scaffolding. It will not build until
+# Go source files exist in src/.
 
 # -- build stage --
 FROM golang:1.25-alpine AS build
