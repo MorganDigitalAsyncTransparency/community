@@ -43,6 +43,7 @@ Adopt **GitHub Flow** as the branching and release model for the repository.
 - **All changes arrive via short-lived feature branches** merged through pull requests, as prescribed by the CLAUDE.md delivery workflow (Phase 7).
 - **Branch naming:** `<type>/<short-description>` where type is one of `feature`, `fix`, `docs`, `refactor`, `chore`. Examples: `docs/adr-0007-branching`, `feature/discourse-polling`, `fix/revision-dedup`.
 - **Branches are rebased onto `main` before merging** (Phase 7). Merge commits are acceptable when rebase would rewrite shared history, but rebase is the default.
+- **Merge method: merge commit.** After rebasing, the PR is merged with a merge commit (GitHub's "Create a merge commit" option). This preserves individual commits from the branch while creating a clear merge point in the history. Squash merge is acceptable for single-commit branches but is not the default.
 - **Branches are deleted after merge** (Phase 8).
 
 ### Branch protection
