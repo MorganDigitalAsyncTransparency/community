@@ -7,7 +7,7 @@
 
 ADR 0005 establishes NDJSON files as the raw data layer — the persistent, append-only record of what was fetched from Discourse. Raw data is the source of truth but is not queryable: it requires scanning files and applying logic to extract meaning.
 
-The reporting requirements ([specs/reporting-requirements.md](../../specs/reporting-requirements.md)) define the concrete questions the system must answer. These questions drive what the analytical store must contain and what query patterns it must support:
+The use cases ([specs/use-cases.md](../../specs/use-cases.md)) define the concrete questions the system must answer. These questions drive what the analytical store must contain and what query patterns it must support:
 
 - Which topics have been open the longest without a reply?
 - What is the median time from topic creation to first reply, and to resolution?
