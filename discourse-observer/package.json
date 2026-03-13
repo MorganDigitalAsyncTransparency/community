@@ -5,7 +5,7 @@
   "scripts": {
     "setup": "npm install && git config core.hooksPath .githooks",
     "lint": "npm run lint:md && npm run lint:go",
-    "lint:md": "markdownlint \"**/*.md\" --ignore node_modules",
+    "lint:md": "markdownlint \"**/*.md\" --ignore node_modules --ignore web",
     "lint:go": "sh scripts/lint-go.sh",
     "test": "sh scripts/test-go.sh"
   },

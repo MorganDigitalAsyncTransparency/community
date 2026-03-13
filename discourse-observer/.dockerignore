@@ -1,0 +1,10 @@
+node_modules/
+web/node_modules/
+.git/
+.env
+*.md
+docs/
+specs/
+tests/
+.github/
+.githooks/
