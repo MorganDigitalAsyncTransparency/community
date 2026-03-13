@@ -1,6 +1,6 @@
 # 6. Analytical Storage
 
-**Status:** Proposed
+**Status:** Accepted
 **Date:** 2026-03-13
 
 ## Context
@@ -48,6 +48,14 @@ Mirror the raw data pattern: one NDJSON file per derived event type (e.g., `cate
 Consistent with ADR 0005's pattern and requires no new dependencies. However, NDJSON provides no query support — the backend must scan files for every dashboard request. Aggregations and trends require reading full history. Incremental computation is hard to implement cleanly: there is no natural place to record how far into the raw NDJSON processing has reached. Response times for frontend queries would be unpredictable.
 
 Rejected because it suits raw observations, not queryable derived data.
+
+### Client-server databases (PostgreSQL, MySQL, MariaDB)
+
+Full relational databases running as separate server processes. Mature ecosystems, powerful query capabilities, and well-understood operational models.
+
+These databases are designed for multi-user, multi-application workloads. Running a dedicated database server for a single-purpose analytical store on a resource-constrained server (ADR 0002) adds process management, memory overhead, configuration, backups, and security patching — all for a data volume that fits comfortably in an embedded database. The operational cost is disproportionate to the benefit.
+
+Rejected because a separate database process is unnecessary at this scale and contradicts the lightweight deployment philosophy.
 
 ### DuckDB
 
