@@ -79,19 +79,22 @@ Frameworks, APIs, file systems, and external services are details. Do not let th
 
 For significant work, follow these phases in order.
 
-**Execution ownership:** Run all phases end-to-end without stopping for check-ins between them. Present the result when all phases are complete and the work is genuinely ready for review — not before. The role of the reviewer is to evaluate a finished deliverable, not to co-drive each step.
+**Execution ownership:** Phase 0 and Phase 7 are checkpoints. In Phase 0, present your understanding of the task and wait for confirmation before proceeding. In Phase 7, present the completed work and wait for confirmation before creating the PR. Between these checkpoints, run phases end-to-end without stopping for check-ins. The role of the reviewer is to evaluate a finished deliverable, not to co-drive each step.
 
 **Phase commits:** After any phase that produces a stable artifact (documentation, design decisions, implementation, review fixes), commit before moving to the next phase. This makes it possible to identify where something went wrong and return to a known-good state without losing earlier work.
 
 ### Phase 0 — Alignment
 
+This phase is analysis only — no file changes, no branch creation, no commits.
+
 - Understand the request. Identify ambiguity, risk, and hidden assumptions.
 - Challenge bad ideas. Suggest better approaches when appropriate.
-- Agree on scope before proceeding.
+- Present your interpretation of the scope and wait for confirmation before proceeding.
 - If the work is too large for one coherent pull request, split it into smaller packages and define implementation order.
 
 ### Phase 1 — Requirements
 
+- Create a feature branch before any work begins.
 - Convert the request into clear requirements describing desired state, not code diffs.
 - Make requirements concrete, testable, and understandable to someone unfamiliar with the current implementation.
 

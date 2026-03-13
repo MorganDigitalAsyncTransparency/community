@@ -11,7 +11,7 @@ The project expects 4–5 parallel work streams, often driven by separate AI age
 
 Documentation lives as markdown close to the code. The project needs a publishing strategy that assembles these files into a readable whole without requiring contributors to maintain a separate documentation site. GitHub Pages is the immediate target. Backstage TechDocs is a future possibility and must not be ruled out.
 
-The existing `specs/` directory contains behavioral specifications at varying levels of granularity. Some describe entire modules (`observer-behavior.md`), others describe system-wide constraints (`single-forum-scope.md`, `operational-constraints.md`), others define the domain model (`discourse-source-model.md`), and others define cross-cutting requirements (`reporting-requirements.md`). These do not map one-to-one to source files, and the current structure has no defined relationship to `tests/` or `src/`. The cross-cutting requirements in `reporting-requirements.md` are better suited as use cases — an overarching document describing what users need from the system — and should be rewritten separately.
+The existing `specs/` directory contains behavioral specifications at varying levels of granularity. Some describe entire modules (`observer-behavior.md`), others describe system-wide constraints (`single-forum-scope.md`, `operational-constraints.md`), others define the domain model (`discourse-source-model.md`), and others defined cross-cutting requirements (`reporting-requirements.md`, since replaced by `use-cases.md`). These do not map one-to-one to source files, and the current structure has no defined relationship to `tests/` or `src/`.
 
 ## Alternatives Considered
 
