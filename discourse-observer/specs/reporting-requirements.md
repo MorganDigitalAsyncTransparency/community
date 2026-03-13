@@ -21,14 +21,16 @@ The reporting layer exists to answer these questions. They are grouped by what t
 
 ### Queue and status
 
-- Which support topics have been open the longest without any team response?
-- Which support topics have no post from the team yet?
+- Which support topics have been open the longest without any reply?
+- Which support topics have no reply yet?
 - How many topics currently have no tag at all, and what share of total topics does that represent?
+
+Note: the current data model does not include user identity, so it is not possible to distinguish team replies from community replies. These questions use any reply as a proxy. Distinguishing team responses would require user identity data to be added to the model.
 
 ### Response times
 
-- What is the typical time from topic creation to the team's first reply?
-- What is the typical time from topic creation to the topic being marked solved?
+- What is the median time from topic creation to the first reply?
+- What is the median time from topic creation to the topic being marked solved?
 
 ### Outcomes
 
