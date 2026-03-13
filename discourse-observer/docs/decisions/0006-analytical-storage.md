@@ -7,12 +7,16 @@
 
 ADR 0005 establishes NDJSON files as the raw data layer — the persistent, append-only record of what was fetched from Discourse. Raw data is the source of truth but is not queryable: it requires scanning files and applying logic to extract meaning.
 
-The analysis layer needs a separate store for derived data:
+The reporting requirements ([specs/reporting-requirements.md](../../specs/reporting-requirements.md)) define the concrete questions the system must answer. These questions drive what the analytical store must contain and what query patterns it must support:
 
-- **Derived events** — state transitions extracted from NDJSON (e.g., a topic moved from category A to B at a given timestamp)
-- **Time measurements** — how long a topic has been assigned to a given team, how long a user has been waiting
-- **Aggregations** — counts, averages, and summaries used by the dashboard
-- **Trend data** — how metrics change over time for dashboard charts
+- Which topics have been open the longest without a reply?
+- What is the median time from topic creation to first reply, and to resolution?
+- How many topics are solved versus self-closed per period, and is that ratio changing over time?
+- Which monitored tags have the highest volume or the longest average handling time?
+- Which topics are late or stalled relative to configured SLA thresholds?
+- How many topics currently carry no tag at all?
+
+Answering these questions requires derived data that does not exist directly in the NDJSON files: tag change events with timestamps, computed reply times and resolution times, per-topic outcome classifications (solved, self-closed, open), and precomputed aggregations scoped to configurable time horizons (7 days, 30 days, 1 year, all time).
 
 This data is consumed by the frontend (a React SPA) via a backend API. Queries must be fast enough for interactive dashboard use.
 
@@ -65,8 +69,8 @@ Use **SQLite** (`analytics.db`) as the analytical store for discourse-observer.
 
 The database contains:
 
-- **Derived events** — one row per extracted state transition (category change, tag change, assignment event), each with a precise timestamp sourced from revision data
-- **Time measurements** — computed durations (team assignment time, user wait time), stored as rows referencing the events that bound them
+- **Derived events** — one row per extracted state transition (tag change, solved, self-closed), each with a precise timestamp sourced from revision data
+- **Time measurements** — computed durations (time to first reply, time to resolution), stored as rows referencing the topic and the events that bound them
 - **Aggregations and trend snapshots** — precomputed summaries updated incrementally, used to serve dashboard queries without full-table scans
 - **Processing watermark** — a metadata table recording how far into each NDJSON file analysis has reached (byte offset or line count), enabling safe incremental computation
 
