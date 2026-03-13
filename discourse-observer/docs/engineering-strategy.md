@@ -25,7 +25,7 @@ model         ← has no dependencies (leaf)
 observer      ← depends on model
 discourse     ← depends on model (implements interfaces defined in observer or model)
 storage       ← depends on model (implements interfaces defined in observer or model)
-config        ← depends on nothing; read by all modules at startup
+config        ← depends on nothing; values injected into all modules at startup
 ```
 
 - `model` depends on nothing. It is the innermost layer.
@@ -59,7 +59,7 @@ External systems (Discourse API, storage backends, future APIs) must be isolated
 
 | Boundary | Adapter responsibility | Core expectation |
 |---|---|---|
-| Discourse API | HTTP, auth, pagination, rate limits | Receives normalized domain types |
+| Discourse API | HTTP, auth, pagination, rate limits | Receives raw API data; normalizes internally |
 | Storage | File/DB writes, schema, migrations | Receives and returns domain types |
 | Output/Reporting | Formatting, delivery | Receives structured data |
 | Configuration | File loading, env vars, validation | Provides typed config values |

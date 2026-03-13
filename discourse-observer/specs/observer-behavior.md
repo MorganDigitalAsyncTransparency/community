@@ -78,4 +78,4 @@ The observer does **not**:
 - Render dashboards or reports
 - Make decisions about what observations mean (that is for analytics)
 - Store data directly (it uses the storage abstraction)
-- Know about forum-specific categories, tags, or workflows (it uses config)
+- Know about forum-specific categories, tags, or workflows (it receives config values)

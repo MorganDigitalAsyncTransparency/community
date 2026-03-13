@@ -77,8 +77,8 @@ ADRs are numbered sequentially:
 
 ```text
 0001-project-foundation.md
-0002-discourse-client-design.md
-0003-storage-backend-choice.md
+0002-technology-choices.md
+0003-programming-languages.md
 ```
 
 Use lowercase with hyphens. The number prefix ensures chronological ordering. The name should describe the decision topic, not the outcome.
