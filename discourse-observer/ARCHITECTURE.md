@@ -39,6 +39,18 @@ The arrows above show *data flow*, not *import dependencies*. Imports follow dep
 - `discourse` and `storage` import `model`. They implement the interfaces defined by `observer`. At runtime they are injected into the observer — the observer never imports them.
 - `config` has no imports. Config values are read at startup and passed into module constructors.
 
+## Terminology
+
+These terms have specific meanings in this project. Other documentation uses them consistently with these definitions.
+
+| Term | Meaning |
+|------|---------|
+| **Fetch** | Retrieve raw data from the Discourse API. Happens in `src/discourse/`. |
+| **Normalize** | Transform raw API data into internal `model` types. Happens in `src/observer/`. |
+| **Observation** | A structured record of what the observer saw — a snapshot of one or more topics at a point in time, including what changed since the previous observation. |
+| **Sync** | A complete fetch-normalize-store cycle: poll the API for updates, produce observations, persist them. |
+| **Poll** | Check the API for new or changed data. Polling is the mechanism; sync is the full cycle. |
+
 ## Layer responsibilities
 
 ### src/discourse/

@@ -20,18 +20,9 @@ The goal is a simple, professional baseline — not a process framework.
 
 ### Module dependency rule
 
-```text
-model         ← has no dependencies (leaf)
-observer      ← depends on model
-discourse     ← depends on model (implements interfaces defined in observer or model)
-storage       ← depends on model (implements interfaces defined in observer or model)
-config        ← depends on nothing; values injected into all modules at startup
-```
+Dependencies flow inward toward `model/`, never outward. See [ARCHITECTURE.md](../ARCHITECTURE.md) for the full layer diagram and dependency details.
 
-- `model` depends on nothing. It is the innermost layer.
-- `observer` depends on `model` only. It defines interfaces for fetching and storing data but does not import `discourse` or `storage` directly.
-- `discourse` and `storage` implement interfaces defined by `observer` or `model`. They depend on `model` for types. At runtime, they are injected into the observer — the observer never imports them.
-- `config` provides values at startup. Modules read config but do not depend on it structurally.
+The essential constraint: `observer` defines interfaces for fetching and storing data. `discourse` and `storage` implement those interfaces and are injected at runtime — the observer never imports them directly.
 
 ### File and function discipline
 

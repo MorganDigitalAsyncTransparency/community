@@ -102,4 +102,4 @@ Use lowercase with hyphens. The number prefix ensures chronological ordering. Th
 | [0005](0005-storage-format.md)             | Raw Data Storage Format | Accepted |
 | [0006](0006-analytical-storage.md)         | Analytical Storage      | Accepted |
 | [0007](0007-branching-and-release-strategy.md) | Branching and Release Strategy | Accepted |
-| [0008](0008-documentation-and-traceability-strategy.md) | Documentation and Traceability Strategy | Proposed |
+| [0008](0008-documentation-and-traceability-strategy.md) | Documentation and Traceability Strategy | Accepted |
