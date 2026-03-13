@@ -8,6 +8,8 @@ Read [AI_GUIDELINES.md](AI_GUIDELINES.md) for project-specific rules covering mo
 
 Read [ARCHITECTURE.md](ARCHITECTURE.md) for the layer diagram, dependency flow, and design rationale.
 
+Read [docs/documentation-strategy.md](docs/documentation-strategy.md) for how specs, tests, and source files are organized and linked.
+
 ## Project-specific delivery details
 
 When executing delivery phases from the repository-level CLAUDE.md:

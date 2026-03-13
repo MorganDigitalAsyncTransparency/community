@@ -9,7 +9,7 @@ The project uses test-driven development with requirements as the first step: sp
 
 The project expects 4–5 parallel work streams, often driven by separate AI agents. Each stream works on a small number of files. Without a deliberate file organization strategy, parallel streams will create merge conflicts in shared documentation files, slowing down delivery.
 
-The existing `specs/` directory contains behavioral specifications at varying levels of granularity. Some describe entire modules (`observer-behavior.md`), others describe system-wide constraints (`single-forum-scope.md`, `operational-constraints.md`), others define the domain model (`discourse-source-model.md`), and others define cross-cutting requirements (`use-cases.md`). These do not map one-to-one to source files, and the current structure has no defined relationship to `tests/` or `src/`.
+The existing `specs/` directory contains behavioral specifications at varying levels of granularity. Some describe entire modules (`observer-behavior.md`), others describe system-wide constraints (`single-forum-scope.md`, `operational-constraints.md`), others define the domain model (`discourse-source-model.md`), and others describe cross-cutting requirements (`use-cases.md`). These do not map one-to-one to source files, and the current structure has no defined relationship to `tests/` or `src/`.
 
 ## Alternatives Considered
 
@@ -29,7 +29,11 @@ Rejected because filenames provide the same traceability without the maintenance
 
 Organize `specs/`, `tests/`, and `src/` with identical directory and file structure. Every specification file, test file, and source file share the same name in their respective directories.
 
-Rejected because it is too rigid for real development flow — specs are written before knowing how many source files the implementation will require, and source files need freedom to evolve without restructuring specs and tests in lockstep.
+Rejected for three reasons:
+
+- **Existing specs do not fit the model.** Specifications like `observer-behavior.md` describe an entire module's responsibilities. `single-forum-scope.md` and `operational-constraints.md` are system-wide constraints that do not map to any source file. These documents are valuable but have no place in a strict one-to-one structure.
+- **Spec granularity assumes known file decomposition.** In a TDD workflow, the spec is written first — before knowing how many source files the implementation will require. A spec for "change detection" might result in one file or three. Forcing a one-to-one mapping either delays spec writing until file structure is known (breaking the TDD flow) or forces premature file structure decisions.
+- **Source files need freedom to evolve.** Refactoring code into smaller files, extracting types, or splitting responsibilities should not require restructuring specs and tests in lockstep.
 
 ## Decision
 
@@ -42,7 +46,7 @@ The traceability problem is separated into two concerns:
 
 This accepts that specifications describe *responsibilities*, not files. A responsibility may be implemented by one source file or several. The spec-test pair is the stable anchor; the code proves itself by making the tests pass.
 
-The full strategy — directory layout, naming conventions, verification requirements, spec lifecycle, traceability chain, CI checks, workflow, and publishing approach — is maintained in a separate strategy document at `docs/documentation-strategy.md`. That document is the authoritative reference for how the strategy is applied; this ADR records why the approach was chosen.
+The detailed strategy — directory layout, naming conventions, verification requirements, spec lifecycle, traceability chain, CI checks, workflow, and publishing approach — shall be maintained in a separate document at `docs/documentation-strategy.md`. That document is the authoritative reference for how this decision is applied in practice; this ADR records what was decided and why.
 
 ## Consequences
 
