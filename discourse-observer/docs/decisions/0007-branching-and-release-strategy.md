@@ -1,6 +1,6 @@
 # 7. Branching and Release Strategy
 
-**Status:** Proposed
+**Status:** Accepted
 **Date:** 2026-03-13
 
 ## Context
@@ -141,7 +141,7 @@ Each workflow runs on pull requests targeting `main` and on pushes to `main`.
 
 ### Required changes
 
-| What | Change |
-|------|--------|
-| GitHub repo settings | Enable branch protection on `main`: require PR, require status checks, disallow force push |
-| `.github/workflows/markdown-lint.yml` | Add workflow to lint Markdown on PRs targeting `main` |
+| What | Change | Done |
+|------|--------|------|
+| GitHub repo settings | Enable branch protection on `main`: require PR, require status checks, disallow force push | Yes |
+| `.github/workflows/ci.yml` | CI workflow with Markdown lint, Go lint, Go tests, and structure validation on PRs targeting `main` | Yes |
