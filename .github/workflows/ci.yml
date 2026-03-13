@@ -1,0 +1,115 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+defaults:
+  run:
+    working-directory: discourse-observer
+
+jobs:
+  lint-markdown:
+    name: Lint Markdown
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Lint Markdown
+        run: npx markdownlint "**/*.md" --ignore node_modules
+
+  lint-go:
+    name: Lint Go
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Check for Go files
+        id: check
+        run: |
+          if find . -name '*.go' -not -path './vendor/*' | grep -q .; then
+            echo "has_go=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "has_go=false" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Setup Go
+        if: steps.check.outputs.has_go == 'true'
+        uses: actions/setup-go@v5
+        with:
+          go-version-file: discourse-observer/go.mod
+
+      - name: Run golangci-lint
+        if: steps.check.outputs.has_go == 'true'
+        uses: golangci/golangci-lint-action@v7
+        with:
+          version: latest
+          working-directory: discourse-observer
+
+      - name: Skip
+        if: steps.check.outputs.has_go != 'true'
+        run: echo "No Go files found, skipping Go lint."
+
+  test-go:
+    name: Test Go
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Check for Go files
+        id: check
+        run: |
+          if find . -name '*.go' -not -path './vendor/*' | grep -q .; then
+            echo "has_go=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "has_go=false" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Setup Go
+        if: steps.check.outputs.has_go == 'true'
+        uses: actions/setup-go@v5
+        with:
+          go-version-file: discourse-observer/go.mod
+
+      - name: Run tests
+        if: steps.check.outputs.has_go == 'true'
+        run: go test ./...
+
+      - name: Skip
+        if: steps.check.outputs.has_go != 'true'
+        run: echo "No Go files found, skipping tests."
+
+  validate-structure:
+    name: Validate Structure
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Check project structure
+        run: |
+          echo "Validating project structure..."
+          test -f README.md
+          test -f ARCHITECTURE.md
+          test -f CONTRIBUTING.md
+          test -d src/discourse
+          test -d src/observer
+          test -d src/model
+          test -d src/config
+          test -d src/storage
+          test -d tests
+          test -d docs/decisions
+          echo "Project structure is valid."
