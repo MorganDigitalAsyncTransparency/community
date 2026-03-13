@@ -58,10 +58,10 @@ Relevant fields:
 - **post_id** — The post that was revised
 - **revision_number** — Sequential revision number
 - **created_at** — When the revision was made
-- **title_changes** — Whether the topic title changed in this revision
+- **title_change** — `{ from: string, to: string }` if the topic title changed in this revision, otherwise null
 - **body_changes** — Whether the post body changed
-- **category_changes** — Whether the category changed (for first-post revisions)
-- **tag_changes** — Whether tags changed
+- **category_change** — `{ from: int, to: int }` if the category changed (first-post revisions only), otherwise null
+- **tag_change** — `{ added: []string, removed: []string }` if tags changed, otherwise null
 
 ### Timestamps
 
