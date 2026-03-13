@@ -79,7 +79,7 @@ Frameworks, APIs, file systems, and external services are details. Do not let th
 
 For significant work, follow these phases in order.
 
-**Execution ownership:** Phase 0 and Phase 7 are checkpoints. In Phase 0, present your understanding of the task and wait for confirmation before proceeding. In Phase 7, present the completed work and wait for confirmation before creating the PR. Between these checkpoints, run phases end-to-end without stopping for check-ins. The role of the reviewer is to evaluate a finished deliverable, not to co-drive each step.
+**Execution ownership:** Phase 0 and Phase 7 are checkpoints. In Phase 0, present your understanding of the task and wait for confirmation before proceeding. In Phase 7, present the completed work and wait for confirmation before creating the PR. Between these checkpoints, run phases end-to-end without stopping for check-ins. After Phase 7 confirmation, continue through Phase 8 without pausing — CI, merge, and cleanup do not require additional confirmation. The role of the reviewer is to evaluate a finished deliverable, not to co-drive each step.
 
 **Phase commits:** After any phase that produces a stable artifact (documentation, design decisions, implementation, review fixes), commit before moving to the next phase. This makes it possible to identify where something went wrong and return to a known-good state without losing earlier work.
 
