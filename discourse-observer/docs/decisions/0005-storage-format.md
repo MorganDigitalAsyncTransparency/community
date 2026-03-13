@@ -1,6 +1,6 @@
 # 5. Raw Data Storage Format
 
-**Status:** Proposed
+**Status:** Accepted
 **Date:** 2026-03-13
 
 ## Context
