@@ -111,9 +111,11 @@ For significant work, follow these phases in order.
 - Verify that requirements, documentation, tests, and implementation still match.
 - Fix mismatches before considering the work complete.
 
-### Phase 6 — Final Review
+### Phase 6 — Review
 
 Review from multiple perspectives: maintainability, user clarity, new contributor readability, consistency, edge cases, and whether unnecessary complexity was introduced.
+
+If Phase 6 identifies issues, fix them and return to Phase 5. Repeat until both phases pass with nothing to fix.
 
 ### Phase 7 — Rebase and Pull Request
 
