@@ -4,7 +4,8 @@
 
 1. Read [ARCHITECTURE.md](ARCHITECTURE.md) and the relevant module README in `src/` to understand where your change belongs before starting.
 2. Read [AI_GUIDELINES.md](AI_GUIDELINES.md) for module boundaries, scope constraints, and coding expectations.
-3. Run `npm run setup` to install dependencies and activate git hooks.
+3. Read [docs/documentation-strategy.md](docs/documentation-strategy.md) for how specs, tests, and source files are organized and linked.
+4. Run `npm run setup` to install dependencies and activate git hooks.
 
 ## How to contribute
 
