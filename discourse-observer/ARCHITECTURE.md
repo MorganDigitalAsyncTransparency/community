@@ -20,7 +20,7 @@ Discourse Forum (external)
   src/observer/           — normalizes, detects changes, coordinates fetch and store
         │ model types
         ▼
-  src/storage/            — persists observations (SQLite initially)
+  src/storage/            — persists raw observations (NDJSON files)
 ```
 
 Cross-cutting:
@@ -67,7 +67,7 @@ The config module has no imports. Config values are provided to other modules at
 
 ### src/storage/
 
-An abstraction point for persisting observed data. This module defines how observations are stored and retrieved. The initial implementation uses SQLite (decided in [ADR 0002](docs/decisions/0002-technology-choices.md)). An in-memory implementation may be added for testing. More sophisticated backends can be added later without touching the observer or model layers.
+An abstraction point for persisting raw observations. This module defines how observations are stored and retrieved. The storage format is NDJSON files (decided in [ADR 0005](docs/decisions/0005-storage-format.md)). An in-memory implementation may be added for testing. Derived analytical data is held in a separate SQLite store (decided in [ADR 0006](docs/decisions/0006-analytical-storage.md)) and is not part of this module.
 
 ## What is intentionally not included
 

@@ -187,7 +187,7 @@ Some concerns have been decided. Others are deliberately deferred.
 ### Decided
 
 - **Language/runtime choice** — Go backend, TypeScript frontend ([ADR 0003](decisions/0003-programming-languages.md)).
-- **Database selection** — SQLite ([ADR 0002](decisions/0002-technology-choices.md)). Upgrade path deferred until data volume warrants it.
+- **Storage** — Raw observations persisted as NDJSON files ([ADR 0005](decisions/0005-storage-format.md)); derived analytical data persisted in SQLite ([ADR 0006](decisions/0006-analytical-storage.md)).
 - **Code quality tooling** — golangci-lint, markdownlint-cli, native git hooks ([ADR 0004](decisions/0004-code-quality-tooling.md)).
 
 ### Deliberately deferred
