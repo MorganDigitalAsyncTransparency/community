@@ -120,7 +120,15 @@ This phase is analysis only — no file changes, no branch creation, no commits.
 
 ### Phase 6 — Review
 
-Review from multiple perspectives: maintainability, user clarity, new contributor readability, consistency, edge cases, and whether unnecessary complexity was introduced.
+Play devil's advocate against your own changes. Inhabit each of these perspectives in turn and argue against the work. The goal is to find problems, not to confirm the work looks good.
+
+- **Maintainer:** If I return to this in 6 months, will I know where to change what? Is the responsibility split clear?
+- **New contributor:** Can someone unfamiliar with the project follow these changes without extra context? Are entry points discoverable?
+- **Consistency:** Do naming, structure, and conventions match the rest of the codebase? Are cross-references correct?
+- **Edge cases:** What inputs, states, or scenarios could break this? What was not considered?
+- **Simplicity:** Was any unnecessary complexity introduced? Could the same result be achieved with less?
+
+State what each perspective reveals. If a perspective finds nothing, say so explicitly — do not skip it silently.
 
 If Phase 6 identifies issues, fix them and return to Phase 5. Repeat until both phases pass with nothing to fix.
 
