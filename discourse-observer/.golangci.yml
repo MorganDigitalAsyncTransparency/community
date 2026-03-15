@@ -15,19 +15,17 @@ linters:
     - revive
     - gofmt
     - goimports
-
-linters-settings:
-  revive:
-    rules:
-      - name: exported
-        disabled: true
-  gocritic:
-    enabled-tags:
-      - diagnostic
-      - style
-      - performance
+  settings:
+    revive:
+      rules:
+        - name: exported
+          disabled: true
+    gocritic:
+      enabled-tags:
+        - diagnostic
+        - style
+        - performance
 
 issues:
-  exclude-use-default: false
   max-issues-per-linter: 0
   max-same-issues: 0
