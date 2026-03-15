@@ -139,3 +139,19 @@ make restart
 ```
 
 This stops the running containers, rebuilds changed layers, starts everything again, and opens the dashboard. Docker layer caching means only changed layers are rebuilt.
+
+## Make targets
+
+| Command | What it does |
+|---|---|
+| `make start` | One-command onboarding: configure, build, launch, open browser |
+| `make restart` | Rebuild and relaunch after code changes |
+| `make verify` | Run all linters and tests |
+| `make lint` | Run all linters (Go + markdown) |
+| `make test` | Run Go tests |
+| `make build` | Build Docker containers |
+| `make up` | Start containers in background |
+| `make down` | Stop containers |
+| `make check` | Check that prerequisites are installed |
+| `make setup` | Install dependencies and configure git hooks |
+| `make open` | Open dashboard in browser |
