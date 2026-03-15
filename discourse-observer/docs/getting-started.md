@@ -154,4 +154,5 @@ This stops the running containers, rebuilds changed layers, starts everything ag
 | `make down` | Stop containers |
 | `make check` | Check that prerequisites are installed |
 | `make setup` | Install dependencies and configure git hooks |
+| `make docs` | Serve documentation locally with live-reload |
 | `make open` | Open dashboard in browser |

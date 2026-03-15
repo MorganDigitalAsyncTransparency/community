@@ -1,4 +1,4 @@
-.PHONY: check setup lint lint-go lint-md lint-frontend test verify build up down start restart open
+.PHONY: check setup lint lint-go lint-md lint-frontend test verify docs build up down start restart open
 
 ## Check — verify prerequisites are installed
 check:
@@ -8,6 +8,7 @@ check:
 setup:
 	npm install
 	cd frontend && npm install
+	pip install mkdocs-material
 	go install github.com/golangci/golangci-lint/cmd/golangci-lint@latest
 	git config core.hooksPath .githooks
 
@@ -33,6 +34,10 @@ test:
 
 ## Verify — run all linters and tests
 verify: lint test
+
+## Docs — serve documentation locally (live-reload)
+docs:
+	cd .. && python -m mkdocs serve
 
 ## Docker — build and run containers
 build:
