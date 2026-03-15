@@ -3,6 +3,7 @@ import {
   medianFirstReplyTime,
   medianResolutionTime,
   outcomeCounts,
+  formatOutcomes,
   answerRate,
   formatDuration,
 } from "../../frontend/src/components/responseMetrics";
@@ -184,7 +185,7 @@ describe("medianResolutionTime", () => {
 });
 
 // ---------------------------------------------------------------------------
-// outcomeCounts (RM-5, RM-6, RM-7)
+// outcomeCounts (RM-5)
 // ---------------------------------------------------------------------------
 describe("outcomeCounts", () => {
   it("returns zero counts for empty list", () => {
@@ -207,6 +208,19 @@ describe("outcomeCounts", () => {
       makeTopic({ id: 1, createdAt: base, outcome: "solved", resolvedAt: isoPlus(base, DAY_MS), firstReplyAt: isoPlus(base, HOUR_MS) }),
     ];
     expect(outcomeCounts(topics)).toEqual({ solved: 1, selfClosed: 0 });
+  });
+});
+
+// ---------------------------------------------------------------------------
+// formatOutcomes (RM-6, RM-7)
+// ---------------------------------------------------------------------------
+describe("formatOutcomes", () => {
+  it("formats solved and self-closed counts", () => {
+    expect(formatOutcomes({ solved: 12, selfClosed: 5 })).toBe("12 solved / 5 self-closed");
+  });
+
+  it("formats zero counts for empty input", () => {
+    expect(formatOutcomes({ solved: 0, selfClosed: 0 })).toBe("0 solved / 0 self-closed");
   });
 });
 

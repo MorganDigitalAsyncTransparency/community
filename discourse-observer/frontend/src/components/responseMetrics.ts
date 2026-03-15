@@ -76,6 +76,10 @@ export function outcomeCounts(topics: Topic[]): OutcomeCounts {
   return { solved, selfClosed };
 }
 
+export function formatOutcomes(counts: OutcomeCounts): string {
+  return `${counts.solved} solved / ${counts.selfClosed} self-closed`;
+}
+
 export function answerRate(topics: Topic[]): string {
   if (topics.length === 0) {
     return "–";

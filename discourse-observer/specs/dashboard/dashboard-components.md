@@ -104,6 +104,6 @@ This reuses the `formatAge` logic but accepts a duration in milliseconds rather 
 
 ### Implementation constraints
 
-- Pure function components. No React hooks.
+- Pure function components. No React hooks. Exception: `App` uses `useState` for page navigation, as it is the application shell — not a display component.
 - Each component file stays under 200 lines.
 - Types are imported from the mock data module.

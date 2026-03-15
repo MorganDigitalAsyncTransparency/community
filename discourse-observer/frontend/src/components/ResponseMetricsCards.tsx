@@ -6,6 +6,7 @@ import {
   medianFirstReplyTime,
   medianResolutionTime,
   outcomeCounts,
+  formatOutcomes,
   answerRate,
 } from "./responseMetrics";
 
@@ -28,8 +29,7 @@ interface ResponseMetricsCardsProps {
 }
 
 export function ResponseMetricsCards({ topics }: ResponseMetricsCardsProps) {
-  const counts = outcomeCounts(topics);
-  const outcomeDisplay = `${counts.solved} solved / ${counts.selfClosed} self-closed`;
+  const outcomeDisplay = formatOutcomes(outcomeCounts(topics));
 
   return (
     <div className="response-cards">

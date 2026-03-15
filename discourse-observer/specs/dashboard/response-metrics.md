@@ -82,7 +82,7 @@ The application header includes two navigation links: "Queue" and "Response metr
 |-----------|------|-------------|
 | `App` | App.tsx | RM-10 — navigation; RM-11 — shared header |
 | `ResponseMetricsCards` | ResponseMetricsCards.tsx | RM-1, RM-2, RM-12 — median first reply; RM-3, RM-4, RM-12 — median resolution; RM-5, RM-6, RM-7 — outcomes; RM-8, RM-9 — answer rate |
-| `responseMetrics` | responseMetrics.ts | RM-1, RM-2 — medianFirstReplyTime; RM-3, RM-4 — medianResolutionTime; RM-5, RM-6, RM-7 — outcomeCounts; RM-8, RM-9 — answerRate; RM-13 — formatDuration |
+| `responseMetrics` | responseMetrics.ts | RM-1, RM-2 — medianFirstReplyTime; RM-3, RM-4 — medianResolutionTime; RM-5 — outcomeCounts; RM-6, RM-7 — formatOutcomes; RM-8, RM-9 — answerRate; RM-13 — formatDuration |
 
 ### Data flow
 
@@ -104,7 +104,8 @@ All components receive data from the same `DashboardData` object, using the `res
 |------|-------------|-----------|
 | `medianFirstReplyTime` — returns formatted median for topics with `firstReplyAt`, excludes topics without | RM-1, RM-2, RM-12 | Pure function. Incorrect median would misrepresent team responsiveness. |
 | `medianResolutionTime` — returns formatted median for all resolved topics | RM-3, RM-4, RM-12 | Pure function. Incorrect median would misrepresent handling speed. |
-| `outcomeCounts` — returns correct solved and self-closed counts | RM-5, RM-6, RM-7 | Pure function. Wrong counts would distort the solved/self-closed comparison. |
+| `outcomeCounts` — returns correct solved and self-closed counts | RM-5 | Pure function. Wrong counts would distort the solved/self-closed comparison. |
+| `formatOutcomes` — formats counts as `"X solved / Y self-closed"`, including zero case | RM-6, RM-7 | Pure function. Wrong format would misrepresent the outcome summary. |
 | `answerRate` — returns percentage of solved topics, dash for empty input | RM-8, RM-9 | Pure function. Wrong percentage would misrepresent support quality. |
 | `formatDuration` — returns `"Xd"` for ≥ 24 h, `"Xh"` for < 24 h, minimum `"1h"` | RM-13 | Pure function with boundary conditions. Wrong format would misrepresent time durations. |
 
