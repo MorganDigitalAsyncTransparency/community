@@ -85,7 +85,7 @@ The dashboard view ([App.tsx](../../frontend/src/App.tsx)) composes three areas:
 | `SummaryCards` | [SummaryCards.tsx](../../frontend/src/components/SummaryCards.tsx) | QV-5 — unreplied count; QV-6, QV-7 — oldest unreplied age; QV-8 — above-the-fold placement; QV-10, QV-14 — untagged count |
 | `UnrepliedTable` | [UnrepliedTable.tsx](../../frontend/src/components/UnrepliedTable.tsx) | QV-1 — oldest-first sort; QV-2 — title, age, tags per row; QV-3 — relative age format; QV-4 — tag display; QV-9 — complete list; QV-15 — empty state |
 | `UntaggedTable` | [UntaggedTable.tsx](../../frontend/src/components/UntaggedTable.tsx) | QV-11 — oldest-first sort; QV-12 — title, age, category per row; QV-13 — shared age format; QV-16 — empty state |
-| `topicFormatting` | [topicFormatting.ts](../../frontend/src/components/topicFormatting.ts) | QV-3, QV-13 — age formatting logic shared across tables |
+| `topicFormatting` | [topicFormatting.ts](../../frontend/src/components/topicFormatting.ts) | QV-3, QV-13 — age formatting; QV-4 — tag display; QV-6, QV-7 — oldest unreplied age |
 
 ### Data flow
 
@@ -99,3 +99,35 @@ This specification covers the first iteration of queue visibility only. The foll
 - Untagged share as a percentage of all topics (UC-3 mentions "the share they represent" — deferred until total topic count is available from the backend).
 - Linking topic titles to the Discourse forum.
 - Sorting controls or column reordering.
+
+---
+
+## Validation
+
+This section defines how the requirements above are verified, and why each item is tested automatically or manually.
+
+### Automated tests
+
+Pure logic that produces deterministic, observable output — these are the highest-value automated tests because a regression would silently corrupt what users see.
+
+| What | Requirements | Rationale |
+|------|-------------|-----------|
+| `formatAge` — returns `"Xd"` for ≥ 24 h, `"Xh"` for < 24 h, minimum 1 h | QV-3, QV-13 | Pure function with well-defined boundary conditions. A formatting error would mislead users about topic urgency. |
+| `sortedByOldest` — returns topics in ascending `createdAt` order | QV-1, QV-11 | Pure function. Incorrect sort order would hide the most neglected topics. |
+| `oldestUnrepliedDays` — returns `"Xd"` for non-empty lists, `"–"` for empty lists | QV-6, QV-7 | Pure function with an edge case (empty list). A wrong value in the summary card would give a false sense of queue health. |
+| `formatTags` — joins tags with comma, returns `"–"` for empty array | QV-4 | Pure function. Incorrect output would hide tag information or display confusing placeholder text. |
+
+Test location: `frontend/src/components/__tests__/topicFormatting.test.ts`
+
+### Manual verification
+
+Visual and layout concerns that depend on CSS rendering and browser behavior — these cannot be meaningfully asserted in unit tests.
+
+| What | Requirements | Rationale |
+|------|-------------|-----------|
+| Summary cards are visible without scrolling | QV-8, QV-14 | Depends on viewport size, CSS layout, and surrounding content height. No unit-testable assertion captures "above the fold". |
+| Table columns show correct headers and alignment | QV-2, QV-12 | Column order and header text are in JSX, but visual alignment and readability depend on CSS. |
+| Sync timestamp appears in the header area | QV-17, QV-18 | Placement is a layout concern. The timestamp formatting itself uses `toLocaleString`, which varies by browser locale. |
+| Empty table shows no rows and no error state | QV-15, QV-16 | The absence of visual artifacts (no placeholder, no broken layout) is best confirmed visually. |
+
+Manual verification is performed by loading the dashboard with mock data and inspecting the rendered page in a browser.

@@ -1,20 +1,5 @@
 import type { DashboardData } from "../mock/data";
-
-const MILLISECONDS_PER_DAY = 86_400_000;
-
-function oldestUnrepliedDays(data: DashboardData): string {
-  if (data.unrepliedTopics.length === 0) {
-    return "–";
-  }
-
-  const oldestMs = data.unrepliedTopics.reduce(
-    (oldest, topic) => Math.min(oldest, new Date(topic.createdAt).getTime()),
-    Infinity
-  );
-
-  const days = Math.floor((Date.now() - oldestMs) / MILLISECONDS_PER_DAY);
-  return `${days}d`;
-}
+import { oldestUnrepliedDays } from "./topicFormatting";
 
 interface SummaryCardProps {
   label: string;
@@ -47,7 +32,7 @@ export function SummaryCards({ data }: SummaryCardsProps) {
       />
       <SummaryCard
         label="Äldsta utan svar"
-        value={oldestUnrepliedDays(data)}
+        value={oldestUnrepliedDays(data.unrepliedTopics)}
       />
     </div>
   );

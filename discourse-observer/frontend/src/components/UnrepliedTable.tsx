@@ -1,9 +1,5 @@
 import type { Topic } from "../mock/data";
-import { formatAge, sortedByOldest } from "./topicFormatting";
-
-function formatTags(tags: string[]): string {
-  return tags.length > 0 ? tags.join(", ") : "–";
-}
+import { formatAge, formatTags, sortedByOldest } from "./topicFormatting";
 
 interface UnrepliedTableProps {
   topics: Topic[];
