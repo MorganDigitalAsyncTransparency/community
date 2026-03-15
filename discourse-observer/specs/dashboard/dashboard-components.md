@@ -2,7 +2,7 @@
 
 This document specifies the behavior of the dashboard view components rendered in the frontend.
 
-These components implement the visual layer for use cases UC-1 (identify topics waiting longest), UC-2 (see all unreplied topics), and UC-3 (detect untagged topics).
+These components implement the visual layer for the requirements defined in [queue-visibility.md](queue-visibility.md). That file defines *what* the user sees and why; this file defines *how* each component behaves to fulfill those requirements.
 
 ---
 

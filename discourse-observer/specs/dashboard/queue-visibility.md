@@ -2,6 +2,8 @@
 
 This specification defines the requirements for the dashboard's first iteration: a queue visibility view that helps users understand the current state of unreplied and untagged topics. It traces to the queue visibility use cases defined in [use-cases.md](../use-cases.md).
 
+This file defines *what* the user sees and why. [dashboard-components.md](dashboard-components.md) defines *how* each component behaves to fulfill these requirements.
+
 ---
 
 ## Use case traceability

@@ -148,9 +148,9 @@ The original file is replaced by the sub-files — no overview file is needed. E
 
 ## Requirement numbering within specs
 
-Individual requirements within a spec file are numbered sequentially (1, 2, 3, ...). Numbers are assigned in order of creation and never reused. When a requirement is removed, its number is retired — gaps in the sequence are expected and indicate removed requirements. New requirements always receive the next number after the highest previously used, regardless of gaps.
+Individual requirements within a spec file are numbered sequentially (1, 2, 3, ...) with a short prefix derived from the spec's responsibility (e.g., QV for queue-visibility, CD for change-detection). The prefix disambiguates requirements across spec files in cross-references, commit messages, PR discussions, and test names (e.g., QV-3 rather than "queue-visibility requirement 3").
 
-This convention makes it possible to reference specific requirements (e.g., "change_detection requirement 14") in commit messages, PR discussions, and test names without ambiguity.
+Numbers are assigned in order of creation and never reused. When a requirement is removed, its number is retired — gaps in the sequence are expected and indicate removed requirements. New requirements always receive the next number after the highest previously used, regardless of gaps.
 
 ---
 
