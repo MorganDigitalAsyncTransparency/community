@@ -32,9 +32,9 @@ Each ADR contains these sections in this order:
 
 | Section                     | Purpose                                                      |
 | --------------------------- | ------------------------------------------------------------ |
-| **Title**                   | \`# [Number]. [Title]\` — one decision per ADR               |
+| **Title**                   | `# [Number]. [Title]` — one decision per ADR               |
 | **Status**                  | Current lifecycle state (see below)                          |
-| **Date**                    | Date the ADR was created or last updated (\`YYYY-MM-DD\`)    |
+| **Date**                    | Date the ADR was created or last updated (`YYYY-MM-DD`)    |
 | **Context**                 | The situation, forces, and problem that require a decision   |
 | **Alternatives Considered** | Options that were evaluated, with brief trade-off notes      |
 | **Decision**                | What was decided and why                                     |
@@ -53,12 +53,12 @@ Each ADR has exactly one status:
 
 Status transitions:
 
-\`\`\`text
+```text
 Proposed → Accepted → Superseded
                     → Deprecated
-\`\`\`
+```
 
-An ADR may be created directly as \`Accepted\` when the decision is already made.
+An ADR may be created directly as `Accepted` when the decision is already made.
 
 ## How superseding works
 
@@ -66,7 +66,7 @@ When a decision is replaced:
 
 1. Create a new ADR with the new decision
 2. In the new ADR's **Context**, reference the ADR it replaces
-3. Update the old ADR's **status line only** to \`Superseded by [NNNN](NNNN-new-decision.md)\`
+3. Update the old ADR's **status line only** to `Superseded by [NNNN](NNNN-new-decision.md)`
 
 The old ADR is never deleted and its content is never modified. It remains in the log as an immutable record of what was decided and why. Only the status line may change.
 
@@ -81,15 +81,7 @@ Never modify the content of an Accepted ADR to retroactively align it with a new
 
 ## Naming convention
 
-ADRs are numbered sequentially. Project-specific ADRs live here.
-
-\`\`\`text
-0001-project-foundation.md
-0002-technology-choices.md
-0003-programming-languages.md
-\`\`\`
-
-Use lowercase with hyphens. The number prefix ensures chronological ordering. The name should describe the decision topic, not the outcome.
+ADRs are numbered sequentially using lowercase with hyphens. The number prefix ensures chronological ordering. The name should describe the decision topic, not the outcome.
 
 ## Current ADRs
 
