@@ -95,7 +95,7 @@ Metrics that display a time duration (median first reply, median resolution) use
 - If ≥ 24 hours: display as `"Xd"` where X is whole days (truncated).
 - If < 24 hours: display as `"Xh"` where X is whole hours (truncated, minimum 1).
 
-This reuses the `formatAge` logic but accepts a duration in milliseconds rather than an ISO date string.
+This uses the same display rules as `formatAge` but is a separate function (`formatDuration`) that accepts a duration in milliseconds rather than an ISO date string.
 
 ### Styling
 
