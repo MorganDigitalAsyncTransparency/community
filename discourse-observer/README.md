@@ -45,6 +45,18 @@ This project is at the **foundation stage**. The structure, documentation, and a
 
 ## Getting started
 
+```sh
+make start
+```
+
+This copies `.env.example` to `.env` (if needed), builds and starts the containers, and opens the dashboard at <http://localhost:3000>. Edit `.env` with your Discourse credentials before the first run.
+
+After code changes, use `make restart` to rebuild and relaunch.
+
+See [docs/getting-started.md](docs/getting-started.md) for prerequisites, configuration details, and troubleshooting.
+
+### Project orientation
+
 1. Read [ARCHITECTURE.md](ARCHITECTURE.md) to understand the module boundaries.
 2. Read [docs/purpose.md](docs/purpose.md) for project goals and direction.
 3. Read [CONTRIBUTING.md](CONTRIBUTING.md) before making changes.

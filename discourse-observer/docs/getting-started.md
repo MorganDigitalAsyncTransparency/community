@@ -2,6 +2,18 @@
 
 This guide explains how to configure, start, and access the discourse-observer dashboard locally.
 
+## Quick start
+
+```sh
+make start
+```
+
+This copies `.env.example` to `.env` (if needed), builds the containers, starts them, and opens the dashboard. Edit `.env` with your Discourse credentials before the first run.
+
+After code changes, use `make restart` to rebuild and relaunch.
+
+The rest of this guide covers prerequisites, configuration, and how the stack works.
+
 ## Prerequisites
 
 Install these before continuing:
@@ -100,8 +112,7 @@ Browser ──:3000──▸ nginx (frontend)
 ## Rebuild after code changes
 
 ```sh
-make build   # rebuild changed containers
-make down && make up   # restart
+make restart
 ```
 
-Docker layer caching means only changed layers are rebuilt.
+This stops the running containers, rebuilds changed layers, starts everything again, and opens the dashboard. Docker layer caching means only changed layers are rebuilt.
