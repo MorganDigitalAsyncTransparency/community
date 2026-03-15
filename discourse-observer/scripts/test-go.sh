@@ -1,6 +1,6 @@
 #!/bin/sh
-if find . -name '*.go' -not -path './vendor/*' | grep -q .; then
-  go test ./...
+if find backend/ -name '*.go' 2>/dev/null | grep -q .; then
+  go test ./backend/...
 else
   echo "No Go files, skipping tests."
 fi

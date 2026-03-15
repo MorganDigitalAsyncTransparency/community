@@ -24,4 +24,10 @@ sh scripts/test-go.sh
 echo "Checking frontend types..."
 sh scripts/check-frontend.sh
 
+echo "Linting frontend..."
+sh scripts/lint-frontend.sh
+
+echo "Running frontend tests..."
+sh scripts/test-frontend.sh
+
 echo "All pre-commit checks passed."

@@ -1,4 +1,4 @@
-.PHONY: check setup lint lint-go lint-md test verify build up down start restart open
+.PHONY: check setup lint lint-go lint-md lint-frontend test verify build up down start restart open
 
 ## Check — verify prerequisites are installed
 check:
@@ -11,7 +11,7 @@ setup:
 	git config core.hooksPath .githooks
 
 ## Lint — run all linters
-lint: lint-go lint-md
+lint: lint-go lint-md lint-frontend
 
 ## Go linting (skips if no Go files exist)
 lint-go:
@@ -21,9 +21,14 @@ lint-go:
 lint-md:
 	npx markdownlint "**/*.md" --ignore node_modules --ignore frontend
 
-## Tests (skips if no Go files exist)
+## Frontend linting — ESLint and Stylelint (skips if no dependencies installed)
+lint-frontend:
+	@sh scripts/lint-frontend.sh
+
+## Tests — run all tests
 test:
 	@sh scripts/test-go.sh
+	@sh scripts/test-frontend.sh
 
 ## Verify — run all linters and tests
 verify: lint test

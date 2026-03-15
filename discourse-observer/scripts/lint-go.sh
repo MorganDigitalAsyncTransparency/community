@@ -1,6 +1,6 @@
 #!/bin/sh
-if find . -name '*.go' -not -path './vendor/*' | grep -q .; then
-  golangci-lint run ./...
+if find backend/ -name '*.go' 2>/dev/null | grep -q .; then
+  golangci-lint run ./backend/...
 else
   echo "No Go files, skipping Go lint."
 fi
