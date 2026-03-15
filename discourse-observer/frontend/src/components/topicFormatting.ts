@@ -2,20 +2,12 @@
 // Tests: tests/dashboard/queue-visibility.unit.test.ts
 
 import type { Topic } from "../mock/data";
+import { formatDuration } from "./responseMetrics";
 
-const MILLISECONDS_PER_HOUR = 3_600_000;
 const MILLISECONDS_PER_DAY = 86_400_000;
-const HOURS_PER_DAY = 24;
 
 export function formatAge(isoDate: string): string {
-  const elapsedMs = Date.now() - new Date(isoDate).getTime();
-  const elapsedHours = Math.floor(elapsedMs / MILLISECONDS_PER_HOUR);
-
-  if (elapsedHours >= HOURS_PER_DAY) {
-    return `${Math.floor(elapsedHours / HOURS_PER_DAY)}d`;
-  }
-
-  return `${Math.max(1, elapsedHours)}h`;
+  return formatDuration(Date.now() - new Date(isoDate).getTime());
 }
 
 export function sortedByOldest(topics: Topic[]): Topic[] {

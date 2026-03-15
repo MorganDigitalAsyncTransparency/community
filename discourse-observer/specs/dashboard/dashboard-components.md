@@ -90,12 +90,12 @@ Both table components format age identically:
 
 ### Duration formatting
 
-Metrics that display a time duration (median first reply, median resolution) use the same format as age:
+All time displays — both topic age and response time metrics — use a single formatting function (`formatDuration`) that accepts a duration in milliseconds:
 
 - If ≥ 24 hours: display as `"Xd"` where X is whole days (truncated).
 - If < 24 hours: display as `"Xh"` where X is whole hours (truncated, minimum 1).
 
-This uses the same display rules as `formatAge` but is a separate function (`formatDuration`) that accepts a duration in milliseconds rather than an ISO date string.
+`formatAge` delegates to `formatDuration` after computing the elapsed time from an ISO date string.
 
 ### Styling
 
