@@ -1,6 +1,14 @@
 site_name: discourse-observer
 site_description: A generic foundation for observing and analyzing activity from a single Discourse forum.
 
+docs_dir: discourse-observer
+
+exclude_docs: |
+  node_modules/
+  site/
+  AI_GUIDELINES.md
+  CLAUDE.md
+
 theme:
   name: material
 
@@ -16,7 +24,9 @@ nav:
   - Specifications:
       - Use Cases: specs/use-cases.md
       - Single Forum Scope: specs/single-forum-scope.md
+      - Single Forum Scope Verification: specs/single-forum-scope_verification.md
       - Operational Constraints: specs/operational-constraints.md
+      - Operational Constraints Verification: specs/operational-constraints_verification.md
       - Observer:
           - Observer Behavior: specs/observer/observer-behavior.md
       - Discourse:
