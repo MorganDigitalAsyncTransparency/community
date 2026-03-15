@@ -21,6 +21,20 @@ This matrix shows how use cases decompose into specifications, requirements, and
 
 ---
 
+## Response metrics
+
+| Use case | Spec | Requirements | Verification |
+|----------|------|-------------|--------------|
+| UC-4: Measure time to first reply | [response-metrics.md](response-metrics.md) | RM-1, RM-2 | [response-metrics.unit.test.ts](../../tests/dashboard/response-metrics.unit.test.ts) (RM-1, RM-2, RM-12) |
+| UC-5: Measure time to resolution | [response-metrics.md](response-metrics.md) | RM-3, RM-4 | [response-metrics.unit.test.ts](../../tests/dashboard/response-metrics.unit.test.ts) (RM-3, RM-4, RM-12) |
+| UC-6: Compare solved versus self-closed | [response-metrics.md](response-metrics.md) | RM-5 – RM-7 | [response-metrics.unit.test.ts](../../tests/dashboard/response-metrics.unit.test.ts) (RM-5, RM-6, RM-7) |
+| UC-7: Measure answer rate | [response-metrics.md](response-metrics.md) | RM-8, RM-9 | [response-metrics.unit.test.ts](../../tests/dashboard/response-metrics.unit.test.ts) (RM-8, RM-9) |
+| (cross-cutting: format) | [response-metrics.md](response-metrics.md) | RM-13 | [response-metrics.unit.test.ts](../../tests/dashboard/response-metrics.unit.test.ts) (RM-13) |
+| (cross-cutting: median) | [response-metrics.md](response-metrics.md) | RM-14 | [response-metrics.unit.test.ts](../../tests/dashboard/response-metrics.unit.test.ts) (RM-14) |
+| (cross-cutting: nav/empty) | [response-metrics.md](response-metrics.md) | RM-10 – RM-12 | [response-metrics.unit.test.ts](../../tests/dashboard/response-metrics.unit.test.ts) (RM-12); manual (RM-10, RM-11) |
+
+---
+
 ## Gaps
 
 - UC-2 partial: time period filtering (deferred to UC-12 implementation).
