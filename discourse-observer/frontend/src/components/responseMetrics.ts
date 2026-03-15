@@ -16,7 +16,7 @@ export function formatDuration(ms: number): string {
   return `${Math.max(1, hours)}h`;
 }
 
-function median(sorted: number[]): number {
+export function median(sorted: number[]): number {
   const mid = Math.floor(sorted.length / 2);
 
   if (sorted.length % 2 !== 0) {

@@ -6,6 +6,7 @@ import {
   formatOutcomes,
   answerRate,
   formatDuration,
+  median,
 } from "../../frontend/src/components/responseMetrics";
 import type { Topic } from "../../frontend/src/mock/data";
 
@@ -49,6 +50,28 @@ describe("formatDuration", () => {
 
   it("returns 1d at exactly 24 hours", () => {
     expect(formatDuration(24 * HOUR_MS)).toBe("1d");
+  });
+});
+
+// ---------------------------------------------------------------------------
+// median (RM-14)
+// ---------------------------------------------------------------------------
+describe("median", () => {
+  it("returns the middle value for odd count", () => {
+    expect(median([1, 3, 7])).toBe(3);
+  });
+
+  it("returns truncated average of two middle values for even count", () => {
+    expect(median([1, 3])).toBe(2);
+  });
+
+  it("truncates rather than rounds for even count", () => {
+    // (1 + 4) / 2 = 2.5 → truncated to 2
+    expect(median([1, 4])).toBe(2);
+  });
+
+  it("returns the single value for single-element array", () => {
+    expect(median([42])).toBe(42);
   });
 });
 
@@ -181,6 +204,19 @@ describe("medianResolutionTime", () => {
       }),
     ];
     expect(medianResolutionTime(topics)).toBe("5d");
+  });
+
+  it("excludes topics without resolvedAt (RM-4)", () => {
+    const base = "2026-03-01T00:00:00Z";
+    const topics = [
+      makeTopic({
+        id: 1,
+        createdAt: base,
+        outcome: "self-closed",
+        // no resolvedAt
+      }),
+    ];
+    expect(medianResolutionTime(topics)).toBe("–");
   });
 });
 
