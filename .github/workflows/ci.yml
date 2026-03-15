@@ -21,13 +21,13 @@ jobs:
       - name: Setup Node
         uses: actions/setup-node@v4
         with:
-          node-version: 22
+          node-version: 24
 
       - name: Install dependencies
         run: npm ci
 
       - name: Lint Markdown
-        run: npx markdownlint "**/*.md" --ignore node_modules
+        run: npx markdownlint "**/*.md" --ignore "**/node_modules/**"
 
   lint-go:
     name: Lint Go
@@ -39,7 +39,7 @@ jobs:
       - name: Check for Go files
         id: check
         run: |
-          if find . -name '*.go' -not -path './vendor/*' | grep -q .; then
+          if find backend/ -name '*.go' 2>/dev/null | grep -q .; then
             echo "has_go=true" >> "$GITHUB_OUTPUT"
           else
             echo "has_go=false" >> "$GITHUB_OUTPUT"
@@ -57,6 +57,7 @@ jobs:
         with:
           version: latest
           working-directory: discourse-observer
+          args: ./backend/...
 
       - name: Skip
         if: steps.check.outputs.has_go != 'true'
@@ -72,7 +73,7 @@ jobs:
       - name: Check for Go files
         id: check
         run: |
-          if find . -name '*.go' -not -path './vendor/*' | grep -q .; then
+          if find backend/ -name '*.go' 2>/dev/null | grep -q .; then
             echo "has_go=true" >> "$GITHUB_OUTPUT"
           else
             echo "has_go=false" >> "$GITHUB_OUTPUT"
@@ -86,11 +87,50 @@ jobs:
 
       - name: Run tests
         if: steps.check.outputs.has_go == 'true'
-        run: go test ./...
+        run: go test ./backend/...
 
       - name: Skip
         if: steps.check.outputs.has_go != 'true'
         run: echo "No Go files found, skipping tests."
+
+  lint-frontend:
+    name: Lint Frontend
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 24
+
+      - name: Install dependencies
+        run: cd frontend && npm ci
+
+      - name: Type check
+        run: cd frontend && npx tsc --noEmit
+
+      - name: Lint
+        run: cd frontend && npm run lint
+
+  test-frontend:
+    name: Test Frontend
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 24
+
+      - name: Install dependencies
+        run: cd frontend && npm ci
+
+      - name: Run tests
+        run: cd frontend && npm test
 
   validate-structure:
     name: Validate Structure
@@ -111,5 +151,6 @@ jobs:
           test -d backend/config
           test -d backend/storage
           test -d tests
+          test -d frontend/src
           test -d docs/decisions
           echo "Project structure is valid."

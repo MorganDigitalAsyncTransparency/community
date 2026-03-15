@@ -1,4 +1,4 @@
-.PHONY: check setup lint lint-go lint-md test verify build up down start restart open
+.PHONY: check setup lint lint-go lint-md lint-frontend test verify docs build up down start restart open
 
 ## Check — verify prerequisites are installed
 check:
@@ -7,11 +7,13 @@ check:
 ## Setup — install dependencies and configure git hooks
 setup:
 	npm install
-	go install github.com/golangci/golangci-lint/cmd/golangci-lint@latest
+	cd frontend && npm install
+	pip install mkdocs-material
+	go install github.com/golangci/golangci-lint/v2/cmd/golangci-lint@latest
 	git config core.hooksPath .githooks
 
 ## Lint — run all linters
-lint: lint-go lint-md
+lint: lint-go lint-md lint-frontend
 
 ## Go linting (skips if no Go files exist)
 lint-go:
@@ -19,14 +21,23 @@ lint-go:
 
 ## Markdown linting
 lint-md:
-	npx markdownlint "**/*.md" --ignore node_modules --ignore frontend
+	npx markdownlint "**/*.md" --ignore "**/node_modules/**"
 
-## Tests (skips if no Go files exist)
+## Frontend linting — ESLint and Stylelint (skips if no dependencies installed)
+lint-frontend:
+	@sh scripts/lint-frontend.sh
+
+## Tests — run all tests
 test:
 	@sh scripts/test-go.sh
+	@sh scripts/test-frontend.sh
 
 ## Verify — run all linters and tests
 verify: lint test
+
+## Docs — serve documentation locally (live-reload)
+docs:
+	cd .. && python -m mkdocs serve
 
 ## Docker — build and run containers
 build:

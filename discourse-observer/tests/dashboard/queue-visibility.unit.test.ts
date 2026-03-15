@@ -4,8 +4,8 @@ import {
   formatTags,
   oldestUnrepliedDays,
   sortedByOldest,
-} from "../topicFormatting";
-import type { Topic } from "../../mock/data";
+} from "../../frontend/src/components/topicFormatting";
+import type { Topic } from "../../frontend/src/mock/data";
 
 const HOUR_MS = 3_600_000;
 const DAY_MS = 86_400_000;

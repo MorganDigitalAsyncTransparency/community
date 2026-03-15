@@ -85,7 +85,7 @@ These terms have specific meanings in this project. Other documentation uses the
 
 ### Frontend / Dashboard
 
-There is no frontend, dashboard, or reporting UI in this project yet. The observation and data layers need to be stable before building visualization on top of them. When a frontend is added, it will consume data through a backend API layer that also does not exist yet.
+A React/TypeScript frontend exists in `frontend/` and renders a queue visibility dashboard using mock data. The dashboard is specified in `specs/dashboard/queue-visibility.md` and `specs/dashboard/dashboard-components.md`. When the backend API is available, only the data source changes — the component interfaces remain the same.
 
 ### Backend API
 

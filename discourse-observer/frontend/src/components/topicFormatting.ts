@@ -1,3 +1,6 @@
+// Spec: specs/dashboard/queue-visibility.md
+// Tests: tests/dashboard/queue-visibility.unit.test.ts
+
 import type { Topic } from "../mock/data";
 
 const MILLISECONDS_PER_HOUR = 3_600_000;

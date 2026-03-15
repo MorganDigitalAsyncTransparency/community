@@ -1,3 +1,6 @@
+// Spec: specs/dashboard/queue-visibility.md
+// Tests: tests/dashboard/queue-visibility.unit.test.ts
+
 import type { Topic } from "../mock/data";
 import { formatAge, sortedByOldest } from "./topicFormatting";
 
@@ -12,9 +15,9 @@ export function UntaggedTable({ topics }: UntaggedTableProps) {
     <table className="untagged-table">
       <thead>
         <tr>
-          <th className="untagged-header-age">Ålder</th>
-          <th className="untagged-header-title">Titel</th>
-          <th className="untagged-header-category">Kategori</th>
+          <th className="untagged-header-age">Age</th>
+          <th className="untagged-header-title">Title</th>
+          <th className="untagged-header-category">Category</th>
         </tr>
       </thead>
       <tbody>
