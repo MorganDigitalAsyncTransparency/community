@@ -110,6 +110,25 @@ Multiple test files per spec is expected and correct — different test types ve
 
 **Use cases** live in `specs/` root as overarching documents that describe what users need from the system. Use cases are not specs — they drive the creation of module specs but are not subject to the verification requirement. Each use case should be traceable to the module specs it decomposes into.
 
+## Module traceability matrices
+
+Each module maintains a `specs/<module>/traceability.md` that shows the full chain from use cases through specs and requirements to verification artifacts. This is the single place where completeness for a module is visible at a glance.
+
+The matrix answers: which use cases does this module address, which specs and requirements cover them, and what verification exists. Gaps — use cases without specs, specs without tests — are listed explicitly so they are visible rather than silently missing.
+
+```text
+specs/
+  dashboard/
+    traceability.md          ← dashboard module overview
+    queue-visibility.md
+    dashboard-components.md
+  observer/
+    traceability.md          ← observer module overview
+    change_detection.md
+```
+
+The traceability matrix is updated in the same PR that adds or changes specs, requirements, or verification artifacts within the module. It is a living index, not a one-time deliverable.
+
 ---
 
 ## Spec scale and splitting
