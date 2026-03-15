@@ -15,8 +15,8 @@ FROM golang:1.26-alpine AS build
 WORKDIR /src
 COPY go.mod go.sum* ./
 RUN [ -f go.sum ] && go mod download || true
-COPY src/ src/
-RUN CGO_ENABLED=0 go build -o /app/discourse-observer ./src/...
+COPY backend/ backend/
+RUN CGO_ENABLED=0 go build -o /app/discourse-observer ./backend/...
 
 # -- runtime stage --
 FROM alpine:3

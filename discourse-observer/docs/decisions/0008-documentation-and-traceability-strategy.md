@@ -9,7 +9,7 @@ The project uses test-driven development with requirements as the first step: sp
 
 The project expects 4–5 parallel work streams, often driven by separate AI agents. Each stream works on a small number of files. Without a deliberate file organization strategy, parallel streams will create merge conflicts in shared documentation files, slowing down delivery.
 
-The existing `specs/` directory contains behavioral specifications at varying levels of granularity. Some describe entire modules (`observer-behavior.md`), others describe system-wide constraints (`single-forum-scope.md`, `operational-constraints.md`), others define the domain model (`discourse-source-model.md`), and others describe cross-cutting requirements (`use-cases.md`). These do not map one-to-one to source files, and the current structure has no defined relationship to `tests/` or `src/`.
+The existing `specs/` directory contains behavioral specifications at varying levels of granularity. Some describe entire modules (`observer-behavior.md`), others describe system-wide constraints (`single-forum-scope.md`, `operational-constraints.md`), others define the domain model (`discourse-source-model.md`), and others describe cross-cutting requirements (`use-cases.md`). These do not map one-to-one to source files, and the current structure has no defined relationship to `tests/` or `backend/`.
 
 ## Alternatives Considered
 
@@ -27,7 +27,7 @@ Rejected because filenames provide the same traceability without the maintenance
 
 ### Strict one-to-one file mirroring
 
-Organize `specs/`, `tests/`, and `src/` with identical directory and file structure. Every specification file, test file, and source file share the same name in their respective directories.
+Organize `specs/`, `tests/`, and `backend/` with identical directory and file structure. Every specification file, test file, and source file share the same name in their respective directories.
 
 Rejected for three reasons:
 

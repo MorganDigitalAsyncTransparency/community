@@ -1,4 +1,4 @@
 node_modules/
-web/dist/
+frontend/dist/
 site/
 .env

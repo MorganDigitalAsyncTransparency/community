@@ -2,7 +2,7 @@
 
 ## Before you start
 
-1. Read [ARCHITECTURE.md](ARCHITECTURE.md) and the relevant module README in `src/` to understand where your change belongs before starting.
+1. Read [ARCHITECTURE.md](ARCHITECTURE.md) and the relevant module README in `backend/` to understand where your change belongs before starting.
 2. Read [AI_GUIDELINES.md](AI_GUIDELINES.md) for module boundaries, scope constraints, and coding expectations.
 3. Read [docs/documentation-strategy.md](docs/documentation-strategy.md) for how specs, tests, and source files are organized and linked.
 4. Run `npm run setup` to install dependencies and activate git hooks.
@@ -18,7 +18,7 @@
 This project is a generic starter for single-forum deployments. When contributing:
 
 - Do not hardcode forum names, category IDs, tag names, team structures, or community-specific workflows.
-- If you need forum-specific behavior, make it configurable through `src/config/`.
+- If you need forum-specific behavior, make it configurable through `backend/config/`.
 - If a change only makes sense for one specific forum, document why in the PR and consider whether it should be in a fork instead.
 
 ## Commit messages

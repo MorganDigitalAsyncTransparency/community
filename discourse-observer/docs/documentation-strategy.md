@@ -6,7 +6,7 @@ This document defines how specifications, tests, and source code are organized a
 
 ## Directory structure
 
-`specs/` and `tests/` mirror the module layout defined in [ARCHITECTURE.md](../ARCHITECTURE.md). `src/` follows the same module boundaries but is free to organize files as the implementation requires.
+`specs/` and `tests/` mirror the module layout defined in [ARCHITECTURE.md](../ARCHITECTURE.md). `backend/` follows the same module boundaries but is free to organize files as the implementation requires.
 
 ```text
 specs/
@@ -29,7 +29,7 @@ tests/
   model/
   storage/
   config/
-src/
+backend/
   observer/
     change_detector.go             ← free structure
     diff_calculator.go             ← free structure
@@ -156,7 +156,7 @@ A CI check verifies the traceability chain:
 
 - Every module spec in `specs/<module>/` has at least one corresponding test file in `tests/<module>/`
 - Every system spec in `specs/` root has a corresponding manual verification document or integration test
-- Every source file in `src/` contains a `Spec:` header comment pointing to a valid spec file
+- Every source file in `backend/` contains a `Spec:` header comment pointing to a valid spec file
 - Broken references (header comments pointing to non-existent specs) are reported as errors
 - Orphaned specs (no test artifacts) are reported
 
@@ -171,7 +171,7 @@ The TDD workflow follows the delivery phases defined in CLAUDE.md:
 1. Write the specification in `specs/<module>/<responsibility>.md` (Phase 1 — Requirements)
 2. Document design decisions if needed (Phase 2 — Design)
 3. Define validation strategy: determine what tests are needed and write failing tests in `tests/<module>/<responsibility>_*_test.go` (Phase 3 — Validation Strategy)
-4. Implement in `src/<module>/` until tests pass — structure source files freely (Phase 4 — Implementation)
+4. Implement in `backend/<module>/` until tests pass — structure source files freely (Phase 4 — Implementation)
 5. Add `Spec:` and `Tests:` header comments to each source file (Phase 4 — part of implementation)
 6. Update the spec if implementation revealed gaps or corrections (Phase 4 — part of implementation)
 7. Verify that spec, tests, and source references are consistent (Phase 5 — Review)

@@ -14,20 +14,20 @@ Data flow at runtime:
 Discourse Forum (external)
         │ HTTP
         ▼
-  src/discourse/          — fetches raw API data, handles auth and pagination
+  backend/discourse/      — fetches raw API data, handles auth and pagination
         │ raw API data
         ▼
-  src/observer/           — normalizes, detects changes, coordinates fetch and store
+  backend/observer/       — normalizes, detects changes, coordinates fetch and store
         │ model types
         ▼
-  src/storage/            — persists raw observations (NDJSON files)
+  backend/storage/        — persists raw observations (NDJSON files)
 ```
 
 Cross-cutting:
 
 ```text
-  src/model/   — shared domain types, used by all modules above
-  src/config/  — forum-specific configuration, provided at startup
+  backend/model/   — shared domain types, used by all modules above
+  backend/config/  — forum-specific configuration, provided at startup
 ```
 
 ### Dependency direction
@@ -41,31 +41,31 @@ The arrows above show *data flow*, not *import dependencies*. Imports follow dep
 
 ## Layer responsibilities
 
-### src/discourse/
+### backend/discourse/
 
 Responsible for all communication with the Discourse API. This module knows how to authenticate, paginate, and fetch raw data from a single Discourse forum. It does **not** interpret the data — it returns it in a form close to the API response.
 
 This isolation means that if the Discourse API changes, only this module needs to change.
 
-### src/observer/
+### backend/observer/
 
 Responsible for change detection, normalization, and coordinating the fetch-observe-store cycle. The observer defines interfaces for its dependencies (`FetchClient`, `StorageBackend`) and works entirely in terms of `model` types.
 
 The observer does not import `discourse` or `storage`. Those modules are injected at startup. This keeps the core logic independent of API details and persistence implementation.
 
-### src/model/
+### backend/model/
 
 Contains the internal normalized types and domain concepts used throughout the project. These types are independent of the Discourse API shape and represent the project's own understanding of forum activity.
 
 The model module has no dependencies on other modules.
 
-### src/config/
+### backend/config/
 
 Holds forum-specific configuration and adaptation points. This is where a deployment specifies its forum URL, API credentials, polling intervals, and any forum-specific mappings (such as which categories to observe or which tags to track).
 
 The config module has no imports. Config values are provided to other modules at startup — passed into constructors or init functions — rather than being imported directly by those modules.
 
-### src/storage/
+### backend/storage/
 
 An abstraction point for persisting raw observations. This module defines how observations are stored and retrieved. The storage format is NDJSON files (decided in [ADR 0005](docs/decisions/0005-storage-format.md)). An in-memory implementation may be added for testing. Derived analytical data is held in a separate SQLite store (decided in [ADR 0006](docs/decisions/0006-analytical-storage.md)) and is not part of this module.
 
@@ -75,8 +75,8 @@ These terms have specific meanings in this project. Other documentation uses the
 
 | Term | Meaning |
 |------|---------|
-| **Fetch** | Retrieve raw data from the Discourse API. Happens in `src/discourse/`. |
-| **Normalize** | Transform raw API data into internal `model` types. Happens in `src/observer/`. |
+| **Fetch** | Retrieve raw data from the Discourse API. Happens in `backend/discourse/`. |
+| **Normalize** | Transform raw API data into internal `model` types. Happens in `backend/observer/`. |
 | **Observation** | A structured record of what the observer saw — a snapshot of one or more topics at a point in time, including what changed since the previous observation. |
 | **Sync** | A complete fetch-normalize-store cycle: poll the API for updates, produce observations, persist them. |
 | **Poll** | Check the API for new or changed data. Polling is the mechanism; sync is the full cycle. |
