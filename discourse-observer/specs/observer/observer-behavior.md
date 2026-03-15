@@ -19,7 +19,7 @@ Fetching includes:
 - Categories and category changes
 - Tags and tag assignments
 
-User activity (authorship, assignment) is not part of the initial model but may be added later if observation needs require it (see [discourse-source-model.md](discourse-source-model.md)).
+User activity (authorship, assignment) is not part of the initial model but may be added later if observation needs require it (see [discourse-source-model.md](../discourse/discourse-source-model.md)).
 
 ### Why revisions matter
 

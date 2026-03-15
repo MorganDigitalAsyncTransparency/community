@@ -1,0 +1,39 @@
+site_name: discourse-observer
+site_description: A generic foundation for observing and analyzing activity from a single Discourse forum.
+
+theme:
+  name: material
+
+nav:
+  - Overview: README.md
+  - Getting Started: docs/getting-started.md
+  - Architecture: ARCHITECTURE.md
+  - Contributing: CONTRIBUTING.md
+  - Strategy:
+      - Purpose: docs/purpose.md
+      - Engineering Strategy: docs/engineering-strategy.md
+      - Documentation Strategy: docs/documentation-strategy.md
+  - Specifications:
+      - Use Cases: specs/use-cases.md
+      - Single Forum Scope: specs/single-forum-scope.md
+      - Operational Constraints: specs/operational-constraints.md
+      - Observer:
+          - Observer Behavior: specs/observer/observer-behavior.md
+      - Discourse:
+          - Source Model: specs/discourse/discourse-source-model.md
+  - Decisions:
+      - Overview: docs/decisions/README.md
+      - "0001: Project Foundation": docs/decisions/0001-project-foundation.md
+      - "0002: Technology Choices": docs/decisions/0002-technology-choices.md
+      - "0003: Programming Languages": docs/decisions/0003-programming-languages.md
+      - "0004: Code Quality Tooling": docs/decisions/0004-code-quality-tooling.md
+      - "0005: Storage Format": docs/decisions/0005-storage-format.md
+      - "0006: Analytical Storage": docs/decisions/0006-analytical-storage.md
+      - "0007: Branching and Release Strategy": docs/decisions/0007-branching-and-release-strategy.md
+      - "0008: Documentation and Traceability Strategy": docs/decisions/0008-documentation-and-traceability-strategy.md
+
+markdown_extensions:
+  - toc:
+      permalink: true
+  - tables
+  - fenced_code

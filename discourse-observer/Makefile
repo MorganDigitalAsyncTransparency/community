@@ -1,4 +1,4 @@
-.PHONY: check setup lint lint-go lint-md test build up down start restart open
+.PHONY: check setup lint lint-go lint-md test verify build up down start restart open
 
 ## Check — verify prerequisites are installed
 check:
@@ -25,6 +25,9 @@ lint-md:
 test:
 	@sh scripts/test-go.sh
 
+## Verify — run all linters and tests
+verify: lint test
+
 ## Docker — build and run containers
 build:
 	docker compose build
@@ -33,17 +36,17 @@ up:
 	docker compose up -d
 
 down:
-	docker compose down
+	docker compose down --timeout 10 --remove-orphans
 
 ## Start — one-command onboarding: configure, build, launch, open browser
-start: .env build up open
+start: .env verify build up open
 
 .env:
 	cp .env.example .env
 	@echo "Created .env from .env.example — edit it with your Discourse credentials."
 
 ## Restart — rebuild and relaunch after code changes
-restart: down build up open
+restart: down verify build up open
 
 ## Open the dashboard in the default browser
 open:
