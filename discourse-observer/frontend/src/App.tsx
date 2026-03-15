@@ -1,3 +1,6 @@
+// Spec: specs/dashboard/queue-visibility.md
+// Tests: tests/dashboard/queue-visibility.unit.test.ts
+
 import "./App.css";
 import { MOCK_DATA } from "./mock/data";
 import { SummaryCards } from "./components/SummaryCards";

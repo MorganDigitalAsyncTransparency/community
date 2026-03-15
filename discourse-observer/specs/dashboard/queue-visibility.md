@@ -117,7 +117,7 @@ Pure logic that produces deterministic, observable output — these are the high
 | `oldestUnrepliedDays` — returns `"Xd"` for non-empty lists, `"–"` for empty lists | QV-6, QV-7 | Pure function with an edge case (empty list). A wrong value in the summary card would give a false sense of queue health. |
 | `formatTags` — joins tags with comma, returns `"–"` for empty array | QV-4 | Pure function. Incorrect output would hide tag information or display confusing placeholder text. |
 
-Test location: `frontend/src/components/__tests__/topicFormatting.test.ts`
+Test location: `tests/dashboard/queue-visibility.unit.test.ts`
 
 ### Manual verification
 

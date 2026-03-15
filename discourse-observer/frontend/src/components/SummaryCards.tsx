@@ -1,3 +1,6 @@
+// Spec: specs/dashboard/queue-visibility.md
+// Tests: tests/dashboard/queue-visibility.unit.test.ts
+
 import type { DashboardData } from "../mock/data";
 import { oldestUnrepliedDays } from "./topicFormatting";
 
