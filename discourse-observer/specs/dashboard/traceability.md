@@ -25,3 +25,4 @@ This matrix shows how use cases decompose into specifications, requirements, and
 
 - UC-2 partial: time period filtering (deferred to UC-12 implementation).
 - UC-3 partial: untagged share as percentage of all topics (deferred until total topic count is available from backend).
+- Visual design: no spec exists for the frontend's visual language (colors, typography, spacing, layout system). CSS implementation exists without a corresponding specification. Tracked as a separate work package.
