@@ -19,7 +19,7 @@ lint-go:
 
 ## Markdown linting
 lint-md:
-	npx markdownlint "**/*.md" --ignore node_modules --ignore web
+	npx markdownlint "**/*.md" --ignore node_modules --ignore frontend
 
 ## Tests (skips if no Go files exist)
 test:

@@ -9,26 +9,26 @@ For general code principles and delivery workflow, see the repository-level [CLA
 discourse-observer observes activity in a single Discourse forum — fetching data via the Discourse API, detecting changes, normalizing observations, and storing them for analysis.
 
 - **Single forum per deployment.** Do not generate code that assumes multiple forums, tenants, or data sources.
-- **Generic foundation.** Do not hardcode forum names, category IDs, tag names, or community-specific workflows. Forum-specific configuration belongs in `src/config/`.
+- **Generic foundation.** Do not hardcode forum names, category IDs, tag names, or community-specific workflows. Forum-specific configuration belongs in `backend/config/`.
 - **Designed to be forked.** Keep the core generic; forum-specific adaptation belongs in a fork.
 
 ## Module boundaries
 
-Each directory under `src/` has a single responsibility. See [ARCHITECTURE.md](ARCHITECTURE.md) for the full layer diagram and dependency flow.
+Each directory under `backend/` has a single responsibility. See [ARCHITECTURE.md](ARCHITECTURE.md) for the full layer diagram and dependency flow.
 
 | Module | Responsibility | May depend on |
 | --- | --- | --- |
-| `src/model/` | Domain types | nothing |
-| `src/config/` | Configuration and adaptation | nothing |
-| `src/discourse/` | Discourse API integration | `model/`, `config/` |
-| `src/storage/` | Persistence abstraction | `model/`, `config/` |
-| `src/observer/` | Change detection and normalization | `model/` |
+| `backend/model/` | Domain types | nothing |
+| `backend/config/` | Configuration and adaptation | nothing |
+| `backend/discourse/` | Discourse API integration | `model/`, `config/` |
+| `backend/storage/` | Persistence abstraction | `model/`, `config/` |
+| `backend/observer/` | Change detection and normalization | `model/` |
 
 **Rules:**
 
 - `observer` defines interfaces for fetching and storing data. `discourse` and `storage` implement those interfaces. At runtime they are injected into the observer. The observer never imports `discourse` or `storage` directly.
 - Do not mix responsibilities across modules.
-- Discourse API data shapes, pagination, and authentication stay in `src/discourse/`. Other modules work with normalized types from `src/model/`.
+- Discourse API data shapes, pagination, and authentication stay in `backend/discourse/`. Other modules work with normalized types from `backend/model/`.
 - If unsure where something belongs, check the module README.
 
 ## Project-specific expectations

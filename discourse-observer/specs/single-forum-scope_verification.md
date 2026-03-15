@@ -17,12 +17,12 @@ The system assumes exactly one Discourse forum per deployment. This constraint i
 ### 1. Configuration accepts exactly one forum
 
 - Confirm that `.env.example` defines a single `DISCOURSE_BASE_URL`, a single `DISCOURSE_API_TOKEN`, and a single `DISCOURSE_API_USER`.
-- Confirm that `src/config/` does not support arrays, maps, or loops over multiple forum configurations.
+- Confirm that `backend/config/` does not support arrays, maps, or loops over multiple forum configurations.
 - There is no per-forum routing, tenant ID, or namespace disambiguation in the configuration layer.
 
 ### 2. Data model has no multi-forum awareness
 
-- Confirm that domain types in `src/model/` do not include a forum identifier field.
+- Confirm that domain types in `backend/model/` do not include a forum identifier field.
 - Confirm that storage schemas (NDJSON files and SQLite tables) do not partition data by forum.
 
 ### 3. Observation logic targets one forum

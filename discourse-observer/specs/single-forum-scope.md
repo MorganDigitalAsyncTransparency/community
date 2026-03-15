@@ -45,7 +45,7 @@ Every Discourse forum develops its own workflows over time: specific categories 
 In discourse-observer, these workflows are not built into the core. Instead:
 
 - The core observes generic Discourse entities (topics, categories, tags, revisions)
-- Forum-specific interpretation happens through configuration in `src/config/`
+- Forum-specific interpretation happens through configuration in `backend/config/`
 - If a workflow requires code changes (not just configuration), those changes should be documented and kept isolated so they do not break the generic foundation
 
 This approach keeps the core reusable while allowing each deployment to layer on its own domain knowledge.

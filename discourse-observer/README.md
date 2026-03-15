@@ -28,12 +28,13 @@ Ambiguity in structure leads to inconsistent contributions. By establishing the 
 
 ```text
 discourse-observer/
-  src/
+  backend/
     discourse/    # Raw Discourse API integration
     observer/     # Turning source data into observed changes
     model/        # Internal normalized types and domain concepts
     config/       # Forum-specific configuration and adaptation
     storage/      # Abstraction for persisting observed data
+  frontend/       # React dashboard UI
   specs/          # Behavior and model specifications
   docs/           # Purpose, context, and architecture decisions
   tests/          # Tests focused on transformation and observer logic

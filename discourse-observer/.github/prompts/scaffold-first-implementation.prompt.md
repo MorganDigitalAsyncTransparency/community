@@ -10,8 +10,8 @@ Scaffold the first implementation code for discourse-observer. This likely inclu
 
 ### 1. Discourse client abstraction
 
-Create a minimal client in `src/discourse/` that can:
-- Connect to a Discourse instance using a base URL and API key from `src/config/`
+Create a minimal client in `backend/discourse/` that can:
+- Connect to a Discourse instance using a base URL and API key from `backend/config/`
 - Fetch a list of recent topics
 - Fetch a single topic by ID
 - Handle basic error cases (auth failure, not found, rate limited)
@@ -20,7 +20,7 @@ Keep the client minimal. Do not build every API endpoint — start with topics o
 
 ### 2. Minimal source model
 
-Create initial types in `src/model/` that represent:
+Create initial types in `backend/model/` that represent:
 - A normalized topic (independent of the API response shape)
 - A category reference (ID and name)
 - A tag reference (name)
@@ -30,7 +30,7 @@ These types should be clean, small, and composable.
 
 ### 3. Testable transformation flow
 
-Create initial observer logic in `src/observer/` that:
+Create initial observer logic in `backend/observer/` that:
 - Takes a raw topic response (as returned by the discourse client)
 - Transforms it into a normalized topic using model types
 - Returns a structured observation
