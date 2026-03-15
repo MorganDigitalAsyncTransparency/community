@@ -4,8 +4,13 @@ This guide explains how to configure, start, and access the discourse-observer d
 
 ## Prerequisites
 
-- [Docker](https://docs.docker.com/get-docker/) and Docker Compose
-- A Discourse forum API token (read-only is sufficient)
+Install these before continuing:
+
+1. [Docker Desktop](https://docs.docker.com/desktop/) — includes Docker Engine, Docker Compose, BuildKit, and the CLI. On Linux you can alternatively install [Docker Engine](https://docs.docker.com/engine/install/) with the [Compose plugin](https://docs.docker.com/compose/install/) and [Buildx plugin](https://docs.docker.com/build/install-buildx/) separately.
+2. [Go 1.26+](https://go.dev/dl/) — only needed for local development outside Docker.
+3. [Node.js 24+](https://nodejs.org/) (includes npm) — only needed for local development outside Docker.
+
+You also need a Discourse forum API token (read-only is sufficient).
 
 ## Configure
 
@@ -27,6 +32,8 @@ The `.env` file is gitignored and will not be committed.
 
 ## Build and start
 
+Make sure you have completed the [Configure](#configure) step first — `docker compose` will fail if `.env` is missing.
+
 ```sh
 make build   # build both containers
 make up      # start in background
@@ -38,6 +45,16 @@ Or with Docker Compose directly:
 docker compose build
 docker compose up -d
 ```
+
+## Verify
+
+After starting, confirm the stack is healthy:
+
+```sh
+curl http://localhost:3000/api/health   # should return {"status":"ok"}
+```
+
+Open <http://localhost:3000> in a browser to see the dashboard.
 
 ## Access the dashboard
 
