@@ -1,4 +1,4 @@
-.PHONY: check setup lint lint-go lint-md test build up down start restart open
+.PHONY: check setup lint lint-go lint-md test verify build up down start restart open
 
 ## Check — verify prerequisites are installed
 check:
@@ -24,6 +24,9 @@ lint-md:
 ## Tests (skips if no Go files exist)
 test:
 	@sh scripts/test-go.sh
+
+## Verify — run all linters and tests
+verify: lint test
 
 ## Docker — build and run containers
 build:
