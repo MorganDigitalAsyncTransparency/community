@@ -1,10 +1,21 @@
-// Spec: specs/dashboard/queue-visibility.md
-// Tests: tests/dashboard/queue-visibility.unit.test.ts
+// Spec: specs/dashboard/queue-visibility.md, specs/dashboard/response-metrics.md
+// Tests: tests/dashboard/queue-visibility.unit.test.ts, tests/dashboard/response-metrics.unit.test.ts
 
 import type { Topic } from "../mock/data";
-import { formatDuration } from "./responseMetrics";
 
+const MILLISECONDS_PER_HOUR = 3_600_000;
 const MILLISECONDS_PER_DAY = 86_400_000;
+const HOURS_PER_DAY = 24;
+
+export function formatDuration(ms: number): string {
+  const hours = Math.floor(ms / MILLISECONDS_PER_HOUR);
+
+  if (hours >= HOURS_PER_DAY) {
+    return `${Math.floor(hours / HOURS_PER_DAY)}d`;
+  }
+
+  return `${Math.max(1, hours)}h`;
+}
 
 export function formatAge(isoDate: string): string {
   return formatDuration(Date.now() - new Date(isoDate).getTime());

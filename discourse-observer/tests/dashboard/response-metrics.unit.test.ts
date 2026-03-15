@@ -5,9 +5,9 @@ import {
   outcomeCounts,
   formatOutcomes,
   answerRate,
-  formatDuration,
   median,
 } from "../../frontend/src/components/responseMetrics";
+import { formatDuration } from "../../frontend/src/components/topicFormatting";
 import type { Topic } from "../../frontend/src/mock/data";
 
 const HOUR_MS = 3_600_000;

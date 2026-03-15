@@ -87,7 +87,8 @@ The application header includes two navigation links: "Queue" and "Response metr
 |-----------|------|-------------|
 | `App` | App.tsx | RM-10 — navigation; RM-11 — shared header |
 | `ResponseMetricsCards` | ResponseMetricsCards.tsx | RM-1, RM-2, RM-12 — median first reply; RM-3, RM-4, RM-12 — median resolution; RM-5, RM-6, RM-7 — outcomes; RM-8, RM-9 — answer rate |
-| `responseMetrics` | responseMetrics.ts | RM-1, RM-2 — medianFirstReplyTime; RM-3, RM-4 — medianResolutionTime; RM-5 — outcomeCounts; RM-6, RM-7 — formatOutcomes; RM-8, RM-9 — answerRate; RM-13 — formatDuration; RM-14 — median |
+| `responseMetrics` | responseMetrics.ts | RM-1, RM-2 — medianFirstReplyTime; RM-3, RM-4 — medianResolutionTime; RM-5 — outcomeCounts; RM-6, RM-7 — formatOutcomes; RM-8, RM-9 — answerRate; RM-14 — median |
+| `topicFormatting` | topicFormatting.ts | RM-13 — formatDuration (shared with QV-3) |
 
 ### Data flow
 

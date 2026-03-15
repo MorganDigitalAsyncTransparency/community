@@ -2,19 +2,7 @@
 // Tests: tests/dashboard/response-metrics.unit.test.ts
 
 import type { Topic } from "../mock/data";
-
-const MILLISECONDS_PER_HOUR = 3_600_000;
-const HOURS_PER_DAY = 24;
-
-export function formatDuration(ms: number): string {
-  const hours = Math.floor(ms / MILLISECONDS_PER_HOUR);
-
-  if (hours >= HOURS_PER_DAY) {
-    return `${Math.floor(hours / HOURS_PER_DAY)}d`;
-  }
-
-  return `${Math.max(1, hours)}h`;
-}
+import { formatDuration } from "./topicFormatting";
 
 export function median(sorted: number[]): number {
   const mid = Math.floor(sorted.length / 2);
