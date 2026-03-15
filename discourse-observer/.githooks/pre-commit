@@ -13,7 +13,7 @@ if git diff --cached --name-only | grep -qE '\.env$|\.env\.local$|\.env\.product
 fi
 
 echo "Linting Markdown..."
-npx markdownlint "**/*.md" --ignore node_modules --ignore frontend
+npx markdownlint "**/*.md" --ignore "**/node_modules/**"
 
 echo "Linting Go..."
 sh scripts/lint-go.sh

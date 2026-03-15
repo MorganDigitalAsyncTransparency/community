@@ -5,7 +5,7 @@
   "scripts": {
     "setup": "npm install && cd frontend && npm install && cd .. && git config core.hooksPath .githooks",
     "lint": "npm run lint:md && npm run lint:go && npm run lint:frontend",
-    "lint:md": "markdownlint \"**/*.md\" --ignore node_modules --ignore frontend",
+    "lint:md": "markdownlint \"**/*.md\" --ignore \"**/node_modules/**\"",
     "lint:go": "sh scripts/lint-go.sh",
     "lint:frontend": "sh scripts/lint-frontend.sh",
     "test": "sh scripts/test-go.sh && sh scripts/test-frontend.sh"
