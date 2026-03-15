@@ -36,7 +36,7 @@ up:
 	docker compose up -d
 
 down:
-	docker compose down
+	docker compose down --timeout 10 --remove-orphans
 
 ## Start — one-command onboarding: configure, build, launch, open browser
 start: .env verify build up open
