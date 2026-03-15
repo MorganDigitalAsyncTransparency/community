@@ -39,14 +39,14 @@ down:
 	docker compose down
 
 ## Start — one-command onboarding: configure, build, launch, open browser
-start: .env build up open
+start: .env verify build up open
 
 .env:
 	cp .env.example .env
 	@echo "Created .env from .env.example — edit it with your Discourse credentials."
 
 ## Restart — rebuild and relaunch after code changes
-restart: down build up open
+restart: down verify build up open
 
 ## Open the dashboard in the default browser
 open:

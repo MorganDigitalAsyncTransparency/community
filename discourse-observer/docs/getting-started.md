@@ -144,8 +144,8 @@ This stops the running containers, rebuilds changed layers, starts everything ag
 
 | Command | What it does |
 |---|---|
-| `make start` | One-command onboarding: configure, build, launch, open browser |
-| `make restart` | Rebuild and relaunch after code changes |
+| `make start` | One-command onboarding: verify, configure, build, launch, open browser |
+| `make restart` | Verify, rebuild, and relaunch after code changes |
 | `make verify` | Run all linters and tests |
 | `make lint` | Run all linters (Go + markdown) |
 | `make test` | Run Go tests |
