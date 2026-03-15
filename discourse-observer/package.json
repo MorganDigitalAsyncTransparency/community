@@ -3,7 +3,7 @@
   "name": "discourse-observer",
   "description": "Development toolchain for discourse-observer",
   "scripts": {
-    "setup": "npm install && git config core.hooksPath .githooks",
+    "setup": "npm install && cd frontend && npm install && cd .. && git config core.hooksPath .githooks",
     "lint": "npm run lint:md && npm run lint:go && npm run lint:frontend",
     "lint:md": "markdownlint \"**/*.md\" --ignore node_modules --ignore frontend",
     "lint:go": "sh scripts/lint-go.sh",

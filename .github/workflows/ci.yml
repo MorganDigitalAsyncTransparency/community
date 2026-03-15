@@ -27,7 +27,7 @@ jobs:
         run: npm ci
 
       - name: Lint Markdown
-        run: npx markdownlint "**/*.md" --ignore node_modules
+        run: npx markdownlint "**/*.md" --ignore node_modules --ignore frontend
 
   lint-go:
     name: Lint Go
