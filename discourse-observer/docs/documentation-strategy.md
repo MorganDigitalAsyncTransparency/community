@@ -6,12 +6,15 @@ This document defines how specifications, tests, and source code are organized a
 
 ## Directory structure
 
-`specs/` and `tests/` mirror the module layout defined in [ARCHITECTURE.md](../ARCHITECTURE.md). `backend/` follows the same module boundaries but is free to organize files as the implementation requires.
+`specs/` and `tests/` mirror the module layout defined in [ARCHITECTURE.md](../ARCHITECTURE.md). `backend/` and `frontend/` follow the same module boundaries but are free to organize files as the implementation requires.
 
 ```text
 specs/
   observer/
     change_detection.md
+  dashboard/
+    queue-visibility.md
+    dashboard-components.md
   discourse/
   model/
   storage/
@@ -25,6 +28,8 @@ tests/
   observer/
     change_detection_unit_test.go
     change_detection_integration_test.go
+  dashboard/
+    queue-visibility.unit.test.ts
   discourse/
   model/
   storage/
@@ -38,13 +43,18 @@ backend/
   model/
   storage/
   config/
+frontend/
+  src/
+    components/
+      SummaryCards.tsx              ← free structure
+      UnrepliedTable.tsx           ← free structure
 ```
 
-## Deviation from Go test conventions
+## Deviation from language-default test conventions
 
-Go convention places test files next to source files in the same package. This project deliberately separates tests into `tests/` to support the TDD workflow: specifications and tests are written *before* the source files exist. Placing tests next to source files assumes the source structure is known — in a spec-first workflow, it is not. The `tests/` directory mirrors the spec structure, not the source structure.
+Go convention places test files next to source files in the same package. Frontend frameworks (Vitest, Jest) similarly default to colocated test files. This project deliberately separates tests into `tests/` to support the TDD workflow: specifications and tests are written *before* the source files exist. Placing tests next to source files assumes the source structure is known — in a spec-first workflow, it is not. The `tests/` directory mirrors the spec structure, not the source structure.
 
-This means `go test ./...` from the project root does not automatically discover tests in `tests/`. Test execution is configured through the Makefile and CI scripts, which explicitly include the `tests/` directory.
+This means `go test ./...` from the project root does not automatically discover tests in `tests/`. Similarly, frontend test runners need explicit configuration to find tests outside `src/`. Test execution is configured through the Makefile, CI scripts, and test runner config files, which explicitly include the `tests/` directory.
 
 ---
 
@@ -63,16 +73,30 @@ A spec without any verification artifact is an open gap. This is expected during
 
 ## Test file naming
 
-Test files use the spec filename as a **prefix**, with a suffix indicating the test type:
+Test files use the spec filename as a **prefix**, with a suffix indicating the test type. The suffix convention adapts to the language:
+
+**Backend (Go):**
 
 | Test type | Naming pattern | Example |
 |-----------|---------------|---------|
 | Unit test | `<spec>_unit_test.go` | `change_detection_unit_test.go` |
 | Integration test | `<spec>_integration_test.go` | `change_detection_integration_test.go` |
 | Contract test | `<spec>_contract_test.go` | `discourse_client_contract_test.go` |
+
+**Frontend (TypeScript):**
+
+| Test type | Naming pattern | Example |
+|-----------|---------------|---------|
+| Unit test | `<spec>.unit.test.ts` | `queue-visibility.unit.test.ts` |
+| Integration test | `<spec>.integration.test.ts` | `queue-visibility.integration.test.ts` |
+
+**Both:**
+
+| Test type | Naming pattern | Example |
+|-----------|---------------|---------|
 | Manual verification | `<spec>_verification.md` | `single-forum-scope_verification.md` |
 
-Automated test files (Go) live in `tests/`. Manual verification documents (markdown) live in `specs/` alongside the spec they verify. This keeps executable code separate from documentation while keeping manual verification close to the requirement it checks.
+Automated test files live in `tests/`, regardless of language. Manual verification documents (markdown) live in `specs/` alongside the spec they verify. This keeps executable code separate from documentation while keeping manual verification close to the requirement it checks.
 
 Multiple test files per spec is expected and correct — different test types verify different aspects of the same responsibility. A spec needs at least one.
 
@@ -85,6 +109,25 @@ Multiple test files per spec is expected and correct — different test types ve
 **System specs** live in `specs/` root and describe cross-cutting constraints or system-wide properties (e.g., single-forum scope, operational constraints). These also require verification — typically manual verification documents or integration tests that assert the constraint holds.
 
 **Use cases** live in `specs/` root as overarching documents that describe what users need from the system. Use cases are not specs — they drive the creation of module specs but are not subject to the verification requirement. Each use case should be traceable to the module specs it decomposes into.
+
+## Module traceability matrices
+
+Each module maintains a `specs/<module>/traceability.md` that shows the full chain from use cases through specs and requirements to verification artifacts. This is the single place where completeness for a module is visible at a glance.
+
+The matrix answers: which use cases does this module address, which specs and requirements cover them, and what verification exists. Gaps — use cases without specs, specs without tests — are listed explicitly so they are visible rather than silently missing.
+
+```text
+specs/
+  dashboard/
+    traceability.md          ← dashboard module overview
+    queue-visibility.md
+    dashboard-components.md
+  observer/
+    traceability.md          ← observer module overview
+    change_detection.md
+```
+
+The traceability matrix is updated in the same PR that adds or changes specs, requirements, or verification artifacts within the module. It is a living index, not a one-time deliverable.
 
 ---
 
@@ -105,9 +148,9 @@ The original file is replaced by the sub-files — no overview file is needed. E
 
 ## Requirement numbering within specs
 
-Individual requirements within a spec file are numbered sequentially (1, 2, 3, ...). Numbers are assigned in order of creation and never reused. When a requirement is removed, its number is retired — gaps in the sequence are expected and indicate removed requirements. New requirements always receive the next number after the highest previously used, regardless of gaps.
+Individual requirements within a spec file are numbered sequentially (1, 2, 3, ...) with a short prefix derived from the spec's responsibility (e.g., QV for queue-visibility, CD for change-detection). The prefix disambiguates requirements across spec files in cross-references, commit messages, PR discussions, and test names (e.g., QV-3 rather than "queue-visibility requirement 3").
 
-This convention makes it possible to reference specific requirements (e.g., "change_detection requirement 14") in commit messages, PR discussions, and test names without ambiguity.
+Numbers are assigned in order of creation and never reused. When a requirement is removed, its number is retired — gaps in the sequence are expected and indicate removed requirements. New requirements always receive the next number after the highest previously used, regardless of gaps.
 
 ---
 
@@ -131,7 +174,8 @@ Traceability works in two directions:
 | Artifact | Location | Relationship |
 |----------|----------|--------------|
 | Specification | `specs/<module>/<responsibility>.md` | Defines the responsibility |
-| Tests | `tests/<module>/<responsibility>_*_test.go` | Verify the specification |
+| Tests (Go) | `tests/<module>/<responsibility>_*_test.go` | Verify the specification |
+| Tests (TS) | `tests/<module>/<responsibility>.*.test.ts` | Verify the specification |
 | Manual verification | `specs/[<module>/]<responsibility>_verification.md` | Documents manual checks |
 
 **Code → spec** — linked by header comment in each source file:
@@ -142,6 +186,11 @@ Traceability works in two directions:
 // Spec: specs/observer/change_detection.md
 // Tests: tests/observer/change_detection_*_test.go
 package observer
+```
+
+```ts
+// Spec: specs/dashboard/queue-visibility.md
+// Tests: tests/dashboard/queue-visibility.*.test.ts
 ```
 
 Every source file declares which spec it serves and which tests verify that spec. Multiple source files may reference the same spec — this is expected and correct when a responsibility is implemented across several files.
@@ -156,7 +205,7 @@ A CI check verifies the traceability chain:
 
 - Every module spec in `specs/<module>/` has at least one corresponding test file in `tests/<module>/`
 - Every system spec in `specs/` root has a corresponding manual verification document or integration test
-- Every source file in `backend/` contains a `Spec:` header comment pointing to a valid spec file
+- Every source file in `backend/` and `frontend/src/` contains a `Spec:` header comment pointing to a valid spec file
 - Broken references (header comments pointing to non-existent specs) are reported as errors
 - Orphaned specs (no test artifacts) are reported
 
@@ -170,8 +219,8 @@ The TDD workflow follows the delivery phases defined in CLAUDE.md:
 
 1. Write the specification in `specs/<module>/<responsibility>.md` (Phase 1 — Requirements)
 2. Document design decisions if needed (Phase 2 — Design)
-3. Define validation strategy: determine what tests are needed and write failing tests in `tests/<module>/<responsibility>_*_test.go` (Phase 3 — Validation Strategy)
-4. Implement in `backend/<module>/` until tests pass — structure source files freely (Phase 4 — Implementation)
+3. Define validation strategy: determine what tests are needed and write failing tests in `tests/<module>/` (Phase 3 — Validation Strategy)
+4. Implement in `backend/<module>/` or `frontend/src/` until tests pass — structure source files freely (Phase 4 — Implementation)
 5. Add `Spec:` and `Tests:` header comments to each source file (Phase 4 — part of implementation)
 6. Update the spec if implementation revealed gaps or corrections (Phase 4 — part of implementation)
 7. Verify that spec, tests, and source references are consistent (Phase 5 — Review)
