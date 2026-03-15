@@ -7,6 +7,7 @@ check:
 ## Setup — install dependencies and configure git hooks
 setup:
 	npm install
+	cd frontend && npm install
 	go install github.com/golangci/golangci-lint/cmd/golangci-lint@latest
 	git config core.hooksPath .githooks
 

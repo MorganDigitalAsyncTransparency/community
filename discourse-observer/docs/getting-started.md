@@ -147,8 +147,8 @@ This stops the running containers, rebuilds changed layers, starts everything ag
 | `make start` | One-command onboarding: verify, configure, build, launch, open browser |
 | `make restart` | Verify, rebuild, and relaunch after code changes |
 | `make verify` | Run all linters and tests |
-| `make lint` | Run all linters (Go + markdown) |
-| `make test` | Run Go tests |
+| `make lint` | Run all linters (Go + markdown + frontend) |
+| `make test` | Run all tests (Go + frontend) |
 | `make build` | Build Docker containers |
 | `make up` | Start containers in background |
 | `make down` | Stop containers |
