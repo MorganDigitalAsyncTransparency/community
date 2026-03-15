@@ -1,0 +1,152 @@
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+    Helvetica, Arial, sans-serif;
+  background: #f5f6f8;
+  color: #1a1a1a;
+  line-height: 1.5;
+}
+
+/* Layout */
+
+.app {
+  max-width: 960px;
+  margin: 0 auto;
+  padding: 2rem 1.5rem;
+}
+
+/* Header */
+
+.app-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  margin-bottom: 2rem;
+  padding-bottom: 1rem;
+  border-bottom: 1px solid #ddd;
+}
+
+.app-title {
+  font-size: 1.5rem;
+  font-weight: 600;
+}
+
+.app-sync-status {
+  font-size: 0.85rem;
+  color: #666;
+}
+
+/* Content */
+
+.app-content {
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+}
+
+/* Sections */
+
+.app-section-title {
+  font-size: 1.15rem;
+  font-weight: 600;
+  margin-bottom: 0.75rem;
+}
+
+/* Summary cards */
+
+.summary-cards {
+  display: flex;
+  gap: 1rem;
+}
+
+.summary-card {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 1.25rem 1rem;
+  background: #fff;
+  border: 1px solid #ddd;
+  border-radius: 6px;
+}
+
+.summary-card-value {
+  font-size: 2rem;
+  font-weight: 700;
+  line-height: 1.2;
+}
+
+.summary-card-label {
+  font-size: 0.85rem;
+  color: #666;
+  margin-top: 0.25rem;
+}
+
+/* Tables (shared) */
+
+.unreplied-table,
+.untagged-table {
+  width: 100%;
+  border-collapse: collapse;
+  background: #fff;
+  border: 1px solid #ddd;
+  border-radius: 6px;
+}
+
+.unreplied-table thead,
+.untagged-table thead {
+  background: #f0f1f3;
+}
+
+.unreplied-table th,
+.untagged-table th {
+  text-align: left;
+  padding: 0.6rem 0.75rem;
+  font-size: 0.8rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  color: #555;
+}
+
+.unreplied-table td,
+.untagged-table td {
+  padding: 0.6rem 0.75rem;
+  font-size: 0.9rem;
+  border-top: 1px solid #eee;
+}
+
+/* Zebra striping */
+
+.unreplied-row:nth-child(even),
+.untagged-row:nth-child(even) {
+  background: #fafbfc;
+}
+
+/* Hover */
+
+.unreplied-row:hover,
+.untagged-row:hover {
+  background: #f0f4ff;
+}
+
+/* Column widths */
+
+.unreplied-header-age,
+.unreplied-cell-age,
+.untagged-header-age,
+.untagged-cell-age {
+  width: 5rem;
+}
+
+.unreplied-header-tag,
+.unreplied-cell-tag,
+.untagged-header-category,
+.untagged-cell-category {
+  width: 8rem;
+}
