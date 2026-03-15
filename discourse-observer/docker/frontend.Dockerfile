@@ -5,12 +5,9 @@
 #
 # Nginx serves the React build on port 80 and proxies /api/ to the backend.
 # Exposed on host port 3000 via docker-compose.
-#
-# NOTE: This Dockerfile is scaffolding. It will not build until
-# the React app exists in web/ with a package-lock.json.
 
 # -- build stage --
-FROM node:22-alpine AS build
+FROM node:24-alpine AS build
 WORKDIR /src
 COPY web/package.json web/package-lock.json* ./
 RUN npm ci

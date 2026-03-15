@@ -7,18 +7,16 @@
 # and serves the internal API on port 8080.
 # It is not exposed externally — nginx proxies /api/ requests to it.
 #
-# CGO_ENABLED=1 is required for SQLite (ADR 0006).
-#
-# NOTE: This Dockerfile is scaffolding. It will not build until
-# Go source files exist in src/.
+# CGO_ENABLED will need to be 1 once SQLite is added (ADR 0006).
+# Until then, pure-Go build with CGO disabled.
 
 # -- build stage --
-FROM golang:1.25-alpine AS build
+FROM golang:1.26-alpine AS build
 WORKDIR /src
 COPY go.mod go.sum* ./
 RUN [ -f go.sum ] && go mod download || true
 COPY src/ src/
-RUN CGO_ENABLED=1 go build -o /app/discourse-observer ./src/...
+RUN CGO_ENABLED=0 go build -o /app/discourse-observer ./src/...
 
 # -- runtime stage --
 FROM alpine:3
