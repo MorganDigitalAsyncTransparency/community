@@ -9,7 +9,7 @@ setup:
 	npm install
 	cd frontend && npm install
 	pip install mkdocs-material
-	go install github.com/golangci/golangci-lint/cmd/golangci-lint@latest
+	go install github.com/golangci/golangci-lint/v2/cmd/golangci-lint@latest
 	git config core.hooksPath .githooks
 
 ## Lint — run all linters
