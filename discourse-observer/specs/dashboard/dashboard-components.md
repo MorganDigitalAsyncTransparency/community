@@ -2,7 +2,7 @@
 
 This document specifies the behavior of the dashboard view components rendered in the frontend.
 
-These components implement the visual layer for the requirements defined in [queue-visibility.md](queue-visibility.md). That file defines *what* the user sees and why; this file defines *how* each component behaves to fulfill those requirements.
+These components implement the visual layer for the requirements defined in [queue-visibility.md](queue-visibility.md) and [response-metrics.md](response-metrics.md). Those files define *what* the user sees and why; this file defines *how* each component behaves to fulfill those requirements.
 
 ---
 
@@ -52,6 +52,32 @@ Rows are sorted oldest first (ascending by `createdAt`).
 
 ---
 
+## ResponseMetricsCards
+
+Accepts `Topic[]` (the resolved topics). Renders four summary cards:
+
+1. **"Median first reply"** — displays the median time from `createdAt` to `firstReplyAt` across topics that have a `firstReplyAt`. Topics without `firstReplyAt` are excluded. If no topics qualify, displays "–". Time is formatted using the shared duration format (see Duration formatting below).
+2. **"Median resolution"** — displays the median time from `createdAt` to `resolvedAt` across all resolved topics. If the list is empty, displays "–". Time is formatted using the shared duration format.
+3. **"Outcomes"** — displays solved and self-closed counts as `"X solved / Y self-closed"`. If the list is empty, displays `"0 solved / 0 self-closed"`.
+4. **"Answer rate"** — displays the percentage of topics with `outcome === "solved"`, rounded to the nearest whole number, followed by "%". If the list is empty, displays "–".
+
+### Median calculation
+
+Given a sorted array of durations, the median is:
+
+- If odd count: the middle value.
+- If even count: the average of the two middle values, truncated to a whole number of milliseconds.
+
+---
+
+## Navigation
+
+The `App` component renders two navigation links in the header: "Queue" and "Response metrics". Clicking a link switches the visible page content. The active link is visually distinguished using a CSS class (`nav-link-active`).
+
+Navigation uses component state — no client-side router.
+
+---
+
 ## Shared behavior
 
 ### Age formatting
@@ -62,10 +88,19 @@ Both table components format age identically:
 - If ≥ 24 hours: display as `"Xd"` where X is whole days (truncated).
 - If < 24 hours: display as `"Xh"` where X is whole hours (truncated, minimum 1).
 
+### Duration formatting
+
+Metrics that display a time duration (median first reply, median resolution) use the same format as age:
+
+- If ≥ 24 hours: display as `"Xd"` where X is whole days (truncated).
+- If < 24 hours: display as `"Xh"` where X is whole hours (truncated, minimum 1).
+
+This reuses the `formatAge` logic but accepts a duration in milliseconds rather than an ISO date string.
+
 ### Styling
 
 - No inline styles. All styling uses CSS classes.
-- Class name prefixes: `summary-` for SummaryCards, `unreplied-` for UnrepliedTable, `untagged-` for UntaggedTable.
+- Class name prefixes: `summary-` for SummaryCards, `unreplied-` for UnrepliedTable, `untagged-` for UntaggedTable, `response-` for ResponseMetricsCards, `nav-` for navigation.
 
 ### Implementation constraints
 
