@@ -1,4 +1,8 @@
-.PHONY: setup lint lint-go lint-md test build up down start restart open
+.PHONY: check setup lint lint-go lint-md test build up down start restart open
+
+## Check — verify prerequisites are installed
+check:
+	@sh scripts/setup.sh
 
 ## Setup — install dependencies and configure git hooks
 setup:
