@@ -27,6 +27,10 @@ nav:
       - Single Forum Scope Verification: specs/single-forum-scope_verification.md
       - Operational Constraints: specs/operational-constraints.md
       - Operational Constraints Verification: specs/operational-constraints_verification.md
+      - Dashboard:
+          - Queue Visibility: specs/dashboard/queue-visibility.md
+          - Components: specs/dashboard/dashboard-components.md
+          - Traceability: specs/dashboard/traceability.md
       - Observer:
           - Observer Behavior: specs/observer/observer-behavior.md
       - Discourse:
