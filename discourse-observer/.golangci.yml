@@ -13,8 +13,6 @@ linters:
     - ineffassign
     - gocritic
     - revive
-    - gofmt
-    - goimports
   settings:
     revive:
       rules:
@@ -25,6 +23,11 @@ linters:
         - diagnostic
         - style
         - performance
+
+formatters:
+  enable:
+    - gofmt
+    - goimports
 
 issues:
   max-issues-per-linter: 0
