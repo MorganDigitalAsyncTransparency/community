@@ -105,11 +105,11 @@ jobs:
           test -f README.md
           test -f ARCHITECTURE.md
           test -f CONTRIBUTING.md
-          test -d src/discourse
-          test -d src/observer
-          test -d src/model
-          test -d src/config
-          test -d src/storage
+          test -d backend/discourse
+          test -d backend/observer
+          test -d backend/model
+          test -d backend/config
+          test -d backend/storage
           test -d tests
           test -d docs/decisions
           echo "Project structure is valid."
