@@ -50,4 +50,5 @@ open:
 	@command -v xdg-open >/dev/null 2>&1 && xdg-open http://localhost:3000 \
 	|| command -v open >/dev/null 2>&1 && open http://localhost:3000 \
 	|| start http://localhost:3000 2>/dev/null \
-	|| echo "Open http://localhost:3000 in your browser"
+	|| true
+	@echo "Dashboard running at http://localhost:3000 (opening in browser...)"
