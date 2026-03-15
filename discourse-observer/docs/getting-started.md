@@ -16,13 +16,36 @@ The rest of this guide covers prerequisites, configuration, and how the stack wo
 
 ## Prerequisites
 
-Install these before continuing:
+Run the setup script to check what you have and what's missing:
 
-1. [Docker Desktop](https://docs.docker.com/desktop/) — includes Docker Engine, Docker Compose, BuildKit, and the CLI. On Linux you can alternatively install [Docker Engine](https://docs.docker.com/engine/install/) with the [Compose plugin](https://docs.docker.com/compose/install/) and [Buildx plugin](https://docs.docker.com/build/install-buildx/) separately.
-2. [Go 1.26+](https://go.dev/dl/) — only needed for local development outside Docker.
-3. [Node.js 24+](https://nodejs.org/) (includes npm) — only needed for local development outside Docker.
+```sh
+sh scripts/setup.sh
+```
+
+If you already have `make` installed, you can use `make check` instead.
+
+The following tools are needed:
+
+1. **GNU Make**
+   - **Windows:** `choco install make` ([Chocolatey](https://chocolatey.org/)) or `winget install ezwinports.make`
+   - **macOS:** included with Xcode Command Line Tools (`xcode-select --install`)
+   - **Linux (Debian/Ubuntu):** `sudo apt install make`
+   - **Linux (Fedora):** `sudo dnf install make`
+2. [Docker Desktop](https://docs.docker.com/desktop/) — includes Docker Engine, Docker Compose, BuildKit, and the CLI. On Linux you can alternatively install [Docker Engine](https://docs.docker.com/engine/install/) with the [Compose plugin](https://docs.docker.com/compose/install/) and [Buildx plugin](https://docs.docker.com/build/install-buildx/) separately.
+3. [Go 1.26+](https://go.dev/dl/) — only needed for local development outside Docker.
+4. [Node.js 24+](https://nodejs.org/) (includes npm) — only needed for local development outside Docker.
 
 You also need a Discourse forum API token (read-only is sufficient).
+
+### VS Code terminal setup
+
+This project uses shell scripts and `make`, which require a Unix-compatible shell. If your VS Code terminal defaults to something else (e.g. PowerShell on Windows), switch it to a Unix shell:
+
+1. Open the command palette: `Ctrl+Shift+P`
+2. Search for **Terminal: Select Default Profile**
+3. Choose a Unix-compatible shell (e.g. **Bash**, or **Git Bash** on Windows via [Git for Windows](https://git-scm.com/downloads/win))
+
+New terminal panels will then run commands like `make start` and `sh scripts/setup.sh` directly.
 
 ## Configure
 
