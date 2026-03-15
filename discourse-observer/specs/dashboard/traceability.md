@@ -8,21 +8,20 @@ This matrix shows how use cases decompose into specifications, requirements, and
 
 | Use case | Spec | Requirements | Verification |
 |----------|------|-------------|--------------|
-| UC-1: Identify topics waiting longest for a reply | [queue-visibility.md](queue-visibility.md) | QV-1 – QV-4 | — |
-| UC-2: See all unreplied support topics | [queue-visibility.md](queue-visibility.md) | QV-5 – QV-9 | — |
-| UC-3: Detect untagged topics | [queue-visibility.md](queue-visibility.md) | QV-10 – QV-14 | — |
-| (cross-cutting) | [queue-visibility.md](queue-visibility.md) | QV-15 – QV-18 | — |
+| UC-1: Identify topics waiting longest for a reply | [queue-visibility.md](queue-visibility.md) | QV-1 – QV-4 | [topicFormatting.test.ts](../../frontend/src/components/__tests__/topicFormatting.test.ts) (QV-1, QV-3, QV-4); manual (QV-2) |
+| UC-2: See all unreplied support topics | [queue-visibility.md](queue-visibility.md) | QV-5 – QV-9 | [topicFormatting.test.ts](../../frontend/src/components/__tests__/topicFormatting.test.ts) (QV-6, QV-7); manual (QV-5, QV-8, QV-9) |
+| UC-3: Detect untagged topics | [queue-visibility.md](queue-visibility.md) | QV-10 – QV-14 | [topicFormatting.test.ts](../../frontend/src/components/__tests__/topicFormatting.test.ts) (QV-11, QV-13); manual (QV-10, QV-12, QV-14) |
+| (cross-cutting) | [queue-visibility.md](queue-visibility.md) | QV-15 – QV-18 | manual (QV-15 – QV-18) |
 
 ### Component behavior
 
 | Spec | Requirements | Verification |
 |------|-------------|--------------|
-| [dashboard-components.md](dashboard-components.md) | All | — |
+| [dashboard-components.md](dashboard-components.md) | All | [topicFormatting.test.ts](../../frontend/src/components/__tests__/topicFormatting.test.ts) (shared logic); manual (rendering) |
 
 ---
 
 ## Gaps
 
-- No verification artifacts exist yet for any dashboard spec. This is expected — the specs were written retroactively for an existing prototype. Verification will be added in a subsequent PR.
 - UC-2 partial: time period filtering (deferred to UC-12 implementation).
 - UC-3 partial: untagged share as percentage of all topics (deferred until total topic count is available from backend).
