@@ -15,9 +15,9 @@ export function UnrepliedTable({ topics }: UnrepliedTableProps) {
     <table className="unreplied-table">
       <thead>
         <tr>
-          <th className="unreplied-header-age">Ålder</th>
-          <th className="unreplied-header-title">Titel</th>
-          <th className="unreplied-header-tag">Tagg</th>
+          <th className="unreplied-header-age">Age</th>
+          <th className="unreplied-header-title">Title</th>
+          <th className="unreplied-header-tag">Tags</th>
         </tr>
       </thead>
       <tbody>

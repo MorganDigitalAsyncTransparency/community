@@ -16,9 +16,9 @@ Components consume the `DashboardData` and `Topic` interfaces defined in the moc
 
 Accepts `DashboardData`. Renders three summary cards:
 
-1. **"Väntar på svar"** — displays the count of `unrepliedTopics`.
-2. **"Otaggade"** — displays the count of `untaggedTopics`.
-3. **"Äldsta utan svar"** — displays the number of whole days since the oldest `createdAt` in `unrepliedTopics`. If the list is empty, displays "–".
+1. **"Awaiting reply"** — displays the count of `unrepliedTopics`.
+2. **"Untagged"** — displays the count of `untaggedTopics`.
+3. **"Oldest unreplied"** — displays the number of whole days since the oldest `createdAt` in `unrepliedTopics`. If the list is empty, displays "–".
 
 The day calculation uses the difference between now and the oldest `createdAt`, truncated to whole days.
 
@@ -30,9 +30,9 @@ Accepts `Topic[]`. Renders a table with three columns:
 
 | Column | Content |
 |--------|---------|
-| Ålder  | Time since `createdAt`, formatted as `"Xd"` (days) if ≥ 24 hours, otherwise `"Xh"` (hours) |
-| Titel  | The topic title |
-| Tagg   | Tags joined by comma, or "–" if empty |
+| Age    | Time since `createdAt`, formatted as `"Xd"` (days) if ≥ 24 hours, otherwise `"Xh"` (hours) |
+| Title  | The topic title |
+| Tags   | Tags joined by comma, or "–" if empty |
 
 Rows are sorted oldest first (ascending by `createdAt`).
 
@@ -44,9 +44,9 @@ Accepts `Topic[]`. Renders a table with three columns:
 
 | Column   | Content |
 |----------|---------|
-| Ålder    | Same age format as UnrepliedTable |
-| Titel    | The topic title |
-| Kategori | The topic category |
+| Age      | Same age format as UnrepliedTable |
+| Title    | The topic title |
+| Category | The topic category |
 
 Rows are sorted oldest first (ascending by `createdAt`).
 
