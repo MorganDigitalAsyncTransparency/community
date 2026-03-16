@@ -1,52 +1,32 @@
 // Spec: specs/dashboard/time-period-filter.md
+// Tests: tests/dashboard/time-period-filter.unit.test.ts
 
-import { useState } from "react";
 import {
   type ActivePeriod,
+  type CustomRange,
   type PeriodPreset,
   PRESET_LABELS,
 } from "./timePeriod";
 
 const PRESETS: PeriodPreset[] = ["last7", "last30", "lastYear", "allTime"];
 
-interface PeriodSelectorProps {
+export interface PeriodSelectorProps {
   period: ActivePeriod;
-  onPeriodChange: (period: ActivePeriod) => void;
+  customDraft: CustomRange | null; // null = custom inputs not visible
+  onPresetSelect: (preset: PeriodPreset) => void;
+  onCustomOpen: () => void;
+  onCustomDraftChange: (from: string, to: string) => void;
 }
 
-export function PeriodSelector({ period, onPeriodChange }: PeriodSelectorProps) {
-  const [showCustom, setShowCustom] = useState(period.kind === "custom");
-  const [customFrom, setCustomFrom] = useState(
-    period.kind === "custom" ? period.range.from : ""
-  );
-  const [customTo, setCustomTo] = useState(
-    period.kind === "custom" ? period.range.to : ""
-  );
-
-  function handlePresetClick(preset: PeriodPreset) {
-    setShowCustom(false);
-    onPeriodChange({ kind: "preset", preset });
-  }
-
-  function handleCustomClick() {
-    setShowCustom(true);
-  }
-
-  function handleFromChange(value: string) {
-    setCustomFrom(value);
-    if (value && customTo) {
-      onPeriodChange({ kind: "custom", range: { from: value, to: customTo } });
-    }
-  }
-
-  function handleToChange(value: string) {
-    setCustomTo(value);
-    if (customFrom && value) {
-      onPeriodChange({ kind: "custom", range: { from: customFrom, to: value } });
-    }
-  }
-
+export function PeriodSelector({
+  period,
+  customDraft,
+  onPresetSelect,
+  onCustomOpen,
+  onCustomDraftChange,
+}: PeriodSelectorProps) {
   const activePreset = period.kind === "preset" ? period.preset : null;
+  const customActive = customDraft !== null;
 
   return (
     <div className="period-selector">
@@ -56,33 +36,33 @@ export function PeriodSelector({ period, onPeriodChange }: PeriodSelectorProps) 
         <button
           key={preset}
           className={`period-btn${activePreset === preset ? " period-btn-active" : ""}`}
-          onClick={() => handlePresetClick(preset)}
+          onClick={() => onPresetSelect(preset)}
         >
           {PRESET_LABELS[preset]}
         </button>
       ))}
 
       <button
-        className={`period-btn${showCustom ? " period-btn-active" : ""}`}
-        onClick={handleCustomClick}
+        className={`period-btn${customActive ? " period-btn-active" : ""}`}
+        onClick={onCustomOpen}
       >
         Custom
       </button>
 
-      {showCustom && (
+      {customDraft !== null && (
         <span className="period-custom-inputs">
           <input
             type="date"
             className="period-date-input"
-            value={customFrom}
-            onChange={(e) => handleFromChange(e.target.value)}
+            value={customDraft.from}
+            onChange={(e) => onCustomDraftChange(e.target.value, customDraft.to)}
           />
           <span className="period-custom-separator">–</span>
           <input
             type="date"
             className="period-date-input"
-            value={customTo}
-            onChange={(e) => handleToChange(e.target.value)}
+            value={customDraft.to}
+            onChange={(e) => onCustomDraftChange(customDraft.from, e.target.value)}
           />
         </span>
       )}

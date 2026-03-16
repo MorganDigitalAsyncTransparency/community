@@ -70,6 +70,19 @@ Given a sorted array of durations, the median is:
 
 ---
 
+## PeriodSelector
+
+Accepts `period: ActivePeriod`, `customDraft: CustomRange | null`, `onPresetSelect`, `onCustomOpen`, and `onCustomDraftChange` callbacks. Renders a row of period option buttons and, when `customDraft` is not null, two date inputs.
+
+- Clicking a preset button calls `onPresetSelect` with the selected preset.
+- Clicking "Custom" calls `onCustomOpen`. The custom inputs are shown when `customDraft !== null`.
+- Changing a date input calls `onCustomDraftChange(from, to)` with the updated values.
+- The currently active option is indicated by the `period-btn-active` CSS class.
+
+`PeriodSelector` is a pure function component — it holds no state. All state is managed by `App` and passed as props. See [time-period-filter.md](time-period-filter.md) for the filter requirements.
+
+---
+
 ## Navigation
 
 The `App` component renders two navigation links in the header: "Queue" and "Response metrics". Clicking a link switches the visible page content. The active link is visually distinguished using a CSS class (`nav-link-active`).
@@ -100,10 +113,10 @@ All time displays — both topic age and response time metrics — use a single 
 ### Styling
 
 - No inline styles. All styling uses CSS classes.
-- Class name prefixes: `summary-` for SummaryCards, `unreplied-` for UnrepliedTable, `untagged-` for UntaggedTable, `response-` for ResponseMetricsCards, `nav-` for navigation.
+- Class name prefixes: `summary-` for SummaryCards, `unreplied-` for UnrepliedTable, `untagged-` for UntaggedTable, `response-` for ResponseMetricsCards, `nav-` for navigation, `period-` for PeriodSelector.
 
 ### Implementation constraints
 
-- Pure function components. No React hooks. Exception: `App` uses `useState` for page navigation, as it is the application shell — not a display component.
+- Pure function components. No React hooks. Exception: `App` uses `useState` for page navigation, active period, and custom range draft state, as it is the application shell — not a display component.
 - Each component file stays under 200 lines.
 - Types are imported from the mock data module.

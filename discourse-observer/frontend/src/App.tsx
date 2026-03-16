@@ -10,7 +10,12 @@ import { UnrepliedTable } from "./components/UnrepliedTable";
 import { UntaggedTable } from "./components/UntaggedTable";
 import { ResponseMetricsCards } from "./components/ResponseMetricsCards";
 import { PeriodSelector } from "./components/PeriodSelector";
-import { type ActivePeriod, filterByPeriod } from "./components/timePeriod";
+import {
+  type ActivePeriod,
+  type CustomRange,
+  type PeriodPreset,
+  filterByPeriod,
+} from "./components/timePeriod";
 
 type Page = "queue" | "response-metrics";
 
@@ -27,6 +32,29 @@ export function App() {
     kind: "preset",
     preset: "allTime",
   });
+  // customDraft holds the in-progress custom range inputs.
+  // null means the custom tab is not visible. An object (possibly with empty strings)
+  // means the custom tab is open. The filter is applied only when both dates are set.
+  const [customDraft, setCustomDraft] = useState<CustomRange | null>(null);
+
+  function handlePresetSelect(preset: PeriodPreset) {
+    setActivePeriod({ kind: "preset", preset });
+    setCustomDraft(null);
+  }
+
+  function handleCustomOpen() {
+    // Restore the current range if already in custom mode, otherwise start empty.
+    setCustomDraft(
+      activePeriod.kind === "custom" ? activePeriod.range : { from: "", to: "" }
+    );
+  }
+
+  function handleCustomDraftChange(from: string, to: string) {
+    setCustomDraft({ from, to });
+    if (from && to) {
+      setActivePeriod({ kind: "custom", range: { from, to } });
+    }
+  }
 
   const filteredData = {
     ...MOCK_DATA,
@@ -58,7 +86,13 @@ export function App() {
         </span>
       </header>
 
-      <PeriodSelector period={activePeriod} onPeriodChange={setActivePeriod} />
+      <PeriodSelector
+        period={activePeriod}
+        customDraft={customDraft}
+        onPresetSelect={handlePresetSelect}
+        onCustomOpen={handleCustomOpen}
+        onCustomDraftChange={handleCustomDraftChange}
+      />
 
       <main className="app-content">
         {page === "queue" && (
