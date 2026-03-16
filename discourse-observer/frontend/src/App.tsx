@@ -1,4 +1,5 @@
-// Spec: specs/dashboard/queue-visibility.md, specs/dashboard/response-metrics.md
+// Spec: specs/dashboard/queue-visibility.md, specs/dashboard/response-metrics.md,
+//       specs/dashboard/time-period-filter.md
 // Tests: tests/dashboard/queue-visibility.unit.test.ts, tests/dashboard/response-metrics.unit.test.ts
 
 import { useState } from "react";
@@ -8,6 +9,8 @@ import { SummaryCards } from "./components/SummaryCards";
 import { UnrepliedTable } from "./components/UnrepliedTable";
 import { UntaggedTable } from "./components/UntaggedTable";
 import { ResponseMetricsCards } from "./components/ResponseMetricsCards";
+import { PeriodSelector } from "./components/PeriodSelector";
+import { type ActivePeriod, filterByPeriod } from "./components/timePeriod";
 
 type Page = "queue" | "response-metrics";
 
@@ -20,6 +23,17 @@ function formatSyncTime(isoString: string): string {
 
 export function App() {
   const [page, setPage] = useState<Page>("queue");
+  const [activePeriod, setActivePeriod] = useState<ActivePeriod>({
+    kind: "preset",
+    preset: "allTime",
+  });
+
+  const filteredData = {
+    ...MOCK_DATA,
+    unrepliedTopics: filterByPeriod(MOCK_DATA.unrepliedTopics, activePeriod),
+    untaggedTopics: filterByPeriod(MOCK_DATA.untaggedTopics, activePeriod),
+    resolvedTopics: filterByPeriod(MOCK_DATA.resolvedTopics, activePeriod),
+  };
 
   return (
     <div className="app">
@@ -44,25 +58,27 @@ export function App() {
         </span>
       </header>
 
+      <PeriodSelector period={activePeriod} onPeriodChange={setActivePeriod} />
+
       <main className="app-content">
         {page === "queue" && (
           <>
-            <SummaryCards data={MOCK_DATA} />
+            <SummaryCards data={filteredData} />
 
             <section className="app-section">
               <h2 className="app-section-title">Awaiting reply</h2>
-              <UnrepliedTable topics={MOCK_DATA.unrepliedTopics} />
+              <UnrepliedTable topics={filteredData.unrepliedTopics} />
             </section>
 
             <section className="app-section">
               <h2 className="app-section-title">Untagged topics</h2>
-              <UntaggedTable topics={MOCK_DATA.untaggedTopics} />
+              <UntaggedTable topics={filteredData.untaggedTopics} />
             </section>
           </>
         )}
 
         {page === "response-metrics" && (
-          <ResponseMetricsCards topics={MOCK_DATA.resolvedTopics} />
+          <ResponseMetricsCards topics={filteredData.resolvedTopics} />
         )}
       </main>
     </div>

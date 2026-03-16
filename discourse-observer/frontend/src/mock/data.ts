@@ -33,6 +33,10 @@ function daysAfter(base: string, days: number): string {
   return new Date(new Date(base).getTime() + days * 86_400_000).toISOString();
 }
 
+// Topics older than 30 days — visible in "last year" and "all time" but not "last 30 days"
+// Topics older than 365 days — visible in "all time" only
+// These allow the time period selector to produce visibly different results for each preset.
+
 const unrepliedTopics: Topic[] = [
   {
     id: 1041,
@@ -106,6 +110,22 @@ const unrepliedTopics: Topic[] = [
     category: "Support",
     replyCount: 0,
   },
+  {
+    id: 980,
+    title: "Custom domain SSL certificate not renewing automatically",
+    createdAt: daysAgo(45),
+    tags: ["ssl", "configuration"],
+    category: "Support",
+    replyCount: 0,
+  },
+  {
+    id: 921,
+    title: "Admin panel inaccessible after version 3.0 upgrade",
+    createdAt: daysAgo(400),
+    tags: ["administration"],
+    category: "Support",
+    replyCount: 0,
+  },
 ];
 
 const untaggedTopics: Topic[] = [
@@ -148,6 +168,22 @@ const untaggedTopics: Topic[] = [
     tags: [],
     category: "Support",
     replyCount: 0,
+  },
+  {
+    id: 977,
+    title: "Category description missing on mobile view",
+    createdAt: daysAgo(45),
+    tags: [],
+    category: "Bug Reports",
+    replyCount: 0,
+  },
+  {
+    id: 910,
+    title: "Emoji picker not loading on Safari 15",
+    createdAt: daysAgo(400),
+    tags: [],
+    category: "Bug Reports",
+    replyCount: 2,
   },
 ];
 
@@ -333,6 +369,27 @@ const resolvedTopics: Topic[] = [
     firstReplyAt: hoursAfter(daysAgo(3), 2),
     resolvedAt: daysAfter(daysAgo(3), 1),
     outcome: "solved",
+  },
+  {
+    id: 975,
+    title: "Backup export silently truncates topics over 10 MB",
+    createdAt: daysAgo(45),
+    tags: ["backup"],
+    category: "Support",
+    replyCount: 3,
+    firstReplyAt: hoursAfter(daysAgo(45), 6),
+    resolvedAt: daysAfter(daysAgo(45), 4),
+    outcome: "solved",
+  },
+  {
+    id: 908,
+    title: "Permalink resolver returns 404 for archived categories",
+    createdAt: daysAgo(400),
+    tags: ["permalinks"],
+    category: "Bug Reports",
+    replyCount: 0,
+    resolvedAt: daysAfter(daysAgo(400), 10),
+    outcome: "self-closed",
   },
 ];
 

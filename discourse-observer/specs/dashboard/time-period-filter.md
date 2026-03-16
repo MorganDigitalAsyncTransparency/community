@@ -34,7 +34,7 @@ This file defines *what* the user can do and how filtering behaves. Component de
 
 **TF-7.** "All time" includes all topics regardless of creation date.
 
-**TF-8.** "Custom range" lets the user specify a start date and an end date. Topics with `createdAt` on or after the start date (from 00:00:00 local time) and on or before the end date (through 23:59:59.999 local time) are included.
+**TF-8.** "Custom range" lets the user specify a start date and an end date. Topics with `createdAt` on or after the start date (from 00:00:00 UTC) and on or before the end date (through 23:59:59.999 UTC) are included. UTC boundaries are used because topic timestamps are stored in UTC, making the filter consistent and predictable regardless of the user's timezone.
 
 **TF-9.** For a custom range, both a start date and an end date are required before the filter takes effect. While either is absent, the dashboard shows all topics — equivalent to "All time".
 
@@ -108,7 +108,7 @@ Pure logic with well-defined boundary conditions. A defect in `filterByPeriod` w
 | `filterByPeriod` with `lastYear` — excludes topics older than 365 days | TF-6 | Parallel boundary check. |
 | `filterByPeriod` with `allTime` — returns all topics unmodified | TF-7 | Confirms no accidental filtering in the default case. |
 | `filterByPeriod` with custom range — includes topics on or after from date, on or before to date, excludes topics outside | TF-8 | Both bounds checked independently. |
-| `filterByPeriod` with incomplete custom (no range provided) — not applicable; `TF-9` handled in component state | TF-9 | Component never calls `filterByPeriod` with a partial range. |
+| `filterByPeriod` with incomplete custom — not applicable; TF-9 is handled in component state | TF-9 | Component never calls `filterByPeriod` with a partial range. |
 | `filterByPeriod` does not mutate input array | TF-3 | Safety property. |
 | `filterByPeriod` returns empty array for empty input | TF-13 | Confirms empty-state delegation works correctly. |
 
