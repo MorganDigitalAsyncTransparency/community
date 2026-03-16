@@ -118,6 +118,18 @@ else
   fi
 fi
 
+if [ -f "$PROJECT_DIR/config/sloThresholds.json" ]; then
+  pass "config/sloThresholds.json exists"
+else
+  if [ -f "$PROJECT_DIR/config/sloThresholds.example.json" ]; then
+    cp "$PROJECT_DIR/config/sloThresholds.example.json" "$PROJECT_DIR/config/sloThresholds.json"
+    warn "sloThresholds.json created from example" "edit it with your SLO thresholds"
+  else
+    fail "config/sloThresholds.json" "sloThresholds.example.json not found"
+    required_ok=false
+  fi
+fi
+
 # --- Summary ---
 
 printf "\n"
