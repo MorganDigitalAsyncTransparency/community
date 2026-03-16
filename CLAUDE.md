@@ -124,7 +124,16 @@ Perform an impact radius scan before evaluating anything.
 - For every file created or modified, search the codebase for all other files that reference, link to, describe, or depend on it. Read each one.
 - Update every file where the description is now inaccurate, incomplete, or missing — including specs, architecture docs, component catalogs, traceability matrices, and navigation files.
 - Verify that every requirement has a named verification method (automated test or explicit manual step) and that traceability references are accurate.
-- List which files you read. Do not declare Phase 5 complete based on assumption — name the files you checked.
+
+**Phase 5 output — required before moving to Phase 6:**
+
+State explicitly:
+
+1. Every file read during the impact radius scan.
+2. Which files were updated and why.
+3. Which files were reviewed and needed no change — and why not.
+
+If you cannot produce this list, the scan is not complete.
 
 ### Phase 6 — Review
 
@@ -138,13 +147,17 @@ Play devil's advocate against your own changes. Inhabit each of these perspectiv
 - **Edge cases:** What inputs, states, or scenarios could break this? What was not considered?
 - **Simplicity:** Was any unnecessary complexity introduced? Could the same result be achieved with less?
 
-State what each perspective reveals. If a perspective finds nothing, say so explicitly — do not skip it silently.
-
-Do not declare Phase 6 complete based on belief. Before moving to Phase 7, confirm that Phase 5's impact radius scan was complete and that the five perspectives above produced no unresolved findings.
+For each perspective, name at least one specific scenario, file, or element you actively investigated — not just the conclusion. "Nothing found" is only valid when you state what you looked at and why it is safe.
 
 If Phase 6 identifies issues, fix them and return to Phase 5. Repeat until both phases pass with nothing to fix.
 
+**Phase 6 output — required before moving to Phase 7:**
+
+For each perspective, state what was investigated and what was found. If you cannot do this, the review was not done.
+
 ### Phase 7 — Rebase and Pull Request
+
+**Before rebasing:** confirm you can produce the Phase 5 file list and Phase 6 per-perspective findings. If you cannot, the previous phases are not complete — do not proceed.
 
 - Rebase the branch onto the latest main. Resolve conflicts if any, then re-run tests and linters to confirm the branch is clean.
 - Create a PR with a short imperative title (under 70 characters) and a body containing summary bullets, a test plan checklist, and a link to any related issue.
