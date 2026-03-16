@@ -85,7 +85,7 @@ These terms have specific meanings in this project. Other documentation uses the
 
 ### Frontend / Dashboard
 
-A React/TypeScript frontend exists in `frontend/` and renders a three-page dashboard (Queue, Response metrics, Distribution) using mock data. The dashboard is specified in `specs/dashboard/queue-visibility.md`, `specs/dashboard/response-metrics.md`, `specs/dashboard/time-period-filter.md`, `specs/dashboard/response-time-trends.md`, `specs/dashboard/tag-distribution.md`, and `specs/dashboard/dashboard-components.md`. When the backend API is available, only the data source changes — the component interfaces remain the same.
+A React/TypeScript frontend exists in `frontend/` and renders a multi-page dashboard (Queue, Response metrics, Distribution, SLO, Volume) using mock data. Individual feature specs live in `specs/dashboard/`: queue-visibility, response-metrics, time-period-filter, response-time-trends, tag-distribution, slo-monitoring, tag-area-filter, and topic-intake. Cross-cutting component behavior is in `specs/dashboard/dashboard-components.md`. When the backend API is available, only the data source changes — the component interfaces remain the same.
 
 ### Backend API
 

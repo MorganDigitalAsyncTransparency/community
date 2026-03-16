@@ -2,7 +2,7 @@
 
 This document specifies the behavior of the dashboard view components rendered in the frontend.
 
-These components implement the visual layer for the requirements defined in [queue-visibility.md](queue-visibility.md), [response-metrics.md](response-metrics.md), [time-period-filter.md](time-period-filter.md), [response-time-trends.md](response-time-trends.md), [tag-distribution.md](tag-distribution.md), [slo-monitoring.md](slo-monitoring.md), and [tag-area-filter.md](tag-area-filter.md). Those files define *what* the user sees and why; this file defines *how* each component behaves to fulfill those requirements.
+These components implement the visual layer for the requirements defined in [queue-visibility.md](queue-visibility.md), [response-metrics.md](response-metrics.md), [time-period-filter.md](time-period-filter.md), [response-time-trends.md](response-time-trends.md), [tag-distribution.md](tag-distribution.md), [slo-monitoring.md](slo-monitoring.md), [tag-area-filter.md](tag-area-filter.md), and [topic-intake.md](topic-intake.md). Those files define *what* the user sees and why; this file defines *how* each component behaves to fulfill those requirements.
 
 ---
 
@@ -203,9 +203,51 @@ CSS class prefix: `slo-` for all elements specific to this component.
 
 ---
 
+## TopicIntake
+
+Accepts two props:
+
+| Prop | Type | Purpose |
+|------|------|---------|
+| `topics` | `Topic[]` | Filtered unreplied + resolved topics combined — intake counts all created topics |
+| `granularity` | `IntakeGranularity` | `"daily"` or `"weekly"` — determines time bucket size |
+
+Calls `computeIntakeBuckets(topics, granularity)` and renders:
+
+- A section heading "Topic intake".
+- An `IntakeChart` displaying the bar chart (see below).
+- If `computeIntakeBuckets` returns an empty array, renders an empty-state paragraph ("No data") instead of the chart.
+
+`TopicIntake` is a pure function component. It holds no state — all filtering is handled by `App` before passing props. See [topic-intake.md](topic-intake.md) for the requirements.
+
+CSS class prefix: `intake-` for section-level elements.
+
+---
+
+## IntakeChart
+
+Accepts `data: IntakeBucket[]` (chart-ready data with labels and counts). Renders a Recharts `BarChart` inside a `ResponsiveContainer` (width 100%, height 300px).
+
+One `Bar` series:
+
+- "Topics" (`count`) — colored `#5b8ff9`.
+
+Chart features:
+
+- `XAxis` with `dataKey="label"` showing bucket date labels.
+- `YAxis` with `allowDecimals={false}` to show whole numbers only.
+- `Tooltip` showing the bucket label and count.
+- No legend (single series makes a legend redundant).
+
+CSS class prefix: `intake-chart-` for chart-specific elements.
+
+`IntakeChart` uses Recharts' `ResponsiveContainer`, which requires a parent with defined dimensions. The chart wrapper div provides this via CSS.
+
+---
+
 ## Navigation
 
-The `App` component renders four navigation links in the header: "Queue", "Response metrics", "Distribution", and "SLO". Clicking a link switches the visible page content. The active link is visually distinguished using a CSS class (`nav-link-active`).
+The `App` component renders five navigation links in the header: "Queue", "Response metrics", "Distribution", "SLO", and "Volume". Clicking a link switches the visible page content. The active link is visually distinguished using a CSS class (`nav-link-active`).
 
 Navigation uses component state — no client-side router.
 
@@ -233,7 +275,7 @@ All time displays — both topic age and response time metrics — use a single 
 ### Styling
 
 - No inline styles. All styling uses CSS classes.
-- Class name prefixes: `summary-` for SummaryCards, `unreplied-` for UnrepliedTable, `untagged-` for UntaggedTable, `response-` for ResponseMetricsCards, `nav-` for navigation, `period-` for PeriodSelector, `tag-` for TagSelector, `trends-` for ResponseTimeTrends, `trends-chart-` for ResponseTimeTrendChart, `slo-` for SloMonitor.
+- Class name prefixes: `summary-` for SummaryCards, `unreplied-` for UnrepliedTable, `untagged-` for UntaggedTable, `response-` for ResponseMetricsCards, `nav-` for navigation, `period-` for PeriodSelector, `tag-` for TagSelector, `trends-` for ResponseTimeTrends, `trends-chart-` for ResponseTimeTrendChart, `slo-` for SloMonitor, `intake-` for TopicIntake, `intake-chart-` for IntakeChart.
 
 ### Implementation constraints
 
