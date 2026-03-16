@@ -72,6 +72,16 @@ This matrix shows how use cases decompose into specifications, requirements, and
 
 ---
 
+## Tag and area filter
+
+| Use case | Spec | Requirements | Verification |
+|----------|------|-------------|--------------|
+| UC-15: Filter dashboard by tag | [tag-area-filter.md](tag-area-filter.md) | TA-1 – TA-8 | [tag-area-filter.unit.test.ts](../../tests/dashboard/tag-area-filter.unit.test.ts) (TA-2, TA-4, TA-5, TA-6, TA-17); manual (TA-1, TA-3, TA-7, TA-8) |
+| UC-16: Navigate tags by area | [tag-area-filter.md](tag-area-filter.md) | TA-9 – TA-14 | [tag-area-filter.unit.test.ts](../../tests/dashboard/tag-area-filter.unit.test.ts) (TA-12, TA-13); manual (TA-9, TA-10, TA-11, TA-14) |
+| (cross-cutting: config, placement, defaults) | [tag-area-filter.md](tag-area-filter.md) | TA-15 – TA-21 | [tag-area-filter.unit.test.ts](../../tests/dashboard/tag-area-filter.unit.test.ts) (TA-17); manual (TA-15, TA-16, TA-18, TA-19, TA-20, TA-21) |
+
+---
+
 ## Gaps
 
 - UC-3 partial: untagged share as percentage of all topics (deferred until total topic count is available from backend).

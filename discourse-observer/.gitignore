@@ -3,4 +3,5 @@ frontend/dist/
 site/
 .env
 config/sloThresholds.json
+config/tagConfig.json
 *.exe

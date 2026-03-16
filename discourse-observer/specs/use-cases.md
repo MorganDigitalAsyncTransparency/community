@@ -125,11 +125,13 @@ This document describes what users need from discourse-observer. Each use case i
 
 **Goal:** Focus all dashboard metrics, lists, and charts on a single monitored tag, to evaluate that specific area's performance in isolation.
 **Expected result:** All metrics and lists reflect only topics carrying the selected tag. When no tag is selected, data covers all monitored tags aggregated together.
+**Status:** Implemented — see [specs/dashboard/tag-area-filter.md](dashboard/tag-area-filter.md).
 
 ### UC-16: Navigate tags by area
 
 **Goal:** Find the relevant tag quickly when many tags are configured, by browsing within a named area grouping.
 **Expected result:** An area selector narrows the visible tag list to tags belonging to that area. Each area's primary tag appears first; remaining tags are sorted alphabetically. Selecting an area does not itself select a tag — it only filters the tag list.
+**Status:** Implemented — see [specs/dashboard/tag-area-filter.md](dashboard/tag-area-filter.md).
 
 ---
 
