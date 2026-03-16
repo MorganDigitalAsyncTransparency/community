@@ -1,6 +1,7 @@
 // Spec: specs/dashboard/queue-visibility.md, specs/dashboard/response-metrics.md,
 //       specs/dashboard/time-period-filter.md
-// Tests: tests/dashboard/queue-visibility.unit.test.ts, tests/dashboard/response-metrics.unit.test.ts
+// Tests: tests/dashboard/queue-visibility.unit.test.ts, tests/dashboard/response-metrics.unit.test.ts,
+//        tests/dashboard/time-period-filter.unit.test.ts
 
 import { useState } from "react";
 import "./App.css";

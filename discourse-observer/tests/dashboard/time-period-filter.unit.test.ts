@@ -221,7 +221,7 @@ describe("filterByPeriod — custom range", () => {
 
   it("includes topics on or before the to date (through end of day)", () => {
     const topics = [
-      // 2026-03-14 at 23:00 local — within the to-date end of day
+      // 2026-03-14 at 21:00 UTC — within the to-date boundary (23:59:59.999 UTC)
       makeTopic({ id: 1, createdAt: "2026-03-14T21:00:00Z" }),
     ];
 
