@@ -32,6 +32,7 @@ nav:
           - Response Metrics: specs/dashboard/response-metrics.md
           - Time Period Filter: specs/dashboard/time-period-filter.md
           - Response Time Trends: specs/dashboard/response-time-trends.md
+          - Tag Distribution: specs/dashboard/tag-distribution.md
           - Components: specs/dashboard/dashboard-components.md
           - Traceability: specs/dashboard/traceability.md
       - Observer:

@@ -2,19 +2,11 @@
 // Tests: tests/dashboard/response-time-trends.unit.test.ts
 
 import type { Topic } from "../mock/data";
+import { formatWeekLabel } from "./topicFormatting";
 import { computeWeeklyTrends } from "./trendMetrics";
 
 interface ResponseTimeTrendsProps {
   topics: Topic[]; // all resolved topics, unfiltered — trend always spans full history
-}
-
-function formatWeekLabel(weekStart: string): string {
-  return new Date(weekStart + "T00:00:00Z").toLocaleDateString(undefined, {
-    year: "numeric",
-    month: "short",
-    day: "numeric",
-    timeZone: "UTC",
-  });
 }
 
 export function ResponseTimeTrends({ topics }: ResponseTimeTrendsProps) {

@@ -77,16 +77,19 @@ This document describes what users need from discourse-observer. Each use case i
 
 **Goal:** Know which monitored tags generate the most support topics, to understand where demand is concentrated.
 **Expected result:** A ranking of monitored tags by topic count for a selected time period.
+**Status:** Implemented — see [specs/dashboard/tag-distribution.md](dashboard/tag-distribution.md).
 
 ### UC-10: Identify slowest tag areas
 
 **Goal:** Know which monitored tags have the longest average handling time, to find areas where the team may need more capacity or expertise.
 **Expected result:** A ranking of monitored tags by average time to resolution for a selected time period.
+**Status:** Implemented — see [specs/dashboard/tag-distribution.md](dashboard/tag-distribution.md).
 
 ### UC-11: Detect accumulating backlogs
 
 **Goal:** Spot tag areas where open topics are accumulating without resolution, indicating a growing backlog.
-**Expected result:** A list of monitored tags with their count of currently open topics, highlighting tags where the open count is growing over time.
+**Expected result:** A list of monitored tags with their count of currently open topics and a weekly trend table showing created, resolved, and still-open counts per week.
+**Status:** Implemented — see [specs/dashboard/tag-distribution.md](dashboard/tag-distribution.md).
 
 ---
 

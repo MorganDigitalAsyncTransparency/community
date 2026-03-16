@@ -2,7 +2,7 @@
 
 This document specifies the behavior of the dashboard view components rendered in the frontend.
 
-These components implement the visual layer for the requirements defined in [queue-visibility.md](queue-visibility.md), [response-metrics.md](response-metrics.md), [time-period-filter.md](time-period-filter.md), and [response-time-trends.md](response-time-trends.md). Those files define *what* the user sees and why; this file defines *how* each component behaves to fulfill those requirements.
+These components implement the visual layer for the requirements defined in [queue-visibility.md](queue-visibility.md), [response-metrics.md](response-metrics.md), [time-period-filter.md](time-period-filter.md), [response-time-trends.md](response-time-trends.md), and [tag-distribution.md](tag-distribution.md). Those files define *what* the user sees and why; this file defines *how* each component behaves to fulfill those requirements.
 
 ---
 
@@ -98,9 +98,38 @@ Accepts `period: ActivePeriod`, `customDraft: CustomRange | null`, `onPresetSele
 
 ---
 
+## TagDistribution
+
+Accepts five props:
+
+| Prop | Type | Purpose |
+|------|------|---------|
+| `allTopics` | `Topic[]` | Filtered unreplied + resolved topics combined — used for UC-9 volume ranking |
+| `resolvedTopics` | `Topic[]` | Filtered resolved topics — used for UC-10 resolution time ranking |
+| `openTopics` | `Topic[]` | Filtered unreplied topics — used for UC-11 per-tag snapshot |
+| `allTopicsHistory` | `Topic[]` | Unfiltered unreplied + resolved combined — used for UC-11 weekly trend |
+| `openTopicsHistory` | `Topic[]` | Unfiltered unreplied topics — used for UC-11 weekly trend |
+
+Renders three sections in order:
+
+**1. "Topics by tag" (UC-9):** Calls `tagVolumeRanking(allTopics)` and renders a table with columns Tag and Topics, sorted highest count first. Shows an empty-state paragraph ("No data") when the result is empty.
+
+**2. "Resolution time by tag" (UC-10):** Calls `tagResolutionRanking(resolvedTopics)` and renders a table with columns Tag, Resolved, and Median resolution. Tags with "–" median sort to the bottom. Shows an empty-state paragraph when the result is empty.
+
+**3. "Open backlogs by tag" (UC-11):** Two parts:
+
+- Calls `tagBacklogRanking(openTopics)` and renders a table with columns Tag and Open topics, sorted highest count first. Shows an empty-state paragraph when empty.
+- Calls `computeWeeklyBacklog(allTopicsHistory, openTopicsHistory)` and renders a weekly trend table with columns Week, Created, Resolved, and Still open, ordered newest first. Shows an empty-state paragraph when empty. Week labels are formatted the same way as `ResponseTimeTrends` (UTC short date via `toLocaleDateString`).
+
+`TagDistribution` is a pure function component. It holds no state — all filtering and history scoping is handled by `App` before passing props. See [tag-distribution.md](tag-distribution.md) for the requirements.
+
+CSS class prefix: `dist-` for all elements specific to this component.
+
+---
+
 ## Navigation
 
-The `App` component renders two navigation links in the header: "Queue" and "Response metrics". Clicking a link switches the visible page content. The active link is visually distinguished using a CSS class (`nav-link-active`).
+The `App` component renders three navigation links in the header: "Queue", "Response metrics", and "Distribution". Clicking a link switches the visible page content. The active link is visually distinguished using a CSS class (`nav-link-active`).
 
 Navigation uses component state — no client-side router.
 

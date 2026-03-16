@@ -1,4 +1,5 @@
-// Spec: specs/dashboard/queue-visibility.md, specs/dashboard/response-metrics.md
+// Spec: specs/dashboard/queue-visibility.md, specs/dashboard/response-metrics.md,
+//       specs/dashboard/response-time-trends.md, specs/dashboard/tag-distribution.md
 // Tests: tests/dashboard/queue-visibility.unit.test.ts, tests/dashboard/response-metrics.unit.test.ts
 
 import type { Topic } from "../mock/data";
@@ -43,4 +44,15 @@ export function oldestUnrepliedDays(topics: Topic[]): string {
 
 export function formatTags(tags: string[]): string {
   return tags.length > 0 ? tags.join(", ") : "–";
+}
+
+// Formats a YYYY-MM-DD week-start date (UTC Monday) as a locale-aware short date.
+// Used by both ResponseTimeTrends and TagDistribution to label weekly rows.
+export function formatWeekLabel(isoDate: string): string {
+  return new Date(isoDate + "T00:00:00Z").toLocaleDateString(undefined, {
+    year: "numeric",
+    month: "short",
+    day: "numeric",
+    timeZone: "UTC",
+  });
 }

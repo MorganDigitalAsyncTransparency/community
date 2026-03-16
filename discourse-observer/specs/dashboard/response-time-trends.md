@@ -61,9 +61,9 @@ Each week is identified by the ISO date (YYYY-MM-DD) of the Monday that begins i
 
 The topic count per week is shown so that rows with "–" metrics can be understood in context (e.g. a week with one topic but no resolved timestamps).
 
-### Extensibility for per-tag views (UC-9–11)
+### Relationship to per-tag views (UC-9–11)
 
-The core computation function (`computeWeeklyTrends`) accepts a `Topic[]` parameter. A caller wanting per-tag trends passes a pre-filtered list. No tag-specific logic lives inside the function.
+The core computation function (`computeWeeklyTrends`) accepts a `Topic[]` parameter. A caller wanting per-tag trends passes a pre-filtered list. No tag-specific logic lives inside the function. UC-9–11 are implemented in [tag-distribution.md](tag-distribution.md), which uses `mondayOf` (exported from `trendMetrics.ts`) for the weekly backlog trend table.
 
 ### Component–requirement mapping
 
@@ -72,6 +72,7 @@ The core computation function (`computeWeeklyTrends`) accepts a `Topic[]` parame
 | `App` | App.tsx | RT-8 — passes unfiltered `resolvedTopics` to trend component; RT-11 — renders trend section below summary cards |
 | `ResponseTimeTrends` | ResponseTimeTrends.tsx | RT-3, RT-4, RT-5, RT-9 — renders the trend table |
 | `trendMetrics` | trendMetrics.ts | RT-1, RT-2, RT-5, RT-6, RT-7, RT-10 — computes weekly buckets and metrics |
+| `topicFormatting` | topicFormatting.ts | Week label formatting — `formatWeekLabel` (shared with TagDistribution) |
 
 ### Data flow
 
