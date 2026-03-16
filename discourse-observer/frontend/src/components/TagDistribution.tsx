@@ -2,6 +2,7 @@
 // Tests: tests/dashboard/tag-distribution.unit.test.ts
 
 import type { Topic } from "../mock/data";
+import { formatWeekLabel } from "./topicFormatting";
 import {
   tagVolumeRanking,
   tagResolutionRanking,
@@ -20,15 +21,6 @@ interface TagDistributionProps {
   allTopicsHistory: Topic[];
   // TD-23: unfiltered unreplied — UC-11 weekly trend spans all history
   openTopicsHistory: Topic[];
-}
-
-function formatWeekLabel(isoDate: string): string {
-  return new Date(isoDate + "T00:00:00Z").toLocaleDateString(undefined, {
-    year: "numeric",
-    month: "short",
-    day: "numeric",
-    timeZone: "UTC",
-  });
 }
 
 export function TagDistribution({
