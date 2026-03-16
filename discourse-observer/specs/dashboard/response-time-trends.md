@@ -138,10 +138,28 @@ For the chart: `weeklyTrendsChartData` transforms `WeeklyTrend[]` into `TrendCha
 
 Test location: `tests/dashboard/response-time-trends.unit.test.ts`
 
+### Chart data tests
+
+| What | Requirements | Rationale |
+|------|-------------|-----------|
+| `weeklyTrendsChartData` — returns chronological order (oldest first) | RT-13 | Chart X-axis must run left-to-right chronologically. |
+| `weeklyTrendsChartData` — converts formatted duration to numeric hours | RT-14 | Recharts needs numeric values for Y-axis plotting. |
+| `weeklyTrendsChartData` — "–" values become `undefined` | RT-17 | Missing data must produce line gaps, not zero values. |
+| `weeklyTrendsChartData` — empty input returns empty array | RT-12 | No data → no chart. |
+| `weeklyTrendsChartData` — day durations convert correctly (e.g. "3d" → 72) | RT-14 | Duration format conversion accuracy. |
+| `weeklyTrendsChartData` — hour durations convert correctly (e.g. "12h" → 12) | RT-14 | Duration format conversion accuracy. |
+
+Test location: `tests/dashboard/response-time-trends.unit.test.ts`
+
 ### Manual verification
 
 | What | Requirements | Rationale |
 |------|-------------|-----------|
+| Trend chart appears above the trend table on the response metrics page | RT-18, RT-11 | Layout concern. |
+| Chart shows two lines with distinct colors and a legend | RT-12, RT-16 | Visual rendering concern. |
+| Hovering a data point shows tooltip with week, duration, series name | RT-15 | Interaction concern. |
+| Clicking a legend entry toggles the corresponding line | RT-16 | Interaction concern. |
+| Weeks with "–" values appear as gaps in the line | RT-17 | Visual gap rendering concern. |
 | Trend table appears below summary cards on the response metrics page | RT-11 | Layout concern. |
 | Rows display readable week dates and non-overlapping columns | RT-4 | Formatting and CSS concern. |
 | Empty-state message shown when no resolved topics exist | RT-9 | Requires visual confirmation. |
