@@ -310,6 +310,11 @@ body {
   width: 5rem;
 }
 
+.trends-th-metric,
+.trends-td-metric {
+  min-width: 8rem;
+}
+
 /* Response metrics cards */
 
 .response-cards {
