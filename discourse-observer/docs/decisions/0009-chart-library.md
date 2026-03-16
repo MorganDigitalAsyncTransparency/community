@@ -159,13 +159,47 @@ A comprehensive, canvas-based visualization library originally developed by Baid
 - Learning curve for the configuration schema, which is broad and deep
 - Documentation is extensive but originally Chinese-first; English docs have improved but can be uneven
 
+## Shortlisting
+
+Four alternatives were eliminated before reaching the final decision:
+
+- **Chart.js** — covers many requirements via plugins, but the API is imperative (configuration objects, not component trees). If we accept a config-driven approach, ECharts is strictly more capable.
+- **Nivo** — large bundle, configuration-heavy, and 10 months since its last release. Despite that weight, it still lacks annotations and image export.
+- **Victory** — 14 months without a release and React 19 compatibility is unverified. The maintenance risk is too high for a dependency we would build on long-term.
+- **visx** — a toolkit, not a library. Every chart type, tooltip, legend, and interaction must be built from primitives. That effort is unjustified when the requirements are standard chart types.
+
+The choice comes down to two fundamentally different trade-offs:
+
+- **Recharts** offers an idiomatic React API (JSX component trees), covers all current requirements, and is the most actively maintained option. However, annotations and image export are not built in and would require supplementary solutions when those needs arise.
+- **ECharts** is the only alternative that covers every requirement in the matrix — including annotations, dual y-axes, and image export — out of the box. The trade-off is a configuration-driven API that is not React-idiomatic, with a thin wrapper layer between React and the underlying library.
+
 ## Decision
 
-*To be decided.*
+We choose **Recharts**.
+
+The project's established direction favors simplicity and lightweight tooling (ADR 0001, ADR 0002). Recharts aligns with this by offering an idiomatic React API where charts are composed as JSX component trees — readable and familiar to any React contributor, including AI-assisted ones. It covers all current requirements without plugins or workarounds.
+
+The two gaps — annotations and image export — are anticipated needs, not current ones. Annotations can be approximated with Recharts' reference lines if needed. Image export is unnecessary if the dashboard runs as an open server where results are shared via link rather than screenshot. These gaps do not justify adopting a heavier, configuration-driven library today.
+
+If visualization needs grow beyond what Recharts can support, migration is feasible — the charting layer is a presentation concern, not deeply coupled to domain logic. This follows the same reasoning applied in ADR 0002: start with the simplest tool that works and migrate when the tool proves its limits.
 
 ## Consequences
 
-*To be determined after decision.*
+**Positive:**
+
+- Idiomatic React API — charts are component trees, consistent with how the rest of the frontend is built
+- Covers line, pie, bar, area, composed charts, tooltips, legend toggle, and responsive layout out of the box
+- Most actively maintained option evaluated — latest release 10 days before this decision
+- Verified React 19 compatibility
+- Small learning curve for contributors familiar with React
+- MIT license
+
+**Negative:**
+
+- No built-in annotation support — reference lines can approximate this, but rich annotations would require custom work or a supplementary library
+- No built-in image export — acceptable as long as the dashboard is accessible as a shared server
+- Dual y-axes are supported but sparsely documented — may require experimentation
+- If visualization needs eventually outgrow Recharts, migration to a more capable library will cost development time
 
 ## Appendix: Requirements Coverage
 
