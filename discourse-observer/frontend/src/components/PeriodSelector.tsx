@@ -10,7 +10,7 @@ import {
 
 const PRESETS: PeriodPreset[] = ["last7", "last30", "lastYear", "allTime"];
 
-export interface PeriodSelectorProps {
+interface PeriodSelectorProps {
   period: ActivePeriod;
   customDraft: CustomRange | null; // null = custom inputs not visible
   onPresetSelect: (preset: PeriodPreset) => void;

@@ -71,11 +71,13 @@ Two types are defined in `timePeriod.ts`:
 
 ### Component
 
-`PeriodSelector` renders the selector row. It receives the current `ActivePeriod` and an `onPeriodChange` callback.
+`PeriodSelector` renders the selector row. It is a pure function component — it holds no state. All state is managed in `App` and passed as props:
 
-- Clicking a preset button calls `onPeriodChange` immediately with the selected preset.
-- Clicking "Custom" shows two date inputs. `onPeriodChange` is called only once both inputs have a value. Until then, the parent's period remains unchanged.
-- Internal state for the custom inputs (partial entry before both are filled) is managed inside `PeriodSelector` and is not exposed to the parent.
+- `period: ActivePeriod` — the currently applied filter (used to highlight the active button).
+- `customDraft: CustomRange | null` — the in-progress date input values; `null` means the custom inputs are not shown.
+- `onPresetSelect(preset)` — called when the user clicks a preset button.
+- `onCustomOpen()` — called when the user clicks the Custom button; `App` initialises `customDraft`.
+- `onCustomDraftChange(from, to)` — called on every date input change; `App` applies the filter once both dates are non-empty.
 
 ### Placement
 
@@ -118,7 +120,9 @@ Test location: `tests/dashboard/time-period-filter.unit.test.ts`
 
 | What | Requirements | Rationale |
 |------|-------------|-----------|
+| Period selector is visible on both the Queue and Response Metrics pages | TF-1 | Placement is a layout concern. |
 | Period selector renders all five options | TF-2 | Presence and labels depend on rendered output. |
+| Changing the period updates all three lists (unreplied, untagged, resolved) | TF-10 | Cross-list effect, best confirmed by observing counts change together. |
 | Active period button is visually distinguished | TF-14 | Visual styling concern. |
 | Custom date inputs appear when "Custom" is selected | TF-9 | Conditional rendering, best confirmed visually. |
 | Custom filter does not apply until both dates are set | TF-9 | Stateful interaction, not unit-testable without a browser. |
