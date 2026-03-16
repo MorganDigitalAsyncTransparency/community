@@ -7,8 +7,11 @@ This document describes what users need from discourse-observer. Each use case i
 - **Support topic** — a forum topic carrying one of the configured support tags.
 - **Solved** — a topic where a reply has been marked as the accepted answer.
 - **Self-closed** — a topic that carries a configured closed tag but has no accepted answer. Solved topics also carry the closed tag, so the distinction is the absence of an accepted answer.
+- **Stalled** — an open topic that has received at least one reply but has had no activity for an extended period without reaching a resolution. Stalled topics are not explicitly closed — they have simply gone quiet.
 - **Untagged topic** — a topic without any tag. These are anomalies that may have been missed by the team.
 - **First reply** — the earliest reply on a topic. The system does not distinguish team replies from community replies.
+- **Monitored tag** — a support tag defined in the tag configuration file. Only topics carrying a monitored tag are counted in metrics.
+- **Area** — a named grouping of related monitored tags, defined in the tag configuration file. Each area has one primary tag shown at the top; remaining tags in the area are sorted alphabetically.
 - **SLI (service level indicator)** — a measured metric such as time to first reply or time to resolution.
 - **SLO (service level objective)** — a target for an SLI, defined per monitored tag. These are internal goals, not contractual obligations.
 
@@ -113,3 +116,49 @@ This document describes what users need from discourse-observer. Each use case i
 
 **Goal:** Understand what proportion of topics meet SLO thresholds, to evaluate team performance against expectations.
 **Expected result:** For each monitored tag and threshold type, the percentage of topics that were handled within the configured threshold for a selected time period.
+
+---
+
+## Tag and area selection
+
+### UC-15: Filter dashboard by tag
+
+**Goal:** Focus all dashboard metrics, lists, and charts on a single monitored tag, to evaluate that specific area's performance in isolation.
+**Expected result:** All metrics and lists reflect only topics carrying the selected tag. When no tag is selected, data covers all monitored tags aggregated together.
+
+### UC-16: Navigate tags by area
+
+**Goal:** Find the relevant tag quickly when many tags are configured, by browsing within a named area grouping.
+**Expected result:** An area selector narrows the visible tag list to tags belonging to that area. Each area's primary tag appears first; remaining tags are sorted alphabetically. Selecting an area does not itself select a tag — it only filters the tag list.
+
+---
+
+## Volume
+
+### UC-17: Track topic intake over time
+
+**Goal:** See how many new support topics are created per period, to understand demand and provide context for response metrics.
+**Expected result:** Topic count shown per day or week for a selected time period, broken down by tag when a tag is selected.
+
+---
+
+## Activity patterns
+
+### UC-18: Detect stalled topics
+
+**Goal:** Identify open topics that have received at least one reply but have gone quiet without resolution, so that conversations at risk of being abandoned can be followed up.
+**Expected result:** A list of open topics with at least one reply and no activity for a configurable number of days, sorted by time since last activity (oldest first), showing topic title, tag, and days since last activity.
+
+### UC-19: Identify peak activity periods
+
+**Goal:** Know when support topics typically arrive and when activity is highest, to inform staffing decisions and understand whether SLO misses cluster at specific times.
+**Expected result:** A breakdown of topic creation by day of week and hour of day, showing where demand is concentrated.
+
+---
+
+## Response time distribution
+
+### UC-20: Understand response time spread
+
+**Goal:** See not just the median response time but how response times are distributed, to identify whether the median hides a long tail of slow responses.
+**Expected result:** A distribution of time-to-first-reply and time-to-resolution values, showing how many topics fall into each time bracket for a selected period.
