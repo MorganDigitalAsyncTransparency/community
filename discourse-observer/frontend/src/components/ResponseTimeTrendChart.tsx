@@ -21,7 +21,12 @@ function formatYAxisTick(hours: number): string {
   return formatDuration(hours * MILLISECONDS_PER_HOUR);
 }
 
-function formatTooltipValue(value: number): string {
+function formatTooltipValue(
+  value: number | string | readonly (number | string)[] | undefined,
+): string {
+  if (typeof value !== "number") {
+    return "–";
+  }
   return formatDuration(value * MILLISECONDS_PER_HOUR);
 }
 
