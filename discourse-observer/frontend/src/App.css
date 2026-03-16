@@ -1,6 +1,7 @@
 /*
  * Spec: specs/dashboard/dashboard-components.md
- * Tests: tests/dashboard/queue-visibility.unit.test.ts, tests/dashboard/response-metrics.unit.test.ts
+ * Tests: tests/dashboard/queue-visibility.unit.test.ts, tests/dashboard/response-metrics.unit.test.ts,
+ *        tests/dashboard/response-time-trends.unit.test.ts
  */
 
 * {
