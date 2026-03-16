@@ -1,7 +1,9 @@
 // Spec: specs/dashboard/queue-visibility.md, specs/dashboard/response-metrics.md,
-//       specs/dashboard/time-period-filter.md, specs/dashboard/response-time-trends.md
+//       specs/dashboard/time-period-filter.md, specs/dashboard/response-time-trends.md,
+//       specs/dashboard/tag-distribution.md
 // Tests: tests/dashboard/queue-visibility.unit.test.ts, tests/dashboard/response-metrics.unit.test.ts,
-//        tests/dashboard/time-period-filter.unit.test.ts, tests/dashboard/response-time-trends.unit.test.ts
+//        tests/dashboard/time-period-filter.unit.test.ts, tests/dashboard/response-time-trends.unit.test.ts,
+//        tests/dashboard/tag-distribution.unit.test.ts
 
 import { useState } from "react";
 import "./App.css";
@@ -11,6 +13,7 @@ import { UnrepliedTable } from "./components/UnrepliedTable";
 import { UntaggedTable } from "./components/UntaggedTable";
 import { ResponseMetricsCards } from "./components/ResponseMetricsCards";
 import { ResponseTimeTrends } from "./components/ResponseTimeTrends";
+import { TagDistribution } from "./components/TagDistribution";
 import { PeriodSelector } from "./components/PeriodSelector";
 import {
   type ActivePeriod,
@@ -19,7 +22,7 @@ import {
   filterByPeriod,
 } from "./components/timePeriod";
 
-type Page = "queue" | "response-metrics";
+type Page = "queue" | "response-metrics" | "distribution";
 
 function formatSyncTime(isoString: string): string {
   return new Date(isoString).toLocaleString(undefined, {
@@ -82,6 +85,12 @@ export function App() {
           >
             Response metrics
           </button>
+          <button
+            className={`nav-link ${page === "distribution" ? "nav-link-active" : ""}`}
+            onClick={() => setPage("distribution")}
+          >
+            Distribution
+          </button>
         </nav>
         <span className="app-sync-status">
           Last synced: {formatSyncTime(MOCK_DATA.lastSyncedAt)}
@@ -119,6 +128,18 @@ export function App() {
             {/* RT-8: trends always span full history, independent of the active period filter */}
             <ResponseTimeTrends topics={MOCK_DATA.resolvedTopics} />
           </>
+        )}
+
+        {page === "distribution" && (
+          // TD-23: allTopicsHistory and openTopicsHistory are unfiltered so the
+          // weekly backlog trend spans all history regardless of the active period.
+          <TagDistribution
+            allTopics={[...filteredData.unrepliedTopics, ...filteredData.resolvedTopics]}
+            resolvedTopics={filteredData.resolvedTopics}
+            openTopics={filteredData.unrepliedTopics}
+            allTopicsHistory={[...MOCK_DATA.unrepliedTopics, ...MOCK_DATA.resolvedTopics]}
+            openTopicsHistory={MOCK_DATA.unrepliedTopics}
+          />
         )}
       </main>
     </div>

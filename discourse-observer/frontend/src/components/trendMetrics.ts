@@ -13,7 +13,8 @@ export interface WeeklyTrend {
 
 // Returns the YYYY-MM-DD of the Monday that begins the ISO week containing `date`.
 // Week boundaries are computed in UTC so they match how topic timestamps are stored.
-function mondayOf(date: Date): string {
+// Exported so tagMetrics.ts can reuse the same bucketing logic without duplication.
+export function mondayOf(date: Date): string {
   const dayOfWeek = date.getUTCDay(); // 0 = Sunday, 1 = Monday, …, 6 = Saturday
   const daysToMonday = dayOfWeek === 0 ? 6 : dayOfWeek - 1;
   const monday = new Date(date);
