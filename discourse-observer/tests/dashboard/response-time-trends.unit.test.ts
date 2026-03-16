@@ -25,7 +25,7 @@ function utcNoon(year: number, month: number, day: number): string {
 }
 
 // ---------------------------------------------------------------------------
-// computeWeeklyTrends (RT-1 – RT-8, RT-10)
+// computeWeeklyTrends (RT-1 – RT-7, RT-10)
 // ---------------------------------------------------------------------------
 
 describe("computeWeeklyTrends", () => {
