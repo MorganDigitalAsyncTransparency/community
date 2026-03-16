@@ -32,7 +32,7 @@ export const PRESET_LABELS: Record<PeriodPreset, string> = {
 export function filterByPeriod(topics: Topic[], period: ActivePeriod): Topic[] {
   if (period.kind === "preset") {
     if (period.preset === "allTime") {
-      return topics;
+      return topics; // no filtering — return the original reference unchanged
     }
 
     const cutoff = Date.now() - PRESET_DAYS[period.preset] * MS_PER_DAY;
