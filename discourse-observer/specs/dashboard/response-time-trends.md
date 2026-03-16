@@ -10,7 +10,7 @@ This file defines *what* the user sees and why. [dashboard-components.md](dashbo
 
 | Requirement | Use case |
 |-------------|----------|
-| RT-1 – RT-9, RT-11 | UC-8: Track response time trends |
+| RT-1 – RT-9, RT-11 – RT-18 | UC-8: Track response time trends |
 | RT-10 | Cross-cutting: duration display format (shared with RM-13) |
 
 ---
@@ -40,6 +40,22 @@ This file defines *what* the user sees and why. [dashboard-components.md](dashbo
 ### Duration formatting
 
 **RT-10.** Duration values use the same format as RM-13: whole days (`"Xd"`) for durations of 24 hours or more, whole hours (`"Xh"`) for less than 24 hours, minimum `"1h"`.
+
+### Trend charts (UC-8)
+
+**RT-12.** A line chart displays median first reply time and median resolution time as two separate lines across all calendar weeks that contain at least one resolved topic, so that the user can see the trend visually without reading individual table rows.
+
+**RT-13.** The chart X-axis shows weeks in chronological order (oldest left, newest right), labelled by the Monday date of each week. When there are more weeks than fit legibly, the axis may thin labels to avoid overlap.
+
+**RT-14.** The chart Y-axis shows duration in hours. Values of 24 hours or more are displayed as whole days in axis labels and tooltips (e.g. "2d"), values below 24 hours as whole hours (e.g. "12h"), consistent with the RT-10 duration format.
+
+**RT-15.** Hovering over a data point shows a tooltip with the week label, the formatted duration value, and the series name.
+
+**RT-16.** The chart includes a legend identifying the two series ("Median first reply" and "Median resolution"). Clicking a legend entry toggles that series on or off.
+
+**RT-17.** Weeks where a metric value is "–" (no qualifying topics) are represented as gaps in the line — not as zero values — so that missing data is visually distinct from fast response times.
+
+**RT-18.** The chart appears between the section heading and the trend table, so that the visual overview comes before the detailed numbers.
 
 ### Placement
 
