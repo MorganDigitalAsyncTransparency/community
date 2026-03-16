@@ -10,7 +10,7 @@ This file defines *what* the user sees and why. [dashboard-components.md](dashbo
 
 | Requirement | Use case |
 |-------------|----------|
-| RT-1 – RT-9 | UC-8: Track response time trends |
+| RT-1 – RT-9, RT-11 | UC-8: Track response time trends |
 | RT-10 | Cross-cutting: duration display format (shared with RM-13) |
 
 ---
@@ -69,7 +69,7 @@ The core computation function (`computeWeeklyTrends`) accepts a `Topic[]` parame
 
 | Component | File | Requirements |
 |-----------|------|-------------|
-| `App` | App.tsx | RT-8 — passes unfiltered `resolvedTopics` to trend component |
+| `App` | App.tsx | RT-8 — passes unfiltered `resolvedTopics` to trend component; RT-11 — renders trend section below summary cards |
 | `ResponseTimeTrends` | ResponseTimeTrends.tsx | RT-3, RT-4, RT-5, RT-9 — renders the trend table |
 | `trendMetrics` | trendMetrics.ts | RT-1, RT-2, RT-5, RT-6, RT-7, RT-10 — computes weekly buckets and metrics |
 
