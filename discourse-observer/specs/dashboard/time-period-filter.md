@@ -87,6 +87,10 @@ The `PeriodSelector` is rendered in `App.tsx` below the header and above the pag
 
 `App.tsx` holds `activePeriod` state and applies `filterByPeriod` to each of the three topic lists from `DashboardData` before passing them to child components. Child component interfaces are unchanged — they continue to receive already-filtered `Topic[]` arrays.
 
+### Scope
+
+The filter applies to queue visibility and the response metrics summary cards. The weekly response time trend table (`ResponseTimeTrends`, UC-8) is explicitly excluded — it always receives the full unfiltered topic history regardless of the active period. This is by design: trend analysis requires consistent historical windows to be meaningful. See RT-8 in [response-time-trends.md](response-time-trends.md).
+
 ### Component–requirement mapping
 
 | Component | File | Requirements |
