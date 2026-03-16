@@ -93,12 +93,13 @@ All components receive data from a single `DashboardData` object. In the current
 
 ### What is not covered
 
-This specification covers the first iteration of queue visibility only. The following are explicitly out of scope:
+This specification covers queue visibility requirements only. The following are explicitly out of scope:
 
-- Time period filtering (UC-2 mentions "filterable by time period" — deferred to a future iteration that addresses UC-12).
 - Untagged share as a percentage of all topics (UC-3 mentions "the share they represent" — deferred until total topic count is available from the backend).
 - Linking topic titles to the Discourse forum.
 - Sorting controls or column reordering.
+
+Time period filtering (UC-12) is implemented in [time-period-filter.md](time-period-filter.md). The period selector applies to the unreplied and untagged lists, narrowing the topic set passed to this view's components.
 
 ---
 
