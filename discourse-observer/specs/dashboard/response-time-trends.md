@@ -41,6 +41,10 @@ This file defines *what* the user sees and why. [dashboard-components.md](dashbo
 
 **RT-10.** Duration values use the same format as RM-13: whole days (`"Xd"`) for durations of 24 hours or more, whole hours (`"Xh"`) for less than 24 hours, minimum `"1h"`.
 
+### Placement
+
+**RT-11.** The trend table appears on the response metrics page, below the summary cards (`ResponseMetricsCards`), so that aggregate metrics and weekly detail are co-located.
+
 ---
 
 ## Design
