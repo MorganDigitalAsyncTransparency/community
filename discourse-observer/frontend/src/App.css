@@ -245,6 +245,70 @@ body {
   width: 8rem;
 }
 
+/* Weekly trends table */
+
+.trends {
+  margin-top: 2rem;
+}
+
+.trends-title {
+  font-size: 1.15rem;
+  font-weight: 600;
+  margin-bottom: 0.75rem;
+}
+
+.trends-empty {
+  font-size: 0.9rem;
+  color: #888;
+  padding: 1rem 0;
+}
+
+.trends-table {
+  width: 100%;
+  border-collapse: collapse;
+  background: #fff;
+  border: 1px solid #ddd;
+  border-radius: 6px;
+}
+
+.trends-table thead {
+  background: #f0f1f3;
+}
+
+.trends-th {
+  text-align: left;
+  padding: 0.6rem 0.75rem;
+  font-size: 0.8rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  color: #555;
+}
+
+.trends-td {
+  padding: 0.6rem 0.75rem;
+  font-size: 0.9rem;
+  border-top: 1px solid #eee;
+}
+
+.trends-row:nth-child(even) {
+  background: #fafbfc;
+}
+
+.trends-row:hover {
+  background: #f0f4ff;
+}
+
+.trends-th-week,
+.trends-td-week {
+  width: 10rem;
+}
+
+.trends-th-count,
+.trends-td-count {
+  width: 5rem;
+}
+
 /* Response metrics cards */
 
 .response-cards {

@@ -116,6 +116,7 @@ export function App() {
         {page === "response-metrics" && (
           <>
             <ResponseMetricsCards topics={filteredData.resolvedTopics} />
+            {/* RT-8: trends always span full history, independent of the active period filter */}
             <ResponseTimeTrends topics={MOCK_DATA.resolvedTopics} />
           </>
         )}

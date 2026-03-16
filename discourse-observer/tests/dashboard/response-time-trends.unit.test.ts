@@ -18,8 +18,8 @@ function makeTopic(overrides: Partial<Topic> & { createdAt: string }): Topic {
   };
 }
 
-// Returns an ISO string for a UTC date with time set to noon, to avoid
-// any risk of DST or date-boundary artefacts in UTC-based bucketing.
+// Returns an ISO string for a UTC date with time set to noon to avoid
+// date-boundary artefacts in UTC-based bucketing.
 function utcNoon(year: number, month: number, day: number): string {
   return new Date(Date.UTC(year, month - 1, day, 12, 0, 0)).toISOString();
 }
