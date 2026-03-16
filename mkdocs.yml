@@ -49,6 +49,7 @@ nav:
       - "0006: Analytical Storage": docs/decisions/0006-analytical-storage.md
       - "0007: Branching and Release Strategy": docs/decisions/0007-branching-and-release-strategy.md
       - "0008: Documentation and Traceability Strategy": docs/decisions/0008-documentation-and-traceability-strategy.md
+      - "0009: Chart Library": docs/decisions/0009-chart-library.md
 
 markdown_extensions:
   - toc:
