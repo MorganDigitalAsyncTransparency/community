@@ -51,7 +51,19 @@ This matrix shows how use cases decompose into specifications, requirements, and
 
 ---
 
+## Distribution and bottlenecks
+
+| Use case | Spec | Requirements | Verification |
+|----------|------|-------------|--------------|
+| UC-9: Identify highest-volume tag areas | [tag-distribution.md](tag-distribution.md) | TD-1 – TD-5 | [tag-distribution.unit.test.ts](../../tests/dashboard/tag-distribution.unit.test.ts) (TD-1 – TD-3); manual (TD-4, TD-5) |
+| UC-10: Identify slowest tag areas | [tag-distribution.md](tag-distribution.md) | TD-6 – TD-11 | [tag-distribution.unit.test.ts](../../tests/dashboard/tag-distribution.unit.test.ts) (TD-6 – TD-10); manual (TD-11) |
+| UC-11: Detect accumulating backlogs | [tag-distribution.md](tag-distribution.md) | TD-12 – TD-24 | [tag-distribution.unit.test.ts](../../tests/dashboard/tag-distribution.unit.test.ts) (TD-12 – TD-14, TD-16 – TD-23); manual (TD-15, TD-24) |
+| (cross-cutting) | [tag-distribution.md](tag-distribution.md) | TD-25 – TD-27 | manual (TD-25, TD-26); [response-metrics.unit.test.ts](../../tests/dashboard/response-metrics.unit.test.ts) (TD-27 via RM-13) |
+
+---
+
 ## Gaps
 
 - UC-3 partial: untagged share as percentage of all topics (deferred until total topic count is available from backend).
+- UC-11 partial: per-tag weekly backlog trend deferred — current implementation shows aggregate weekly trend only. Per-tag breakdown requires a tag selector and is deferred until need is demonstrated.
 - Visual design: no spec exists for the frontend's visual language (colors, typography, spacing, layout system). CSS implementation exists without a corresponding specification. Tracked as a separate work package.
