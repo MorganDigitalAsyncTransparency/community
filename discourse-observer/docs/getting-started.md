@@ -8,7 +8,7 @@ This guide explains how to configure, start, and access the discourse-observer d
 make start
 ```
 
-This copies `.env.example` to `.env` (if needed), builds the containers, starts them, and opens the dashboard. Edit `.env` with your Discourse credentials before the first run.
+This copies `.env.example` to `.env` and `config/sloThresholds.example.json` to `config/sloThresholds.json` (if needed), builds the containers, starts them, and opens the dashboard. Edit `.env` with your Discourse credentials and `config/sloThresholds.json` with your SLO thresholds before the first run.
 
 After code changes, use `make restart` to rebuild and relaunch.
 
@@ -64,6 +64,16 @@ DISCOURSE_API_USER=nickname
 ```
 
 The `.env` file is gitignored and will not be committed.
+
+### SLO thresholds
+
+Copy the example configuration and adjust the thresholds per tag:
+
+```sh
+cp config/sloThresholds.example.json config/sloThresholds.json
+```
+
+Edit `config/sloThresholds.json` to define SLO thresholds for each monitored tag. Tags not listed are excluded from SLO monitoring. The file is gitignored.
 
 ## Build and start
 

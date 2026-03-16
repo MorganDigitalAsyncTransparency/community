@@ -20,7 +20,7 @@ During Phase 5 impact scans, search from the monorepo root (`c:\code\community\`
 
 ## Current state
 
-The frontend dashboard (`frontend/`) is actively implemented with mock data. It has three pages — Queue, Response Metrics, Distribution — covering UC-1 through UC-12. Specs, tests, and source files are in place for all implemented use cases. UC-13 and UC-14 (SLO monitoring) are not yet implemented.
+The frontend dashboard (`frontend/`) is actively implemented with mock data. It has four pages — Queue, Response Metrics, Distribution, SLO — covering UC-1 through UC-14. Specs, tests, and source files are in place for all implemented use cases. SLO thresholds are configured per tag in `config/sloThresholds.json` (created from `config/sloThresholds.example.json` during setup).
 
 The backend pipeline (Go) is in the foundation stage: module boundaries, architecture decisions, and directory structure are defined, but implementation has not started.
 
