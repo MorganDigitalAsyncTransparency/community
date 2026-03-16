@@ -67,7 +67,7 @@ This file defines *what* the user sees and why. [dashboard-components.md](dashbo
 
 ### Layout
 
-The trend table appears on the response metrics page, below the summary cards (`ResponseMetricsCards`). It is introduced by a section heading "Weekly trends".
+The trends section appears on the response metrics page, below the summary cards (`ResponseMetricsCards`). It is introduced by a section heading "Weekly trends". The trend chart appears first, followed by the trend table, so that the visual overview precedes the detailed numbers.
 
 ### Week label
 
@@ -76,6 +76,22 @@ Each week is identified by the ISO date (YYYY-MM-DD) of the Monday that begins i
 ### Topic count column
 
 The topic count per week is shown so that rows with "–" metrics can be understood in context (e.g. a week with one topic but no resolved timestamps).
+
+### Trend chart
+
+The chart uses Recharts (ADR 0009) to render two line series over weekly periods:
+
+- **"Median first reply"** — median time to first reply per week.
+- **"Median resolution"** — median time to resolution per week.
+
+The X-axis runs chronologically (oldest left, newest right) — the reverse of the table's newest-first order. The Y-axis represents duration in hours. Axis tick labels and tooltips use the RT-10 duration format.
+
+The chart data is derived from the same `computeWeeklyTrends` output used by the table, with an additional transformation step (`weeklyTrendsChartData`) that:
+
+1. Reverses the array to chronological order.
+2. Converts formatted duration strings to numeric hours for plotting. Weeks with "–" produce `undefined` values, which Recharts renders as gaps in the line.
+
+The chart is wrapped in a Recharts `ResponsiveContainer` so it adapts to the parent width. A fixed height of 300px provides adequate vertical space for the lines without dominating the page.
 
 ### Relationship to per-tag views (UC-9–11)
 
@@ -86,13 +102,20 @@ The core computation function (`computeWeeklyTrends`) accepts a `Topic[]` parame
 | Component | File | Requirements |
 |-----------|------|-------------|
 | `App` | App.tsx | RT-8 — passes unfiltered `resolvedTopics` to trend component; RT-11 — renders trend section below summary cards |
-| `ResponseTimeTrends` | ResponseTimeTrends.tsx | RT-3, RT-4, RT-5, RT-9 — renders the trend table |
-| `trendMetrics` | trendMetrics.ts | RT-1, RT-2, RT-5, RT-6, RT-7, RT-10 — computes weekly buckets and metrics |
-| `topicFormatting` | topicFormatting.ts | Week label formatting — `formatWeekLabel` (shared with TagDistribution) |
+| `ResponseTimeTrends` | ResponseTimeTrends.tsx | RT-3, RT-4, RT-5, RT-9, RT-18 — renders chart then table |
+| `ResponseTimeTrendChart` | ResponseTimeTrendChart.tsx | RT-12, RT-13, RT-14, RT-15, RT-16, RT-17 — renders the Recharts line chart |
+| `trendMetrics` | trendMetrics.ts | RT-1, RT-2, RT-5, RT-6, RT-7, RT-10 — computes weekly buckets and metrics; `weeklyTrendsChartData` converts to chart-ready numeric format |
+| `topicFormatting` | topicFormatting.ts | Week label formatting — `formatWeekLabel` (shared with TagDistribution); `formatDuration` used by chart tooltip (RT-14) |
 
 ### Data flow
 
-`App` passes `MOCK_DATA.resolvedTopics` (unfiltered) directly to `ResponseTimeTrends`. The component calls `computeWeeklyTrends` and renders the result. `computeWeeklyTrends` calls the existing `medianFirstReplyTime` and `medianResolutionTime` from `responseMetrics.ts`, reusing their "–" empty-state behaviour (RT-6, RT-7).
+`App` passes `MOCK_DATA.resolvedTopics` (unfiltered) directly to `ResponseTimeTrends`. The component calls `computeWeeklyTrends` and renders both the chart and the table from the result.
+
+For the table: `computeWeeklyTrends` returns `WeeklyTrend[]` with formatted strings, rendered directly.
+
+For the chart: `weeklyTrendsChartData` transforms `WeeklyTrend[]` into `TrendChartPoint[]` with numeric hour values suitable for Recharts. This transformation reverses to chronological order and parses formatted durations back to hours. Weeks with "–" produce `undefined` values, rendered as line gaps.
+
+`computeWeeklyTrends` calls the existing `medianFirstReplyTime` and `medianResolutionTime` from `responseMetrics.ts`, reusing their "–" empty-state behaviour (RT-6, RT-7).
 
 ---
 

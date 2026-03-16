@@ -75,13 +75,38 @@ Given a sorted array of durations, the median is:
 Accepts `topics: Topic[]` (all resolved topics, unfiltered). Calls `computeWeeklyTrends` and renders:
 
 - A section heading "Weekly trends".
+- A `ResponseTimeTrendChart` displaying the trend lines (see below).
 - A table with four columns: Week (Monday date), Topics (count), Median first reply, Median resolution.
 - Rows ordered newest week first.
-- If `computeWeeklyTrends` returns an empty array, renders an empty-state paragraph ("No data") instead of the table.
+- If `computeWeeklyTrends` returns an empty array, renders an empty-state paragraph ("No data") instead of both the chart and the table.
 
 Week labels are formatted using `toLocaleDateString` with `{ year: "numeric", month: "short", day: "numeric", timeZone: "UTC" }` so that the display date matches the UTC Monday that identifies the week.
 
 `ResponseTimeTrends` is a pure function component. It does not filter topics — callers are responsible for passing the correct set. See [response-time-trends.md](response-time-trends.md) for the requirements.
+
+---
+
+## ResponseTimeTrendChart
+
+Accepts `data: TrendChartPoint[]` (chart-ready data with numeric durations). Renders a Recharts `LineChart` inside a `ResponsiveContainer` (width 100%, height 300px).
+
+Two `Line` series:
+
+- "Median first reply" (`medianFirstReplyHours`) — colored `#8884d8`.
+- "Median resolution" (`medianResolutionHours`) — colored `#82ca9d`.
+
+Both lines use `connectNulls={false}` so that weeks with `undefined` values (no qualifying topics) appear as gaps.
+
+Chart features:
+
+- `XAxis` with `dataKey="weekLabel"` showing formatted week dates.
+- `YAxis` with duration-formatted tick labels (hours/days via `formatDuration`).
+- `Tooltip` showing series name, formatted duration, and week label.
+- `Legend` with click-to-toggle (built-in Recharts behavior).
+
+CSS class prefix: `trends-chart-` for chart-specific elements.
+
+`ResponseTimeTrendChart` uses Recharts' `ResponsiveContainer`, which requires a parent with defined dimensions. The chart wrapper div provides this via CSS.
 
 ---
 
@@ -157,10 +182,10 @@ All time displays — both topic age and response time metrics — use a single 
 ### Styling
 
 - No inline styles. All styling uses CSS classes.
-- Class name prefixes: `summary-` for SummaryCards, `unreplied-` for UnrepliedTable, `untagged-` for UntaggedTable, `response-` for ResponseMetricsCards, `nav-` for navigation, `period-` for PeriodSelector, `trends-` for ResponseTimeTrends.
+- Class name prefixes: `summary-` for SummaryCards, `unreplied-` for UnrepliedTable, `untagged-` for UntaggedTable, `response-` for ResponseMetricsCards, `nav-` for navigation, `period-` for PeriodSelector, `trends-` for ResponseTimeTrends, `trends-chart-` for ResponseTimeTrendChart.
 
 ### Implementation constraints
 
-- Pure function components. No React hooks. Exception: `App` uses `useState` for page navigation, active period, and custom range draft state, as it is the application shell — not a display component.
+- Pure function components. No React hooks. Exceptions: `App` uses `useState` for page navigation, active period, and custom range draft state, as it is the application shell — not a display component. `ResponseTimeTrendChart` uses Recharts components that manage internal state for interactivity (tooltips, legend toggle); the component itself does not call hooks directly.
 - Each component file stays under 200 lines.
 - Types are imported from the mock data module.

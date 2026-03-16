@@ -1,6 +1,6 @@
 # 9. Chart Library
 
-**Status:** Proposed
+**Status:** Accepted
 **Date:** 2026-03-16
 
 ## Context
