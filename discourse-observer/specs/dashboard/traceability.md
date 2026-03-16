@@ -35,8 +35,15 @@ This matrix shows how use cases decompose into specifications, requirements, and
 
 ---
 
+## Time period filter
+
+| Use case | Spec | Requirements | Verification |
+|----------|------|-------------|--------------|
+| UC-12: Filter by time period | [time-period-filter.md](time-period-filter.md) | TF-1 – TF-14 | [time-period-filter.unit.test.ts](../../tests/dashboard/time-period-filter.unit.test.ts) (TF-3 – TF-8, TF-13); manual (TF-1, TF-2, TF-9, TF-10, TF-11, TF-12, TF-14) |
+
+---
+
 ## Gaps
 
-- UC-2 partial: time period filtering (deferred to UC-12 implementation).
 - UC-3 partial: untagged share as percentage of all topics (deferred until total topic count is available from backend).
 - Visual design: no spec exists for the frontend's visual language (colors, typography, spacing, layout system). CSS implementation exists without a corresponding specification. Tracked as a separate work package.

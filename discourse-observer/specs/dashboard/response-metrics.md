@@ -96,9 +96,10 @@ All components receive data from the same `DashboardData` object, using the `res
 
 ### What is not covered
 
-- Time period filtering (UC-12) — deferred to a future iteration.
 - Trend visualization (UC-8) — deferred to a future iteration.
 - Per-tag breakdown of metrics (UC-9, UC-10) — deferred.
+
+Time period filtering (UC-12) is implemented in [time-period-filter.md](time-period-filter.md). The period selector applies to the resolved topics collection, so all metrics on this page reflect the selected window of topics by creation date.
 
 ---
 

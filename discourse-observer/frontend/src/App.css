@@ -75,6 +75,66 @@ body {
   background: #fff;
 }
 
+/* Period selector */
+
+.period-selector {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  margin-bottom: 1.5rem;
+  flex-wrap: wrap;
+}
+
+.period-selector-label {
+  font-size: 0.85rem;
+  color: #666;
+  margin-right: 0.25rem;
+}
+
+.period-btn {
+  background: none;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  padding: 0.25rem 0.65rem;
+  font-size: 0.85rem;
+  color: #555;
+  cursor: pointer;
+  font-family: inherit;
+}
+
+.period-btn:hover {
+  background: #eef0f4;
+}
+
+.period-btn-active {
+  background: #fff;
+  border-color: #999;
+  color: #1a1a1a;
+  font-weight: 600;
+}
+
+.period-custom-inputs {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  margin-left: 0.25rem;
+}
+
+.period-custom-separator {
+  color: #666;
+  font-size: 0.85rem;
+}
+
+.period-date-input {
+  padding: 0.2rem 0.4rem;
+  font-size: 0.85rem;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  font-family: inherit;
+  background: #fff;
+  color: #1a1a1a;
+}
+
 /* Content */
 
 .app-content {
