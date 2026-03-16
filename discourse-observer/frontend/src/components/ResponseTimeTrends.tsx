@@ -2,8 +2,9 @@
 // Tests: tests/dashboard/response-time-trends.unit.test.ts
 
 import type { Topic } from "../mock/data";
+import { ResponseTimeTrendChart } from "./ResponseTimeTrendChart";
 import { formatWeekLabel } from "./topicFormatting";
-import { computeWeeklyTrends } from "./trendMetrics";
+import { computeWeeklyTrends, weeklyTrendsChartData } from "./trendMetrics";
 
 interface ResponseTimeTrendsProps {
   topics: Topic[]; // all resolved topics, unfiltered — trend always spans full history
@@ -21,9 +22,12 @@ export function ResponseTimeTrends({ topics }: ResponseTimeTrendsProps) {
     );
   }
 
+  const chartData = weeklyTrendsChartData(trends);
+
   return (
     <section className="trends">
       <h2 className="trends-title">Weekly trends</h2>
+      <ResponseTimeTrendChart data={chartData} />
       <table className="trends-table">
         <thead>
           <tr>

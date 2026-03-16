@@ -10,7 +10,7 @@ This file defines *what* the user sees and why. [dashboard-components.md](dashbo
 
 | Requirement | Use case |
 |-------------|----------|
-| RT-1 – RT-9, RT-11 | UC-8: Track response time trends |
+| RT-1 – RT-9, RT-11 – RT-18 | UC-8: Track response time trends |
 | RT-10 | Cross-cutting: duration display format (shared with RM-13) |
 
 ---
@@ -41,6 +41,22 @@ This file defines *what* the user sees and why. [dashboard-components.md](dashbo
 
 **RT-10.** Duration values use the same format as RM-13: whole days (`"Xd"`) for durations of 24 hours or more, whole hours (`"Xh"`) for less than 24 hours, minimum `"1h"`.
 
+### Trend charts (UC-8)
+
+**RT-12.** A line chart displays median first reply time and median resolution time as two separate lines across all calendar weeks that contain at least one resolved topic, so that the user can see the trend visually without reading individual table rows.
+
+**RT-13.** The chart X-axis shows weeks in chronological order (oldest left, newest right), labelled by the Monday date of each week. When there are more weeks than fit legibly, the axis may thin labels to avoid overlap.
+
+**RT-14.** The chart Y-axis shows duration in hours. Values of 24 hours or more are displayed as whole days in axis labels and tooltips (e.g. "2d"), values below 24 hours as whole hours (e.g. "12h"), consistent with the RT-10 duration format.
+
+**RT-15.** Hovering over a data point shows a tooltip with the week label, the formatted duration value, and the series name.
+
+**RT-16.** The chart includes a legend identifying the two series ("Median first reply" and "Median resolution"). Clicking a legend entry toggles that series on or off.
+
+**RT-17.** Weeks where a metric value is "–" (no qualifying topics) are represented as gaps in the line — not as zero values — so that missing data is visually distinct from fast response times.
+
+**RT-18.** The chart appears between the section heading and the trend table, so that the visual overview comes before the detailed numbers.
+
 ### Placement
 
 **RT-11.** The trend table appears on the response metrics page, below the summary cards (`ResponseMetricsCards`), so that aggregate metrics and weekly detail are co-located.
@@ -51,7 +67,7 @@ This file defines *what* the user sees and why. [dashboard-components.md](dashbo
 
 ### Layout
 
-The trend table appears on the response metrics page, below the summary cards (`ResponseMetricsCards`). It is introduced by a section heading "Weekly trends".
+The trends section appears on the response metrics page, below the summary cards (`ResponseMetricsCards`). It is introduced by a section heading "Weekly trends". The trend chart appears first, followed by the trend table, so that the visual overview precedes the detailed numbers.
 
 ### Week label
 
@@ -60,6 +76,22 @@ Each week is identified by the ISO date (YYYY-MM-DD) of the Monday that begins i
 ### Topic count column
 
 The topic count per week is shown so that rows with "–" metrics can be understood in context (e.g. a week with one topic but no resolved timestamps).
+
+### Trend chart
+
+The chart uses Recharts (ADR 0009) to render two line series over weekly periods:
+
+- **"Median first reply"** — median time to first reply per week.
+- **"Median resolution"** — median time to resolution per week.
+
+The X-axis runs chronologically (oldest left, newest right) — the reverse of the table's newest-first order. The Y-axis represents duration in hours. Axis tick labels and tooltips use the RT-10 duration format.
+
+The chart data is derived from the same `computeWeeklyTrends` output used by the table, with an additional transformation step (`weeklyTrendsChartData`) that:
+
+1. Reverses the array to chronological order.
+2. Converts formatted duration strings to numeric hours for plotting. Weeks with "–" produce `undefined` values, which Recharts renders as gaps in the line.
+
+The chart is wrapped in a Recharts `ResponsiveContainer` so it adapts to the parent width. A fixed height of 300px provides adequate vertical space for the lines without dominating the page.
 
 ### Relationship to per-tag views (UC-9–11)
 
@@ -70,13 +102,20 @@ The core computation function (`computeWeeklyTrends`) accepts a `Topic[]` parame
 | Component | File | Requirements |
 |-----------|------|-------------|
 | `App` | App.tsx | RT-8 — passes unfiltered `resolvedTopics` to trend component; RT-11 — renders trend section below summary cards |
-| `ResponseTimeTrends` | ResponseTimeTrends.tsx | RT-3, RT-4, RT-5, RT-9 — renders the trend table |
-| `trendMetrics` | trendMetrics.ts | RT-1, RT-2, RT-5, RT-6, RT-7, RT-10 — computes weekly buckets and metrics |
-| `topicFormatting` | topicFormatting.ts | Week label formatting — `formatWeekLabel` (shared with TagDistribution) |
+| `ResponseTimeTrends` | ResponseTimeTrends.tsx | RT-3, RT-4, RT-5, RT-9, RT-18 — renders chart then table |
+| `ResponseTimeTrendChart` | ResponseTimeTrendChart.tsx | RT-12, RT-13, RT-14, RT-15, RT-16, RT-17 — renders the Recharts line chart |
+| `trendMetrics` | trendMetrics.ts | RT-1, RT-2, RT-5, RT-6, RT-7, RT-10 — computes weekly buckets and metrics; `weeklyTrendsChartData` converts to chart-ready numeric format |
+| `topicFormatting` | topicFormatting.ts | Week label formatting — `formatWeekLabel` (shared with TagDistribution); `formatDuration` used by chart tooltip (RT-14) |
 
 ### Data flow
 
-`App` passes `MOCK_DATA.resolvedTopics` (unfiltered) directly to `ResponseTimeTrends`. The component calls `computeWeeklyTrends` and renders the result. `computeWeeklyTrends` calls the existing `medianFirstReplyTime` and `medianResolutionTime` from `responseMetrics.ts`, reusing their "–" empty-state behaviour (RT-6, RT-7).
+`App` passes `MOCK_DATA.resolvedTopics` (unfiltered) directly to `ResponseTimeTrends`. The component calls `computeWeeklyTrends` and renders both the chart and the table from the result.
+
+For the table: `computeWeeklyTrends` returns `WeeklyTrend[]` with formatted strings, rendered directly.
+
+For the chart: `weeklyTrendsChartData` transforms `WeeklyTrend[]` into `TrendChartPoint[]` with numeric hour values suitable for Recharts. This transformation reverses to chronological order and parses formatted durations back to hours. Weeks with "–" produce `undefined` values, rendered as line gaps.
+
+`computeWeeklyTrends` calls the existing `medianFirstReplyTime` and `medianResolutionTime` from `responseMetrics.ts`, reusing their "–" empty-state behaviour (RT-6, RT-7).
 
 ---
 
@@ -99,10 +138,28 @@ The core computation function (`computeWeeklyTrends`) accepts a `Topic[]` parame
 
 Test location: `tests/dashboard/response-time-trends.unit.test.ts`
 
+### Chart data tests
+
+| What | Requirements | Rationale |
+|------|-------------|-----------|
+| `weeklyTrendsChartData` — returns chronological order (oldest first) | RT-13 | Chart X-axis must run left-to-right chronologically. |
+| `weeklyTrendsChartData` — converts formatted duration to numeric hours | RT-14 | Recharts needs numeric values for Y-axis plotting. |
+| `weeklyTrendsChartData` — "–" values become `undefined` | RT-17 | Missing data must produce line gaps, not zero values. |
+| `weeklyTrendsChartData` — empty input returns empty array | RT-12 | No data → no chart. |
+| `weeklyTrendsChartData` — day durations convert correctly (e.g. "3d" → 72) | RT-14 | Duration format conversion accuracy. |
+| `weeklyTrendsChartData` — hour durations convert correctly (e.g. "12h" → 12) | RT-14 | Duration format conversion accuracy. |
+
+Test location: `tests/dashboard/response-time-trends.unit.test.ts`
+
 ### Manual verification
 
 | What | Requirements | Rationale |
 |------|-------------|-----------|
+| Trend chart appears above the trend table on the response metrics page | RT-18, RT-11 | Layout concern. |
+| Chart shows two lines with distinct colors and a legend | RT-12, RT-16 | Visual rendering concern. |
+| Hovering a data point shows tooltip with week, duration, series name | RT-15 | Interaction concern. |
+| Clicking a legend entry toggles the corresponding line | RT-16 | Interaction concern. |
+| Weeks with "–" values appear as gaps in the line | RT-17 | Visual gap rendering concern. |
 | Trend table appears below summary cards on the response metrics page | RT-11 | Layout concern. |
 | Rows display readable week dates and non-overlapping columns | RT-4 | Formatting and CSS concern. |
 | Empty-state message shown when no resolved topics exist | RT-9 | Requires visual confirmation. |

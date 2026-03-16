@@ -3,12 +3,19 @@
 
 import type { Topic } from "../mock/data";
 import { medianFirstReplyTime, medianResolutionTime } from "./responseMetrics";
+import { formatWeekLabel } from "./topicFormatting";
 
 export interface WeeklyTrend {
   weekStart: string; // Monday of the week, YYYY-MM-DD (UTC)
   topicCount: number;
   medianFirstReply: string; // formatted duration or "–"
   medianResolution: string; // formatted duration or "–"
+}
+
+export interface TrendChartPoint {
+  weekLabel: string; // locale-formatted Monday date for X-axis
+  medianFirstReplyHours: number | undefined; // hours, or undefined for gaps
+  medianResolutionHours: number | undefined; // hours, or undefined for gaps
 }
 
 // Returns the YYYY-MM-DD of the Monday that begins the ISO week containing `date`.
@@ -44,4 +51,30 @@ export function computeWeeklyTrends(topics: Topic[]): WeeklyTrend[] {
       medianFirstReply: medianFirstReplyTime(weekTopics),
       medianResolution: medianResolutionTime(weekTopics),
     }));
+}
+
+// Converts a formatted duration string ("3d", "12h") to numeric hours.
+// Returns undefined for "–" (no data), which Recharts renders as a line gap.
+export function parseDurationToHours(formatted: string): number | undefined {
+  if (formatted === "–") {
+    return undefined;
+  }
+
+  const match = formatted.match(/^(\d+)(d|h)$/);
+  if (!match) {
+    return undefined;
+  }
+
+  const value = Number(match[1]);
+  return match[2] === "d" ? value * 24 : value;
+}
+
+// Transforms WeeklyTrend[] (newest-first) into TrendChartPoint[] (oldest-first)
+// with numeric hour values suitable for Recharts line chart plotting.
+export function weeklyTrendsChartData(trends: WeeklyTrend[]): TrendChartPoint[] {
+  return [...trends].reverse().map((trend) => ({
+    weekLabel: formatWeekLabel(trend.weekStart),
+    medianFirstReplyHours: parseDurationToHours(trend.medianFirstReply),
+    medianResolutionHours: parseDurationToHours(trend.medianResolution),
+  }));
 }
