@@ -31,6 +31,7 @@ nav:
           - Queue Visibility: specs/dashboard/queue-visibility.md
           - Response Metrics: specs/dashboard/response-metrics.md
           - Time Period Filter: specs/dashboard/time-period-filter.md
+          - Response Time Trends: specs/dashboard/response-time-trends.md
           - Components: specs/dashboard/dashboard-components.md
           - Traceability: specs/dashboard/traceability.md
       - Observer:
