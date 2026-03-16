@@ -34,6 +34,7 @@ nav:
           - Response Time Trends: specs/dashboard/response-time-trends.md
           - Tag Distribution: specs/dashboard/tag-distribution.md
           - SLO Monitoring: specs/dashboard/slo-monitoring.md
+          - Tag and Area Filter: specs/dashboard/tag-area-filter.md
           - Components: specs/dashboard/dashboard-components.md
           - Traceability: specs/dashboard/traceability.md
       - Observer:

@@ -8,7 +8,7 @@ This guide explains how to configure, start, and access the discourse-observer d
 make start
 ```
 
-This copies `.env.example` to `.env` and `config/sloThresholds.example.json` to `config/sloThresholds.json` (if needed), builds the containers, starts them, and opens the dashboard. Edit `.env` with your Discourse credentials and `config/sloThresholds.json` with your SLO thresholds before the first run.
+This copies `.env.example` to `.env`, `config/sloThresholds.example.json` to `config/sloThresholds.json`, and `config/tagConfig.example.json` to `config/tagConfig.json` (if needed), builds the containers, starts them, and opens the dashboard. Edit `.env` with your Discourse credentials, `config/sloThresholds.json` with your SLO thresholds, and `config/tagConfig.json` with your tag configuration before the first run.
 
 After code changes, use `make restart` to rebuild and relaunch.
 
@@ -74,6 +74,16 @@ cp config/sloThresholds.example.json config/sloThresholds.json
 ```
 
 Edit `config/sloThresholds.json` to define SLO thresholds for each monitored tag. Tags not listed are excluded from SLO monitoring. The file is gitignored.
+
+### Tag configuration
+
+Copy the example configuration and define your monitored tags and areas:
+
+```sh
+cp config/tagConfig.example.json config/tagConfig.json
+```
+
+Edit `config/tagConfig.json` to define areas and their tags. Each area groups related tags for navigation; the union of all tags across areas defines the set of monitored tags used in dashboard metrics. The file is gitignored.
 
 ## Build and start
 

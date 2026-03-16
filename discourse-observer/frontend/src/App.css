@@ -136,6 +136,59 @@ body {
   color: #1a1a1a;
 }
 
+/* Tag selector (UC-15, UC-16) */
+
+.tag-selector {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  margin-bottom: 1.5rem;
+  flex-wrap: wrap;
+}
+
+.tag-selector-label {
+  font-size: 0.85rem;
+  color: #666;
+  margin-right: 0.25rem;
+}
+
+.tag-selector-label-tag {
+  margin-left: 0.75rem;
+}
+
+.tag-area-select {
+  padding: 0.25rem 0.5rem;
+  font-size: 0.85rem;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  font-family: inherit;
+  background: #fff;
+  color: #1a1a1a;
+  cursor: pointer;
+}
+
+.tag-btn {
+  background: none;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  padding: 0.25rem 0.65rem;
+  font-size: 0.85rem;
+  color: #555;
+  cursor: pointer;
+  font-family: inherit;
+}
+
+.tag-btn:hover {
+  background: #eef0f4;
+}
+
+.tag-btn-active {
+  background: #fff;
+  border-color: #999;
+  color: #1a1a1a;
+  font-weight: 600;
+}
+
 /* Content */
 
 .app-content {

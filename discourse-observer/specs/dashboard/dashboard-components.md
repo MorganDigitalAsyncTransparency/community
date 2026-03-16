@@ -2,7 +2,7 @@
 
 This document specifies the behavior of the dashboard view components rendered in the frontend.
 
-These components implement the visual layer for the requirements defined in [queue-visibility.md](queue-visibility.md), [response-metrics.md](response-metrics.md), [time-period-filter.md](time-period-filter.md), [response-time-trends.md](response-time-trends.md), [tag-distribution.md](tag-distribution.md), and [slo-monitoring.md](slo-monitoring.md). Those files define *what* the user sees and why; this file defines *how* each component behaves to fulfill those requirements.
+These components implement the visual layer for the requirements defined in [queue-visibility.md](queue-visibility.md), [response-metrics.md](response-metrics.md), [time-period-filter.md](time-period-filter.md), [response-time-trends.md](response-time-trends.md), [tag-distribution.md](tag-distribution.md), [slo-monitoring.md](slo-monitoring.md), and [tag-area-filter.md](tag-area-filter.md). Those files define *what* the user sees and why; this file defines *how* each component behaves to fulfill those requirements.
 
 ---
 
@@ -123,6 +123,33 @@ Accepts `period: ActivePeriod`, `customDraft: CustomRange | null`, `onPresetSele
 
 ---
 
+## TagSelector
+
+Accepts five props:
+
+| Prop | Type | Purpose |
+|------|------|---------|
+| `config` | `TagConfig` | Area/tag configuration loaded from `config/tagConfig.json` |
+| `activeTag` | `string \| null` | Currently selected tag, or `null` for all |
+| `activeArea` | `string \| null` | Currently selected area, or `null` for all |
+| `onTagSelect` | `(tag: string \| null) => void` | Called when a tag button is clicked |
+| `onAreaSelect` | `(area: string \| null) => void` | Called when an area is selected |
+
+Renders two controls in a single row:
+
+1. **Area selector** — a `<select>` dropdown with "All areas" as the default option, followed by one option per area from the configuration.
+2. **Tag buttons** — an "All" button (representing no tag selected) followed by one button per visible tag. Visible tags are determined by `tagsForArea(config, activeArea)`.
+
+- Selecting an area calls `onAreaSelect`. The tag selection is preserved.
+- Clicking a tag button calls `onTagSelect` with the tag name, or `null` for the "All" button.
+- The currently active tag button is indicated by the `tag-btn-active` CSS class.
+
+`TagSelector` is a pure function component — it holds no state. All state is managed by `App` and passed as props. See [tag-area-filter.md](tag-area-filter.md) for the filter requirements.
+
+CSS class prefix: `tag-` for all elements specific to this component.
+
+---
+
 ## TagDistribution
 
 Accepts five props:
@@ -206,10 +233,10 @@ All time displays — both topic age and response time metrics — use a single 
 ### Styling
 
 - No inline styles. All styling uses CSS classes.
-- Class name prefixes: `summary-` for SummaryCards, `unreplied-` for UnrepliedTable, `untagged-` for UntaggedTable, `response-` for ResponseMetricsCards, `nav-` for navigation, `period-` for PeriodSelector, `trends-` for ResponseTimeTrends, `trends-chart-` for ResponseTimeTrendChart, `slo-` for SloMonitor.
+- Class name prefixes: `summary-` for SummaryCards, `unreplied-` for UnrepliedTable, `untagged-` for UntaggedTable, `response-` for ResponseMetricsCards, `nav-` for navigation, `period-` for PeriodSelector, `tag-` for TagSelector, `trends-` for ResponseTimeTrends, `trends-chart-` for ResponseTimeTrendChart, `slo-` for SloMonitor.
 
 ### Implementation constraints
 
-- Pure function components. No React hooks. Exceptions: `App` uses `useState` for page navigation, active period, and custom range draft state, as it is the application shell — not a display component. `ResponseTimeTrendChart` uses Recharts components that manage internal state for interactivity (tooltips, legend toggle); the component itself does not call hooks directly.
+- Pure function components. No React hooks. Exceptions: `App` uses `useState` for page navigation, active period, custom range draft, active tag, and active area state, as it is the application shell — not a display component. `ResponseTimeTrendChart` uses Recharts components that manage internal state for interactivity (tooltips, legend toggle); the component itself does not call hooks directly.
 - Each component file stays under 200 lines.
 - Types are imported from the mock data module.

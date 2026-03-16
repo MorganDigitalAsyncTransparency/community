@@ -1,0 +1,22 @@
+[
+  {
+    "name": "Integration",
+    "primaryTag": "api",
+    "tags": ["api", "webhooks", "sso"]
+  },
+  {
+    "name": "Access",
+    "primaryTag": "authentication",
+    "tags": ["authentication", "ssl"]
+  },
+  {
+    "name": "Content",
+    "primaryTag": "editor",
+    "tags": ["editor", "search"]
+  },
+  {
+    "name": "Infrastructure",
+    "primaryTag": "installation",
+    "tags": ["backup", "configuration", "data-import", "email", "installation", "setup"]
+  }
+]
