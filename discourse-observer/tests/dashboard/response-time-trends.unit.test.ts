@@ -1,7 +1,11 @@
 // Spec: specs/dashboard/response-time-trends.md
 
 import { describe, expect, it } from "vitest";
-import { computeWeeklyTrends } from "../../frontend/src/components/trendMetrics";
+import {
+  computeWeeklyTrends,
+  parseDurationToHours,
+  weeklyTrendsChartData,
+} from "../../frontend/src/components/trendMetrics";
 import type { Topic } from "../../frontend/src/mock/data";
 
 const DAY_MS = 86_400_000;
@@ -179,5 +183,93 @@ describe("computeWeeklyTrends", () => {
     const [row] = computeWeeklyTrends(topics);
     expect(row.medianFirstReply).toBe("4h");
     expect(row.topicCount).toBe(2);
+  });
+});
+
+// ---------------------------------------------------------------------------
+// parseDurationToHours (RT-14)
+// ---------------------------------------------------------------------------
+
+describe("parseDurationToHours", () => {
+  it("converts day durations to hours (e.g. '3d' → 72)", () => {
+    expect(parseDurationToHours("3d")).toBe(72);
+  });
+
+  it("converts hour durations directly (e.g. '12h' → 12)", () => {
+    expect(parseDurationToHours("12h")).toBe(12);
+  });
+
+  it("converts '1h' to 1", () => {
+    expect(parseDurationToHours("1h")).toBe(1);
+  });
+
+  it("converts '1d' to 24", () => {
+    expect(parseDurationToHours("1d")).toBe(24);
+  });
+
+  // RT-17
+  it("returns undefined for '–' (no data)", () => {
+    expect(parseDurationToHours("–")).toBeUndefined();
+  });
+
+  it("returns undefined for unrecognized format", () => {
+    expect(parseDurationToHours("unknown")).toBeUndefined();
+  });
+});
+
+// ---------------------------------------------------------------------------
+// weeklyTrendsChartData (RT-12, RT-13, RT-14, RT-17)
+// ---------------------------------------------------------------------------
+
+describe("weeklyTrendsChartData", () => {
+  // RT-12
+  it("returns an empty array for empty input", () => {
+    expect(weeklyTrendsChartData([])).toEqual([]);
+  });
+
+  // RT-13 — chronological order (oldest first)
+  it("reverses newest-first trends to chronological (oldest-first) order", () => {
+    const trends = computeWeeklyTrends([
+      makeTopic({ createdAt: utcNoon(2025, 1, 6) }),  // W02
+      makeTopic({ id: 2, createdAt: utcNoon(2025, 1, 20) }), // W04
+      makeTopic({ id: 3, createdAt: utcNoon(2025, 1, 13) }), // W03
+    ]);
+
+    const chartData = weeklyTrendsChartData(trends);
+    const labels = chartData.map((p) => p.weekLabel);
+
+    // Oldest week first — locale-formatted labels, so just verify order
+    expect(labels.length).toBe(3);
+    // First label should correspond to Jan 6, last to Jan 20
+    expect(labels[0]).toContain("6");
+    expect(labels[2]).toContain("20");
+  });
+
+  // RT-14 — numeric conversion
+  it("converts formatted durations to numeric hours", () => {
+    const created = utcNoon(2025, 3, 3);
+    const trends = computeWeeklyTrends([
+      makeTopic({
+        createdAt: created,
+        firstReplyAt: new Date(new Date(created).getTime() + 2 * DAY_MS).toISOString(),
+        resolvedAt: new Date(new Date(created).getTime() + 5 * DAY_MS).toISOString(),
+        outcome: "solved",
+      }),
+    ]);
+
+    const [point] = weeklyTrendsChartData(trends);
+    expect(point.medianFirstReplyHours).toBe(48); // 2d = 48h
+    expect(point.medianResolutionHours).toBe(120); // 5d = 120h
+  });
+
+  // RT-17 — "–" becomes undefined
+  it("maps '–' values to undefined for chart gaps", () => {
+    const trends = computeWeeklyTrends([
+      makeTopic({ createdAt: utcNoon(2025, 3, 3) }), // no firstReplyAt, no resolvedAt
+    ]);
+
+    const [point] = weeklyTrendsChartData(trends);
+    expect(point.medianFirstReplyHours).toBeUndefined();
+    expect(point.medianResolutionHours).toBeUndefined();
   });
 });

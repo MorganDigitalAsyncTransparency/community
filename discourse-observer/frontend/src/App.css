@@ -246,6 +246,14 @@ body {
   width: 8rem;
 }
 
+/* Weekly trends chart */
+
+.trends-chart-wrapper {
+  width: 100%;
+  height: 300px;
+  margin-bottom: 1.5rem;
+}
+
 /* Weekly trends table */
 
 .trends {
