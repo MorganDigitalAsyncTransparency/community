@@ -62,6 +62,16 @@ This matrix shows how use cases decompose into specifications, requirements, and
 
 ---
 
+## SLO monitoring
+
+| Use case | Spec | Requirements | Verification |
+|----------|------|-------------|--------------|
+| UC-13: Flag topics exceeding SLO thresholds | [slo-monitoring.md](slo-monitoring.md) | SL-1 – SL-12 | [slo-monitoring.unit.test.ts](../../tests/dashboard/slo-monitoring.unit.test.ts) (SL-2 – SL-4, SL-6, SL-9, SL-11); manual (SL-1, SL-5, SL-7, SL-8, SL-10, SL-12) |
+| UC-14: Evaluate SLO compliance | [slo-monitoring.md](slo-monitoring.md) | SL-13 – SL-20 | [slo-monitoring.unit.test.ts](../../tests/dashboard/slo-monitoring.unit.test.ts) (SL-14, SL-15, SL-17, SL-19); manual (SL-13, SL-16, SL-18, SL-20) |
+| (cross-cutting: config, nav, empty) | [slo-monitoring.md](slo-monitoring.md) | SL-21 – SL-25 | manual (SL-21 – SL-25) |
+
+---
+
 ## Gaps
 
 - UC-3 partial: untagged share as percentage of all topics (deferred until total topic count is available from backend).
