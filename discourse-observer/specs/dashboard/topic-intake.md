@@ -44,6 +44,7 @@ This file defines *what* the user sees and why. [dashboard-components.md](dashbo
 ### Granularity (TI-2 detail)
 
 **TI-12.** The 90-day threshold is evaluated as follows:
+
 - Preset "Last 7 days" → daily.
 - Preset "Last 30 days" → daily.
 - Preset "Last year" → weekly.
