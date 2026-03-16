@@ -141,6 +141,7 @@ This document describes what users need from discourse-observer. Each use case i
 
 **Goal:** See how many new support topics are created per period, to understand demand and provide context for response metrics.
 **Expected result:** Topic count shown per day or week for a selected time period, broken down by tag when a tag is selected.
+**Status:** Implemented — see [specs/dashboard/topic-intake.md](dashboard/topic-intake.md).
 
 ---
 

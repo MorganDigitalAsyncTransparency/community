@@ -476,6 +476,29 @@ body {
   margin-top: 0.25rem;
 }
 
+/* Topic intake chart (UC-17) */
+
+.intake {
+  margin-top: 0;
+}
+
+.intake-title {
+  font-size: 1.15rem;
+  font-weight: 600;
+  margin-bottom: 0.75rem;
+}
+
+.intake-empty {
+  font-size: 0.9rem;
+  color: #888;
+  padding: 1rem 0;
+}
+
+.intake-chart-wrapper {
+  width: 100%;
+  height: 300px;
+}
+
 /* SLO monitoring (UC-13, UC-14) */
 
 .slo-section-title {

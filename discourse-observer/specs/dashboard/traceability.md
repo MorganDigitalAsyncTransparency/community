@@ -82,6 +82,15 @@ This matrix shows how use cases decompose into specifications, requirements, and
 
 ---
 
+## Topic intake
+
+| Use case | Spec | Requirements | Verification |
+|----------|------|-------------|--------------|
+| UC-17: Track topic intake over time | [topic-intake.md](topic-intake.md) | TI-1 – TI-11 | [topic-intake.unit.test.ts](../../tests/dashboard/topic-intake.unit.test.ts) (TI-1, TI-3, TI-4, TI-9); manual (TI-2, TI-5, TI-6, TI-7, TI-8, TI-10, TI-11) |
+| (cross-cutting: granularity, placement, empty) | [topic-intake.md](topic-intake.md) | TI-12 – TI-14 | [topic-intake.unit.test.ts](../../tests/dashboard/topic-intake.unit.test.ts) (TI-12, TI-14); manual (TI-13) |
+
+---
+
 ## Gaps
 
 - UC-3 partial: untagged share as percentage of all topics (deferred until total topic count is available from backend).
