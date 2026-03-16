@@ -29,6 +29,8 @@ nav:
       - Operational Constraints Verification: specs/operational-constraints_verification.md
       - Dashboard:
           - Queue Visibility: specs/dashboard/queue-visibility.md
+          - Response Metrics: specs/dashboard/response-metrics.md
+          - Time Period Filter: specs/dashboard/time-period-filter.md
           - Components: specs/dashboard/dashboard-components.md
           - Traceability: specs/dashboard/traceability.md
       - Observer:
