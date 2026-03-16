@@ -2,7 +2,7 @@
 
 This document specifies the behavior of the dashboard view components rendered in the frontend.
 
-These components implement the visual layer for the requirements defined in [queue-visibility.md](queue-visibility.md), [response-metrics.md](response-metrics.md), [time-period-filter.md](time-period-filter.md), [response-time-trends.md](response-time-trends.md), and [tag-distribution.md](tag-distribution.md). Those files define *what* the user sees and why; this file defines *how* each component behaves to fulfill those requirements.
+These components implement the visual layer for the requirements defined in [queue-visibility.md](queue-visibility.md), [response-metrics.md](response-metrics.md), [time-period-filter.md](time-period-filter.md), [response-time-trends.md](response-time-trends.md), [tag-distribution.md](tag-distribution.md), and [slo-monitoring.md](slo-monitoring.md). Those files define *what* the user sees and why; this file defines *how* each component behaves to fulfill those requirements.
 
 ---
 
@@ -152,9 +152,33 @@ CSS class prefix: `dist-` for all elements specific to this component.
 
 ---
 
+## SloMonitor
+
+Accepts three props:
+
+| Prop | Type | Purpose |
+|------|------|---------|
+| `unrepliedTopics` | `Topic[]` | Filtered unreplied topics — used for first reply and inactivity violation checks and compliance |
+| `resolvedTopics` | `Topic[]` | Filtered resolved topics — used for all three violation checks and compliance |
+| `sloConfig` | `SloConfig` | Tag-to-threshold mapping loaded from configuration |
+
+Renders two sections in order:
+
+**1. "Threshold violations" (UC-13):** Three subsections, one per threshold type — "First reply violations", "Resolution violations", "Inactivity violations". Each calls the corresponding violation function and renders a table with columns: Title, Tag, Threshold, Actual, Excess. Rows are sorted by excess time descending. Each subsection shows an empty-state paragraph ("No violations") when the list is empty.
+
+**2. "SLO compliance" (UC-14):** Calls the compliance function and renders a table with columns: Tag, First reply, Resolution, Inactivity. Each cell shows a percentage or "–" when no topics are eligible. Tags are sorted alphabetically. Shows an empty-state paragraph ("No data") when no monitored tags have eligible topics.
+
+When the SLO configuration is empty (no tags configured), the entire component renders a single empty-state message ("No SLO thresholds configured") instead of the sections above.
+
+`SloMonitor` is a pure function component. It holds no state — all filtering is handled by `App` before passing props. See [slo-monitoring.md](slo-monitoring.md) for the requirements.
+
+CSS class prefix: `slo-` for all elements specific to this component.
+
+---
+
 ## Navigation
 
-The `App` component renders three navigation links in the header: "Queue", "Response metrics", and "Distribution". Clicking a link switches the visible page content. The active link is visually distinguished using a CSS class (`nav-link-active`).
+The `App` component renders four navigation links in the header: "Queue", "Response metrics", "Distribution", and "SLO". Clicking a link switches the visible page content. The active link is visually distinguished using a CSS class (`nav-link-active`).
 
 Navigation uses component state — no client-side router.
 
@@ -182,7 +206,7 @@ All time displays — both topic age and response time metrics — use a single 
 ### Styling
 
 - No inline styles. All styling uses CSS classes.
-- Class name prefixes: `summary-` for SummaryCards, `unreplied-` for UnrepliedTable, `untagged-` for UntaggedTable, `response-` for ResponseMetricsCards, `nav-` for navigation, `period-` for PeriodSelector, `trends-` for ResponseTimeTrends, `trends-chart-` for ResponseTimeTrendChart.
+- Class name prefixes: `summary-` for SummaryCards, `unreplied-` for UnrepliedTable, `untagged-` for UntaggedTable, `response-` for ResponseMetricsCards, `nav-` for navigation, `period-` for PeriodSelector, `trends-` for ResponseTimeTrends, `trends-chart-` for ResponseTimeTrendChart, `slo-` for SloMonitor.
 
 ### Implementation constraints
 

@@ -108,6 +108,9 @@ jobs:
       - name: Install dependencies
         run: cd frontend && npm ci
 
+      - name: Create config from example
+        run: cp config/sloThresholds.example.json config/sloThresholds.json
+
       - name: Type check
         run: cd frontend && npx tsc --noEmit
 

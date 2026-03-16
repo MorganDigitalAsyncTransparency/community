@@ -8,14 +8,16 @@
 
 # -- build stage --
 FROM node:24-alpine AS build
-WORKDIR /src
+WORKDIR /src/frontend
 COPY frontend/package.json frontend/package-lock.json* ./
 RUN npm ci
 COPY frontend/ .
+COPY config/ /src/config/
+WORKDIR /src/frontend
 RUN npm run build
 
 # -- runtime stage --
 FROM nginx:alpine
 COPY docker/nginx.conf /etc/nginx/conf.d/default.conf
-COPY --from=build /src/dist /usr/share/nginx/html
+COPY --from=build /src/frontend/dist /usr/share/nginx/html
 EXPOSE 80

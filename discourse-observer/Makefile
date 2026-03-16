@@ -50,11 +50,15 @@ down:
 	docker compose down --timeout 10 --remove-orphans
 
 ## Start — one-command onboarding: configure, build, launch, open browser
-start: .env verify build up open
+start: .env config/sloThresholds.json verify build up open
 
 .env:
 	cp .env.example .env
 	@echo "Created .env from .env.example — edit it with your Discourse credentials."
+
+config/sloThresholds.json:
+	cp config/sloThresholds.example.json config/sloThresholds.json
+	@echo "Created config/sloThresholds.json from example — edit it with your SLO thresholds."
 
 ## Restart — rebuild and relaunch after code changes
 restart: down verify build up open
