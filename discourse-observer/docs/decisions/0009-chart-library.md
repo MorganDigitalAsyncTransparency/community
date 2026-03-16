@@ -30,6 +30,8 @@ The visualization needs fall into two categories:
 
 The project uses React 19.2.4, Vite 8, and TypeScript 5.9. There are no existing charting dependencies. A future design specification will define visual styling for the full site, so the library should not impose a rigid visual identity but should be possible to theme.
 
+The project's AI guidelines ([AI_GUIDELINES.md](../../AI_GUIDELINES.md)) require a documented ADR before introducing any new library. The engineering strategy ([docs/engineering-strategy.md](../engineering-strategy.md)) states "no framework until one is clearly needed — standard library first." HTML tables cannot meet the visualization needs described above, making a charting library clearly needed.
+
 ## Alternatives Considered
 
 ### Recharts
@@ -200,6 +202,8 @@ If visualization needs grow beyond what Recharts can support, migration is feasi
 - No built-in image export — acceptable as long as the dashboard is accessible as a shared server
 - Dual y-axes are supported but sparsely documented — may require experimentation
 - If visualization needs eventually outgrow Recharts, migration to a more capable library will cost development time
+- The [dashboard-components spec](../../specs/dashboard/dashboard-components.md) currently defines `ResponseTimeTrends` as a table component with "pure function components, no React hooks" as a constraint. Introducing Recharts charts will require updating that spec — chart components may need hooks for interactivity (hover state, responsive resize). This update should happen when charts are implemented, not before.
+- The [traceability matrix](../../specs/dashboard/traceability.md) notes that no visual design spec exists yet. Recharts will introduce visual elements (colors, line styles, spacing) without a design specification to guide them. This gap is already tracked.
 
 ## Appendix: Requirements Coverage
 

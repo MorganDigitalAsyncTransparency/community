@@ -95,3 +95,4 @@ ADRs are numbered sequentially using lowercase with hyphens. The number prefix e
 | [0006](0006-analytical-storage.md)         | Analytical Storage      | Accepted |
 | [0007](0007-branching-and-release-strategy.md) | Branching and Release Strategy | Accepted |
 | [0008](0008-documentation-and-traceability-strategy.md) | Documentation and Traceability Strategy | Accepted |
+| [0009](0009-chart-library.md)              | Chart Library           | Proposed |
