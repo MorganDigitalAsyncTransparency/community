@@ -1,6 +1,6 @@
 # Time Period Filter — Dashboard
 
-This specification defines the requirements for UC-12: filtering dashboard metrics and lists by a selected time window. It applies to both the Queue Visibility page and the Response Metrics page.
+This specification defines the requirements for UC-12: filtering dashboard metrics and lists by a selected time window. It applies to all dashboard pages: Queue Visibility, Response Metrics, and Distribution.
 
 This file defines *what* the user can do and how filtering behaves. Component details are in [dashboard-components.md](dashboard-components.md). Traceability is in [traceability.md](traceability.md).
 
@@ -18,7 +18,7 @@ This file defines *what* the user can do and how filtering behaves. Component de
 
 ### Period options (TF-1 – TF-2)
 
-**TF-1.** The dashboard provides a time period selector visible on both the Queue and Response Metrics pages. It controls which topics appear across all metrics and lists on the active page.
+**TF-1.** The dashboard provides a time period selector visible on all pages (Queue, Response Metrics, Distribution). It controls which topics appear across all metrics and lists on the active page.
 
 **TF-2.** The available period options are: Last 7 days, Last 30 days, Last year, All time, and Custom range.
 
@@ -42,7 +42,7 @@ This file defines *what* the user can do and how filtering behaves. Component de
 
 **TF-10.** The filter applies to all three topic collections: unreplied topics, untagged topics, and resolved topics.
 
-**TF-11.** The selected period persists when the user navigates between the Queue and Response Metrics pages. It does not reset on page switch.
+**TF-11.** The selected period persists when the user navigates between pages. It does not reset on page switch.
 
 ### Defaults and empty states (TF-12 – TF-14)
 
@@ -81,7 +81,7 @@ Two types are defined in `timePeriod.ts`:
 
 ### Placement
 
-The `PeriodSelector` is rendered in `App.tsx` below the header and above the page content area. It is shared across both pages so the selected period persists without duplication.
+The `PeriodSelector` is rendered in `App.tsx` below the header and above the page content area. It is shared across all pages so the selected period persists without duplication.
 
 ### Data flow
 
@@ -89,7 +89,7 @@ The `PeriodSelector` is rendered in `App.tsx` below the header and above the pag
 
 ### Scope
 
-The filter applies to queue visibility and the response metrics summary cards. The weekly response time trend table (`ResponseTimeTrends`, UC-8) is explicitly excluded — it always receives the full unfiltered topic history regardless of the active period. This is by design: trend analysis requires consistent historical windows to be meaningful. See RT-8 in [response-time-trends.md](response-time-trends.md).
+The filter applies to queue visibility, the response metrics summary cards, and the tag distribution tables (UC-9, UC-10, UC-11 per-tag snapshot). Two tables are explicitly excluded: the weekly response time trend (`ResponseTimeTrends`, UC-8) and the weekly backlog trend (`TagDistribution`, UC-11) always receive full unfiltered history regardless of the active period. This is by design: trend analysis requires consistent historical windows to be meaningful. See RT-8 in [response-time-trends.md](response-time-trends.md) and TD-23 in [tag-distribution.md](tag-distribution.md).
 
 ### Component–requirement mapping
 
