@@ -72,7 +72,7 @@ function makeViolation(
 
 // SL-6: sort by excess descending
 function sortByExcess(violations: Violation[]): Violation[] {
-  return violations.sort((a, b) => b.excessMs - a.excessMs);
+  return [...violations].sort((a, b) => b.excessMs - a.excessMs);
 }
 
 // SL-1 through SL-12: find all topics exceeding SLO thresholds
