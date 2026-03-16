@@ -67,6 +67,7 @@ This document describes what users need from discourse-observer. Each use case i
 
 **Goal:** See whether response times and resolution times are improving or worsening over time, to identify positive or negative momentum.
 **Expected result:** Response time and resolution time metrics shown across multiple consecutive periods, with enough history to identify a trend direction.
+**Status:** Implemented — see [specs/dashboard/response-time-trends.md](dashboard/response-time-trends.md).
 
 ---
 

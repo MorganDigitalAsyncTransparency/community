@@ -35,6 +35,14 @@ This matrix shows how use cases decompose into specifications, requirements, and
 
 ---
 
+## Response time trends
+
+| Use case | Spec | Requirements | Verification |
+|----------|------|-------------|--------------|
+| UC-8: Track response time trends | [response-time-trends.md](response-time-trends.md) | RT-1 – RT-11 | [response-time-trends.unit.test.ts](../../tests/dashboard/response-time-trends.unit.test.ts) (RT-1 – RT-7, RT-10); manual (RT-8, RT-9, RT-11) |
+
+---
+
 ## Time period filter
 
 | Use case | Spec | Requirements | Verification |

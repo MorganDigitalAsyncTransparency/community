@@ -101,7 +101,8 @@ This phase is analysis only — no file changes, no branch creation, no commits.
 ### Phase 2 — Design and Documentation
 
 - Record how the requirements will be fulfilled.
-- Update architecture, workflow, or design documentation where relevant.
+- Identify every file that describes or indexes the part of the system being changed: architecture docs, navigation files (mkdocs.yml or equivalent), component catalogs, adjacent specs. Update them as part of this phase — not as a later correction.
+- For any spec you create, identify which adjacent specs reference or scope the same behavior and determine whether they need a corresponding update.
 
 ### Phase 3 — Validation Strategy
 
@@ -112,13 +113,31 @@ This phase is analysis only — no file changes, no branch creation, no commits.
 
 - Implement the smallest coherent solution that satisfies the requirements.
 - Avoid unrelated cleanup unless truly necessary.
+- Every new source file must include a header comment linking to its spec and tests.
+- For UI work: every CSS class, asset reference, or resource used in a component must have a corresponding definition. Do not leave classes without rules.
+- Navigation and index files (mkdocs.yml or equivalent) are updated as part of implementation, not as an afterthought.
 
 ### Phase 5 — Review and Consistency Check
 
-- Verify that requirements, documentation, tests, and implementation still match.
-- Fix mismatches before considering the work complete.
+Perform an impact radius scan before evaluating anything.
+
+- For every file created or modified, search the codebase for all other files that reference, link to, describe, or depend on it. Read each one.
+- Update every file where the description is now inaccurate, incomplete, or missing — including specs, architecture docs, component catalogs, traceability matrices, and navigation files.
+- Verify that every requirement has a named verification method (automated test or explicit manual step) and that traceability references are accurate.
+
+**Phase 5 output — required before moving to Phase 6:**
+
+State explicitly:
+
+1. Every file read during the impact radius scan.
+2. Which files were updated and why.
+3. Which files were reviewed and needed no change — and why not.
+
+If you cannot produce this list, the scan is not complete.
 
 ### Phase 6 — Review
+
+Phase 5 handles documentation completeness. Phase 6 is about design quality. Do not use Phase 6 to find things that should have been done in earlier phases — if Phase 6 keeps surfacing documentation gaps, the real fix is Phase 5.
 
 Play devil's advocate against your own changes. Inhabit each of these perspectives in turn and argue against the work. The goal is to find problems, not to confirm the work looks good.
 
@@ -128,11 +147,17 @@ Play devil's advocate against your own changes. Inhabit each of these perspectiv
 - **Edge cases:** What inputs, states, or scenarios could break this? What was not considered?
 - **Simplicity:** Was any unnecessary complexity introduced? Could the same result be achieved with less?
 
-State what each perspective reveals. If a perspective finds nothing, say so explicitly — do not skip it silently.
+For each perspective, name at least one specific scenario, file, or element you actively investigated — not just the conclusion. "Nothing found" is only valid when you state what you looked at and why it is safe.
 
 If Phase 6 identifies issues, fix them and return to Phase 5. Repeat until both phases pass with nothing to fix.
 
+**Phase 6 output — required before moving to Phase 7:**
+
+For each perspective, state what was investigated and what was found. If you cannot do this, the review was not done.
+
 ### Phase 7 — Rebase and Pull Request
+
+**Before rebasing:** confirm you can produce the Phase 5 file list and Phase 6 per-perspective findings. If you cannot, the previous phases are not complete — do not proceed.
 
 - Rebase the branch onto the latest main. Resolve conflicts if any, then re-run tests and linters to confirm the branch is clean.
 - Create a PR with a short imperative title (under 70 characters) and a body containing summary bullets, a test plan checklist, and a link to any related issue.

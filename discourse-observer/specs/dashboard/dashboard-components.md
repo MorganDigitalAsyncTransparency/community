@@ -2,7 +2,7 @@
 
 This document specifies the behavior of the dashboard view components rendered in the frontend.
 
-These components implement the visual layer for the requirements defined in [queue-visibility.md](queue-visibility.md), [response-metrics.md](response-metrics.md), and [time-period-filter.md](time-period-filter.md). Those files define *what* the user sees and why; this file defines *how* each component behaves to fulfill those requirements.
+These components implement the visual layer for the requirements defined in [queue-visibility.md](queue-visibility.md), [response-metrics.md](response-metrics.md), [time-period-filter.md](time-period-filter.md), and [response-time-trends.md](response-time-trends.md). Those files define *what* the user sees and why; this file defines *how* each component behaves to fulfill those requirements.
 
 ---
 
@@ -70,6 +70,21 @@ Given a sorted array of durations, the median is:
 
 ---
 
+## ResponseTimeTrends
+
+Accepts `topics: Topic[]` (all resolved topics, unfiltered). Calls `computeWeeklyTrends` and renders:
+
+- A section heading "Weekly trends".
+- A table with four columns: Week (Monday date), Topics (count), Median first reply, Median resolution.
+- Rows ordered newest week first.
+- If `computeWeeklyTrends` returns an empty array, renders an empty-state paragraph ("No data") instead of the table.
+
+Week labels are formatted using `toLocaleDateString` with `{ year: "numeric", month: "short", day: "numeric", timeZone: "UTC" }` so that the display date matches the UTC Monday that identifies the week.
+
+`ResponseTimeTrends` is a pure function component. It does not filter topics — callers are responsible for passing the correct set. See [response-time-trends.md](response-time-trends.md) for the requirements.
+
+---
+
 ## PeriodSelector
 
 Accepts `period: ActivePeriod`, `customDraft: CustomRange | null`, `onPresetSelect`, `onCustomOpen`, and `onCustomDraftChange` callbacks. Renders a row of period option buttons and, when `customDraft` is not null, two date inputs.
@@ -113,7 +128,7 @@ All time displays — both topic age and response time metrics — use a single 
 ### Styling
 
 - No inline styles. All styling uses CSS classes.
-- Class name prefixes: `summary-` for SummaryCards, `unreplied-` for UnrepliedTable, `untagged-` for UntaggedTable, `response-` for ResponseMetricsCards, `nav-` for navigation, `period-` for PeriodSelector.
+- Class name prefixes: `summary-` for SummaryCards, `unreplied-` for UnrepliedTable, `untagged-` for UntaggedTable, `response-` for ResponseMetricsCards, `nav-` for navigation, `period-` for PeriodSelector, `trends-` for ResponseTimeTrends.
 
 ### Implementation constraints
 

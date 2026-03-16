@@ -1,7 +1,7 @@
 // Spec: specs/dashboard/queue-visibility.md, specs/dashboard/response-metrics.md,
-//       specs/dashboard/time-period-filter.md
+//       specs/dashboard/time-period-filter.md, specs/dashboard/response-time-trends.md
 // Tests: tests/dashboard/queue-visibility.unit.test.ts, tests/dashboard/response-metrics.unit.test.ts,
-//        tests/dashboard/time-period-filter.unit.test.ts
+//        tests/dashboard/time-period-filter.unit.test.ts, tests/dashboard/response-time-trends.unit.test.ts
 
 import { useState } from "react";
 import "./App.css";
@@ -10,6 +10,7 @@ import { SummaryCards } from "./components/SummaryCards";
 import { UnrepliedTable } from "./components/UnrepliedTable";
 import { UntaggedTable } from "./components/UntaggedTable";
 import { ResponseMetricsCards } from "./components/ResponseMetricsCards";
+import { ResponseTimeTrends } from "./components/ResponseTimeTrends";
 import { PeriodSelector } from "./components/PeriodSelector";
 import {
   type ActivePeriod,
@@ -113,7 +114,11 @@ export function App() {
         )}
 
         {page === "response-metrics" && (
-          <ResponseMetricsCards topics={filteredData.resolvedTopics} />
+          <>
+            <ResponseMetricsCards topics={filteredData.resolvedTopics} />
+            {/* RT-8: trends always span full history, independent of the active period filter */}
+            <ResponseTimeTrends topics={MOCK_DATA.resolvedTopics} />
+          </>
         )}
       </main>
     </div>
