@@ -100,6 +100,15 @@ This matrix shows how use cases decompose into specifications, requirements, and
 
 ---
 
+## Peak activity
+
+| Use case | Spec | Requirements | Verification |
+|----------|------|-------------|--------------|
+| UC-19: Identify peak activity periods | [peak-activity.md](peak-activity.md) | PA-1 – PA-9 | [peak-activity.unit.test.ts](../../tests/dashboard/peak-activity.unit.test.ts) (PA-2, PA-3, PA-5, PA-6, PA-7, PA-13); manual (PA-1, PA-4, PA-9) |
+| (cross-cutting: placement, filters, empty) | [peak-activity.md](peak-activity.md) | PA-10 – PA-13 | [peak-activity.unit.test.ts](../../tests/dashboard/peak-activity.unit.test.ts) (PA-13); manual (PA-10, PA-11, PA-12) |
+
+---
+
 ## Gaps
 
 - UC-3 partial: untagged share as percentage of all topics (deferred until total topic count is available from backend).

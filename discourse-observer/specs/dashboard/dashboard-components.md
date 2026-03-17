@@ -2,7 +2,7 @@
 
 This document specifies the behavior of the dashboard view components rendered in the frontend.
 
-These components implement the visual layer for the requirements defined in [queue-visibility.md](queue-visibility.md), [response-metrics.md](response-metrics.md), [time-period-filter.md](time-period-filter.md), [response-time-trends.md](response-time-trends.md), [tag-distribution.md](tag-distribution.md), [slo-monitoring.md](slo-monitoring.md), [tag-area-filter.md](tag-area-filter.md), [topic-intake.md](topic-intake.md), and [stalled-topics.md](stalled-topics.md). Those files define *what* the user sees and why; this file defines *how* each component behaves to fulfill those requirements.
+These components implement the visual layer for the requirements defined in [queue-visibility.md](queue-visibility.md), [response-metrics.md](response-metrics.md), [time-period-filter.md](time-period-filter.md), [response-time-trends.md](response-time-trends.md), [tag-distribution.md](tag-distribution.md), [slo-monitoring.md](slo-monitoring.md), [tag-area-filter.md](tag-area-filter.md), [topic-intake.md](topic-intake.md), [stalled-topics.md](stalled-topics.md), and [peak-activity.md](peak-activity.md). Those files define *what* the user sees and why; this file defines *how* each component behaves to fulfill those requirements.
 
 ---
 
@@ -275,6 +275,30 @@ CSS class prefix: `stalled-` for all elements specific to this component.
 
 ---
 
+## PeakActivity
+
+Accepts one prop:
+
+| Prop | Type | Purpose |
+|------|------|---------|
+| `topics` | `Topic[]` | Filtered unreplied + resolved topics combined (period + tag filters already applied) |
+
+Calls `computeHeatmapData(topics)` and renders:
+
+- A section heading "Peak activity".
+- An HTML `<table>` heatmap with 7 rows (Mon–Sun) and 24 columns (hours 0–23).
+- Each cell displays the topic count and has a background color whose intensity reflects the count relative to the grid maximum (`count / maxCount`).
+- Cell background uses `rgba(59, 130, 246, α)`. Text color switches to white when α > 0.5.
+- Zero-count cells show "0" with no background color (transparent).
+- A color scale legend below the table showing the range from 0 to the maximum count.
+- If the input is empty, renders an empty-state paragraph ("No data") instead of the table.
+
+`PeakActivity` is a pure function component. It holds no state — all filtering is handled by `App` before passing props. See [peak-activity.md](peak-activity.md) for the requirements.
+
+CSS class prefix: `peak-` for all elements specific to this component.
+
+---
+
 ## Navigation
 
 The `App` component renders six navigation links in the header: "Queue", "Response metrics", "Distribution", "SLO", "Volume", and "Activity". Clicking a link switches the visible page content. The active link is visually distinguished using a CSS class (`nav-link-active`).
@@ -305,7 +329,7 @@ All time displays — both topic age and response time metrics — use a single 
 ### Styling
 
 - No inline styles. All styling uses CSS classes.
-- Class name prefixes: `summary-` for SummaryCards, `unreplied-` for UnrepliedTable, `untagged-` for UntaggedTable, `response-` for ResponseMetricsCards, `nav-` for navigation, `period-` for PeriodSelector, `tag-` for TagSelector, `trends-` for ResponseTimeTrends, `trends-chart-` for ResponseTimeTrendChart, `slo-` for SloMonitor, `intake-` for TopicIntake, `intake-chart-` for IntakeChart, `stalled-` for StalledTopics.
+- Class name prefixes: `summary-` for SummaryCards, `unreplied-` for UnrepliedTable, `untagged-` for UntaggedTable, `response-` for ResponseMetricsCards, `nav-` for navigation, `period-` for PeriodSelector, `tag-` for TagSelector, `trends-` for ResponseTimeTrends, `trends-chart-` for ResponseTimeTrendChart, `slo-` for SloMonitor, `intake-` for TopicIntake, `intake-chart-` for IntakeChart, `stalled-` for StalledTopics, `peak-` for PeakActivity.
 
 ### Implementation constraints
 
