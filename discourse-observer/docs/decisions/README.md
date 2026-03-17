@@ -96,3 +96,4 @@ ADRs are numbered sequentially using lowercase with hyphens. The number prefix e
 | [0007](0007-branching-and-release-strategy.md) | Branching and Release Strategy | Accepted |
 | [0008](0008-documentation-and-traceability-strategy.md) | Documentation and Traceability Strategy | Accepted |
 | [0009](0009-chart-library.md)              | Chart Library           | Accepted |
+| [0010](0010-timezone-strategy.md)          | Timezone Strategy       | Accepted |
