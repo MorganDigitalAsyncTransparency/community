@@ -143,6 +143,7 @@ Renders two controls in a single row:
 - Selecting an area calls `onAreaSelect`. The tag selection is preserved.
 - Clicking a tag button calls `onTagSelect` with the tag name, or `null` for the "All" button.
 - The currently active tag button is indicated by the `tag-btn-active` CSS class.
+- Primary tags (defined by `areas[].primaryTag` in the configuration) are marked with an asterisk suffix (e.g. `api*`) in all views.
 
 `TagSelector` is a pure function component — it holds no state. All state is managed by `App` and passed as props. See [tag-area-filter.md](tag-area-filter.md) for the filter requirements.
 
@@ -187,7 +188,7 @@ Accepts four props:
 |------|------|---------|
 | `unrepliedTopics` | `Topic[]` | Filtered unreplied topics — used for first reply and inactivity violation checks and compliance |
 | `resolvedTopics` | `Topic[]` | Filtered resolved topics — used for all three violation checks and compliance |
-| `sloConfig` | `SloConfig` | Tag-to-threshold mapping extracted from unified configuration |
+| `sloConfig` | `SloConfig` | Tag-to-threshold mapping scoped to visible tags (filtered by active area/tag selection) |
 | `defaultSloTags` | `Set<string>` | Tags using default SLO thresholds — shown with "(default thresholds)" indicator |
 
 Renders two sections in order:
@@ -206,17 +207,18 @@ CSS class prefix: `slo-` for all elements specific to this component.
 
 ## TopicIntake
 
-Accepts two props:
+Accepts three props:
 
 | Prop | Type | Purpose |
 |------|------|---------|
 | `topics` | `Topic[]` | Filtered unreplied + resolved topics combined — intake counts all created topics |
 | `granularity` | `IntakeGranularity` | `"daily"` or `"weekly"` — determines time bucket size |
+| `timeRange` | `TimeRange \| null` | Global time range for the x-axis — computed from all monitored-tag topics in the active period so the axis stays consistent when switching tags |
 
-Calls `computeIntakeBuckets(topics, granularity)` and renders:
+Calls `computeIntakeBuckets(topics, granularity, timeRange)` and renders:
 
 - A section heading "Topic intake".
-- An `IntakeChart` displaying the bar chart (see below).
+- An `IntakeChart` displaying the line chart (see below).
 - If `computeIntakeBuckets` returns an empty array, renders an empty-state paragraph ("No data") instead of the chart.
 
 `TopicIntake` is a pure function component. It holds no state — all filtering is handled by `App` before passing props. See [topic-intake.md](topic-intake.md) for the requirements.
@@ -227,11 +229,11 @@ CSS class prefix: `intake-` for section-level elements.
 
 ## IntakeChart
 
-Accepts `data: IntakeBucket[]` (chart-ready data with labels and counts). Renders a Recharts `BarChart` inside a `ResponsiveContainer` (width 100%, height 300px).
+Accepts `data: IntakeBucket[]` (chart-ready data with labels and counts). Renders a Recharts `LineChart` inside a `ResponsiveContainer` (width 100%, height 300px).
 
-One `Bar` series:
+One `Line` series:
 
-- "Topics" (`count`) — colored `#5b8ff9`.
+- "Topics" (`count`) — colored `#5b8ff9`, monotone interpolation, small dots (radius 3) for point visibility.
 
 Chart features:
 

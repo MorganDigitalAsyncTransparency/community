@@ -67,7 +67,7 @@ This matrix shows how use cases decompose into specifications, requirements, and
 | Use case | Spec | Requirements | Verification |
 |----------|------|-------------|--------------|
 | UC-13: Flag topics exceeding SLO thresholds | [slo-monitoring.md](slo-monitoring.md) | SL-1 – SL-12 | [slo-monitoring.unit.test.ts](../../tests/dashboard/slo-monitoring.unit.test.ts) (SL-2 – SL-4, SL-6, SL-9, SL-11); manual (SL-1, SL-5, SL-7, SL-8, SL-10, SL-12) |
-| UC-14: Evaluate SLO compliance | [slo-monitoring.md](slo-monitoring.md) | SL-13 – SL-20 | [slo-monitoring.unit.test.ts](../../tests/dashboard/slo-monitoring.unit.test.ts) (SL-14, SL-15, SL-17, SL-19); manual (SL-13, SL-16, SL-18, SL-20) |
+| UC-14: Evaluate SLO compliance | [slo-monitoring.md](slo-monitoring.md) | SL-13 – SL-20, SL-18a | [slo-monitoring.unit.test.ts](../../tests/dashboard/slo-monitoring.unit.test.ts) (SL-14, SL-15, SL-17, SL-19); [tag-area-filter.unit.test.ts](../../tests/dashboard/tag-area-filter.unit.test.ts) (SL-18a via scopeSloConfig); manual (SL-13, SL-16, SL-18, SL-20) |
 | (cross-cutting: config, nav, empty) | [slo-monitoring.md](slo-monitoring.md) | SL-21 – SL-25 | manual (SL-21 – SL-25) |
 
 ---
@@ -78,7 +78,7 @@ This matrix shows how use cases decompose into specifications, requirements, and
 |----------|------|-------------|--------------|
 | UC-15: Filter dashboard by tag | [tag-area-filter.md](tag-area-filter.md) | TA-1 – TA-8 | [tag-area-filter.unit.test.ts](../../tests/dashboard/tag-area-filter.unit.test.ts) (TA-2, TA-4, TA-5, TA-6, TA-17); manual (TA-1, TA-3, TA-7, TA-8) |
 | UC-16: Navigate tags by area | [tag-area-filter.md](tag-area-filter.md) | TA-9 – TA-14 | [tag-area-filter.unit.test.ts](../../tests/dashboard/tag-area-filter.unit.test.ts) (TA-12, TA-13); manual (TA-9, TA-10, TA-11, TA-14) |
-| (cross-cutting: config, placement, defaults) | [tag-area-filter.md](tag-area-filter.md) | TA-15 – TA-21 | [tag-area-filter.unit.test.ts](../../tests/dashboard/tag-area-filter.unit.test.ts) (TA-17); manual (TA-15, TA-16, TA-18, TA-19, TA-20, TA-21) |
+| (cross-cutting: config, placement, defaults) | [tag-area-filter.md](tag-area-filter.md) | TA-15 – TA-22 | [tag-area-filter.unit.test.ts](../../tests/dashboard/tag-area-filter.unit.test.ts) (TA-17); manual (TA-15, TA-16, TA-18, TA-19, TA-20, TA-21, TA-22) |
 
 ---
 
@@ -86,7 +86,7 @@ This matrix shows how use cases decompose into specifications, requirements, and
 
 | Use case | Spec | Requirements | Verification |
 |----------|------|-------------|--------------|
-| UC-17: Track topic intake over time | [topic-intake.md](topic-intake.md) | TI-1 – TI-11 | [topic-intake.unit.test.ts](../../tests/dashboard/topic-intake.unit.test.ts) (TI-1, TI-3, TI-4, TI-9); manual (TI-2, TI-5, TI-6, TI-7, TI-8, TI-10, TI-11) |
+| UC-17: Track topic intake over time | [topic-intake.md](topic-intake.md) | TI-1 – TI-11, TI-8a | [topic-intake.unit.test.ts](../../tests/dashboard/topic-intake.unit.test.ts) (TI-1, TI-3, TI-4, TI-8a, TI-9); manual (TI-2, TI-5, TI-6, TI-7, TI-8, TI-10, TI-11) |
 | (cross-cutting: granularity, placement, empty) | [topic-intake.md](topic-intake.md) | TI-12 – TI-14 | [topic-intake.unit.test.ts](../../tests/dashboard/topic-intake.unit.test.ts) (TI-12, TI-14); manual (TI-13) |
 
 ---

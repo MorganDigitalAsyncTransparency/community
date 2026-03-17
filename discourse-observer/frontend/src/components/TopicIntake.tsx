@@ -3,15 +3,16 @@
 
 import type { Topic } from "../mock/data";
 import { IntakeChart } from "./IntakeChart";
-import { type IntakeGranularity, computeIntakeBuckets } from "./intakeMetrics";
+import { type IntakeGranularity, type TimeRange, computeIntakeBuckets } from "./intakeMetrics";
 
 interface TopicIntakeProps {
   topics: Topic[];
   granularity: IntakeGranularity;
+  timeRange: TimeRange | null;
 }
 
-export function TopicIntake({ topics, granularity }: TopicIntakeProps) {
-  const buckets = computeIntakeBuckets(topics, granularity);
+export function TopicIntake({ topics, granularity, timeRange }: TopicIntakeProps) {
+  const buckets = computeIntakeBuckets(topics, granularity, timeRange);
 
   if (buckets.length === 0) {
     return (

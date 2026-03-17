@@ -97,7 +97,7 @@ export function tagsForArea(
     .filter(([, r]) => r.area === area)
     .map(([tag]) => tag);
 
-  if (areaEntry) {
+  if (areaEntry && matching.includes(areaEntry.primaryTag)) {
     const rest = matching
       .filter((t) => t !== areaEntry.primaryTag)
       .sort();
@@ -149,6 +149,20 @@ export function extractSloConfig(config: TagConfig): SloConfig {
   const result: SloConfig = {};
   for (const [tag, r] of Object.entries(resolved)) {
     result[tag] = r.slo;
+  }
+  return result;
+}
+
+export function scopeSloConfig(
+  full: SloConfig,
+  visibleTags: string[],
+): SloConfig {
+  const set = new Set(visibleTags);
+  const result: SloConfig = {};
+  for (const [tag, thresholds] of Object.entries(full)) {
+    if (set.has(tag)) {
+      result[tag] = thresholds;
+    }
   }
   return result;
 }

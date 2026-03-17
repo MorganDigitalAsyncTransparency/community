@@ -76,6 +76,8 @@ This file defines *what* the user sees and why. [dashboard-components.md](dashbo
 
 **SL-18.** Compliance rates respect the active time period filter (UC-12). Only topics whose `createdAt` falls within the active period are evaluated.
 
+**SL-18a.** Both violations and compliance respect the active area and tag filters (UC-15, UC-16). When an area is selected, only tags belonging to that area appear in the compliance table. When a specific tag is selected, only that tag appears. The SLO configuration passed to the monitoring component is scoped to visible tags via `scopeSloConfig`.
+
 **SL-19.** Tags are sorted alphabetically by tag name.
 
 **SL-20.** When no monitored tags have any eligible topics, the compliance table is replaced by an empty-state message.
