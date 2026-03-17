@@ -143,6 +143,7 @@ Renders two controls in a single row:
 - Selecting an area calls `onAreaSelect`. The tag selection is preserved.
 - Clicking a tag button calls `onTagSelect` with the tag name, or `null` for the "All" button.
 - The currently active tag button is indicated by the `tag-btn-active` CSS class.
+- Primary tags (defined by `areas[].primaryTag` in the configuration) are marked with an asterisk suffix (e.g. `api*`) in all views.
 
 `TagSelector` is a pure function component — it holds no state. All state is managed by `App` and passed as props. See [tag-area-filter.md](tag-area-filter.md) for the filter requirements.
 
@@ -206,14 +207,15 @@ CSS class prefix: `slo-` for all elements specific to this component.
 
 ## TopicIntake
 
-Accepts two props:
+Accepts three props:
 
 | Prop | Type | Purpose |
 |------|------|---------|
 | `topics` | `Topic[]` | Filtered unreplied + resolved topics combined — intake counts all created topics |
 | `granularity` | `IntakeGranularity` | `"daily"` or `"weekly"` — determines time bucket size |
+| `timeRange` | `TimeRange \| null` | Global time range for the x-axis — computed from all monitored-tag topics in the active period so the axis stays consistent when switching tags |
 
-Calls `computeIntakeBuckets(topics, granularity)` and renders:
+Calls `computeIntakeBuckets(topics, granularity, timeRange)` and renders:
 
 - A section heading "Topic intake".
 - An `IntakeChart` displaying the line chart (see below).

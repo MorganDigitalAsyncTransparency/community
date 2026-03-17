@@ -92,15 +92,30 @@ interface IntakeBucket {
   bucketKey: string; // YYYY-MM-DD (day) or Monday YYYY-MM-DD (week) — for sorting
 }
 
+interface TimeRange {
+  first: string; // YYYY-MM-DD bucket key
+  last: string;  // YYYY-MM-DD bucket key
+}
+
+function computeTimeRange(
+  topics: Topic[],
+  granularity: IntakeGranularity,
+): TimeRange | null;
+
 function computeIntakeBuckets(
   topics: Topic[],
   granularity: IntakeGranularity,
+  range: TimeRange | null,
 ): IntakeBucket[];
 ```
 
-- Groups topics by `createdAt` into the appropriate bucket (daily or weekly).
+`computeTimeRange` finds the earliest and latest bucket keys across the given topics. It is called with all monitored-tag topics (before tag filtering) so the x-axis stays consistent when switching between individual tags.
+
+`computeIntakeBuckets`:
+
+- Groups topics by `createdAt` into the appropriate bucket (daily or weekly) using a shared `bucketKey` helper.
 - Returns buckets in chronological order (oldest first).
-- All periods between the earliest and latest bucket are included (TI-8a). Missing periods are filled with count zero.
+- All periods between `range.first` and `range.last` are included (TI-8a). Missing periods are filled with count zero. Returns empty when `range` is `null`.
 - For weekly buckets, reuses `mondayOf` from `trendMetrics.ts`.
 - For daily buckets, a `dayOf` function extracts the UTC date as `YYYY-MM-DD`.
 - Labels are formatted using `toLocaleDateString` with `{ year: "numeric", month: "short", day: "numeric", timeZone: "UTC" }` — consistent with week labels in `ResponseTimeTrends`.
@@ -119,7 +134,7 @@ CSS class prefix: `intake-chart-` for chart-specific elements.
 
 ### Container component
 
-`TopicIntake` accepts `topics: Topic[]` and `granularity: IntakeGranularity`. It calls `computeIntakeBuckets` and renders:
+`TopicIntake` accepts `topics: Topic[]`, `granularity: IntakeGranularity`, and `timeRange: TimeRange | null`. It calls `computeIntakeBuckets(topics, granularity, timeRange)` and renders:
 
 - A section heading "Topic intake".
 - The `IntakeChart` with the bucket data.
@@ -129,7 +144,7 @@ CSS class prefix: `intake-` for section-level elements.
 
 ### Data flow
 
-`App.tsx` computes the intake topic list by combining unreplied and resolved topics, applying both the period filter and the tag filter. It computes `intakeGranularity(activePeriod)` and passes both the filtered topics and the granularity to `TopicIntake`.
+`App.tsx` computes the intake topic list by combining unreplied and resolved topics, applying both the period filter and the tag filter. It computes `intakeGranularity(activePeriod)` and `computeTimeRange` from all monitored-tag period-filtered topics (before tag filtering), then passes the filtered topics, granularity, and time range to `TopicIntake`.
 
 The Volume page is added as a new navigation option in `App`. The `Page` type is extended with `"volume"`.
 
