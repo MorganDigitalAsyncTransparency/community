@@ -1,4 +1,4 @@
-// Spec: specs/dashboard/tag-area-filter.md
+// Spec: specs/dashboard/tag-area-filter.md, specs/dashboard/stalled-topics.md
 // Tests: tests/dashboard/tag-area-filter.unit.test.ts
 
 import type { Topic } from "../mock/data";
@@ -9,11 +9,15 @@ export interface AreaConfig {
   tags: string[];
 }
 
-export type TagConfig = AreaConfig[];
+export interface TagConfig {
+  closedTag: string;
+  stalledDays: number;
+  areas: AreaConfig[];
+}
 
 export function monitoredTags(config: TagConfig): string[] {
   const seen = new Set<string>();
-  for (const area of config) {
+  for (const area of config.areas) {
     for (const tag of area.tags) {
       seen.add(tag);
     }
@@ -42,7 +46,7 @@ export function tagsForArea(
     return monitoredTags(config).sort();
   }
 
-  const found = config.find((a) => a.name === area);
+  const found = config.areas.find((a) => a.name === area);
   if (!found) return [];
 
   const rest = found.tags

@@ -8,12 +8,14 @@ export interface Topic {
   firstReplyAt?: string;
   resolvedAt?: string;
   outcome?: "solved" | "self-closed";
+  lastActivityAt?: string;
 }
 
 export interface DashboardData {
   unrepliedTopics: Topic[];
   untaggedTopics: Topic[];
   resolvedTopics: Topic[];
+  repliedOpenTopics: Topic[];
   lastSyncedAt: string;
 }
 
@@ -393,9 +395,85 @@ const resolvedTopics: Topic[] = [
   },
 ];
 
+// Open topics with at least one reply but no resolution — candidates for stalled detection.
+// Some carry the closed tag (self-closed without resolution), some are genuinely stalled.
+const repliedOpenTopics: Topic[] = [
+  {
+    id: 1060,
+    title: "Intermittent 502 errors on API gateway after load balancer change",
+    createdAt: daysAgo(35),
+    tags: ["api"],
+    category: "Support",
+    replyCount: 3,
+    firstReplyAt: hoursAfter(daysAgo(35), 4),
+    lastActivityAt: daysAgo(22),
+  },
+  {
+    id: 1065,
+    title: "SSO session not persisting across subdomains",
+    createdAt: daysAgo(30),
+    tags: ["authentication", "sso"],
+    category: "Support",
+    replyCount: 5,
+    firstReplyAt: hoursAfter(daysAgo(30), 2),
+    lastActivityAt: daysAgo(18),
+  },
+  {
+    id: 1071,
+    title: "Webhook delivery order not guaranteed for batch events",
+    createdAt: daysAgo(25),
+    tags: ["webhooks"],
+    category: "Support",
+    replyCount: 2,
+    firstReplyAt: hoursAfter(daysAgo(25), 6),
+    lastActivityAt: daysAgo(16),
+  },
+  {
+    id: 1075,
+    title: "Search autocomplete suggestions lag behind index updates",
+    createdAt: daysAgo(20),
+    tags: ["search"],
+    category: "Support",
+    replyCount: 4,
+    firstReplyAt: hoursAfter(daysAgo(20), 12),
+    lastActivityAt: daysAgo(10),
+  },
+  {
+    id: 1080,
+    title: "Email bounces not updating user suppression list",
+    createdAt: daysAgo(18),
+    tags: ["email"],
+    category: "Support",
+    replyCount: 1,
+    firstReplyAt: hoursAfter(daysAgo(18), 8),
+    lastActivityAt: daysAgo(5),
+  },
+  {
+    id: 1083,
+    title: "Plugin compatibility issue after core update — admin notified",
+    createdAt: daysAgo(28),
+    tags: ["installation", "closed"],
+    category: "Support",
+    replyCount: 3,
+    firstReplyAt: hoursAfter(daysAgo(28), 1),
+    lastActivityAt: daysAgo(20),
+  },
+  {
+    id: 1087,
+    title: "Editor font rendering inconsistent on HiDPI displays",
+    createdAt: daysAgo(15),
+    tags: ["editor"],
+    category: "Bug Reports",
+    replyCount: 2,
+    firstReplyAt: hoursAfter(daysAgo(15), 24),
+    lastActivityAt: daysAgo(3),
+  },
+];
+
 export const MOCK_DATA: DashboardData = {
   unrepliedTopics,
   untaggedTopics,
   resolvedTopics,
+  repliedOpenTopics,
   lastSyncedAt: hoursAgo(2),
 };

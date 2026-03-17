@@ -1,11 +1,13 @@
 // Spec: specs/dashboard/queue-visibility.md, specs/dashboard/response-metrics.md,
 //       specs/dashboard/time-period-filter.md, specs/dashboard/response-time-trends.md,
 //       specs/dashboard/tag-distribution.md, specs/dashboard/slo-monitoring.md,
-//       specs/dashboard/tag-area-filter.md, specs/dashboard/topic-intake.md
+//       specs/dashboard/tag-area-filter.md, specs/dashboard/topic-intake.md,
+//       specs/dashboard/stalled-topics.md
 // Tests: tests/dashboard/queue-visibility.unit.test.ts, tests/dashboard/response-metrics.unit.test.ts,
 //        tests/dashboard/time-period-filter.unit.test.ts, tests/dashboard/response-time-trends.unit.test.ts,
 //        tests/dashboard/tag-distribution.unit.test.ts, tests/dashboard/slo-monitoring.unit.test.ts,
-//        tests/dashboard/tag-area-filter.unit.test.ts, tests/dashboard/topic-intake.unit.test.ts
+//        tests/dashboard/tag-area-filter.unit.test.ts, tests/dashboard/topic-intake.unit.test.ts,
+//        tests/dashboard/stalled-topics.unit.test.ts
 
 import { useState } from "react";
 import "./App.css";
@@ -18,6 +20,7 @@ import { ResponseTimeTrends } from "./components/ResponseTimeTrends";
 import { TagDistribution } from "./components/TagDistribution";
 import { SloMonitor } from "./components/SloMonitor";
 import { TopicIntake } from "./components/TopicIntake";
+import { StalledTopics } from "./components/StalledTopics";
 import { PeriodSelector } from "./components/PeriodSelector";
 import { TagSelector } from "./components/TagSelector";
 import sloConfig from "../../config/sloThresholds.json";
@@ -36,7 +39,7 @@ import {
 } from "./components/tagFilter";
 import { intakeGranularity } from "./components/intakeMetrics";
 
-type Page = "queue" | "response-metrics" | "distribution" | "slo" | "volume";
+type Page = "queue" | "response-metrics" | "distribution" | "slo" | "volume" | "activity";
 
 function formatSyncTime(isoString: string): string {
   return new Date(isoString).toLocaleString(undefined, {
@@ -99,6 +102,10 @@ export function App() {
     resolvedTopics: applyTagFilter(
       filterByPeriod(MOCK_DATA.resolvedTopics, activePeriod),
     ),
+    // ST-8: period filter applies; ST-9: tag filter applies
+    repliedOpenTopics: applyTagFilter(
+      filterByPeriod(MOCK_DATA.repliedOpenTopics, activePeriod),
+    ),
   };
 
   return (
@@ -135,6 +142,12 @@ export function App() {
             onClick={() => setPage("volume")}
           >
             Volume
+          </button>
+          <button
+            className={`nav-link ${page === "activity" ? "nav-link-active" : ""}`}
+            onClick={() => setPage("activity")}
+          >
+            Activity
           </button>
         </nav>
         <span className="app-sync-status">
@@ -210,6 +223,16 @@ export function App() {
           <TopicIntake
             topics={[...filteredData.unrepliedTopics, ...filteredData.resolvedTopics]}
             granularity={intakeGranularity(activePeriod)}
+          />
+        )}
+
+        {page === "activity" && (
+          // ST-8: period filter applies; ST-9: tag filter applies
+          <StalledTopics
+            topics={filteredData.repliedOpenTopics}
+            stalledDays={typedTagConfig.stalledDays}
+            closedTag={typedTagConfig.closedTag}
+            monitoredTags={monitored}
           />
         )}
       </main>
