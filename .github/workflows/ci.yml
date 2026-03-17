@@ -109,9 +109,7 @@ jobs:
         run: cd frontend && npm ci
 
       - name: Create config from examples
-        run: |
-          cp config/sloThresholds.example.json config/sloThresholds.json
-          cp config/tagConfig.example.json config/tagConfig.json
+        run: cp config/tagConfig.example.json config/tagConfig.json
 
       - name: Type check
         run: cd frontend && npx tsc --noEmit
