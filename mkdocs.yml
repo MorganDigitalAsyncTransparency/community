@@ -8,6 +8,14 @@ exclude_docs: |
   site/
   AI_GUIDELINES.md
   CLAUDE.md
+  backend/README.md
+  backend/config/README.md
+  backend/discourse/README.md
+  backend/model/README.md
+  backend/observer/README.md
+  backend/storage/README.md
+  docs/decisions/template.md
+  tests/README.md
 
 theme:
   name: material

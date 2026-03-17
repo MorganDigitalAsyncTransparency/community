@@ -30,7 +30,7 @@ The visualization needs fall into two categories:
 
 The project uses React 19.2.4, Vite 8, and TypeScript 5.9. There are no existing charting dependencies. A future design specification will define visual styling for the full site, so the library should not impose a rigid visual identity but should be possible to theme.
 
-The project's AI guidelines ([AI_GUIDELINES.md](../../AI_GUIDELINES.md)) require a documented ADR before introducing any new library. The engineering strategy ([docs/engineering-strategy.md](../engineering-strategy.md)) states "no framework until one is clearly needed — standard library first." HTML tables cannot meet the visualization needs described above, making a charting library clearly needed.
+The project's AI guidelines (`AI_GUIDELINES.md` in the repository root) require a documented ADR before introducing any new library. The engineering strategy ([docs/engineering-strategy.md](../engineering-strategy.md)) states "no framework until one is clearly needed — standard library first." HTML tables cannot meet the visualization needs described above, making a charting library clearly needed.
 
 ## Alternatives Considered
 

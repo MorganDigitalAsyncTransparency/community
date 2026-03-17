@@ -97,4 +97,4 @@ The observation layer captures current state and changes, but a formal event sou
 
 ## Design decisions
 
-Architecture decisions are recorded as ADRs in [docs/decisions/](docs/decisions/). Consult them for context on why the architecture is shaped this way.
+Architecture decisions are recorded as ADRs in [docs/decisions/](docs/decisions/README.md). Consult them for context on why the architecture is shaped this way.
