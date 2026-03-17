@@ -36,6 +36,7 @@ import {
   filterByTag,
   filterByMonitoredTags,
   monitoredTags,
+  tagsForArea,
 } from "./components/tagFilter";
 import { intakeGranularity } from "./components/intakeMetrics";
 
