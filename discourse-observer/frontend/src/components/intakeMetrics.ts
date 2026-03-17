@@ -54,6 +54,10 @@ function nextMonday(isoDate: string): string {
   return dayOf(d);
 }
 
+function bucketKey(date: Date, granularity: IntakeGranularity): string {
+  return granularity === "daily" ? dayOf(date) : mondayOf(date);
+}
+
 export interface TimeRange {
   first: string; // YYYY-MM-DD bucket key
   last: string;  // YYYY-MM-DD bucket key
@@ -70,7 +74,7 @@ export function computeTimeRange(
 
   for (const topic of topics) {
     const date = new Date(topic.createdAt);
-    const key = granularity === "daily" ? dayOf(date) : mondayOf(date);
+    const key = bucketKey(date, granularity);
     if (earliest === "" || key < earliest) earliest = key;
     if (latest === "" || key > latest) latest = key;
   }
@@ -107,7 +111,7 @@ export function computeIntakeBuckets(
 
   for (const topic of topics) {
     const date = new Date(topic.createdAt);
-    const key = granularity === "daily" ? dayOf(date) : mondayOf(date);
+    const key = bucketKey(date, granularity);
     byBucket.set(key, (byBucket.get(key) ?? 0) + 1);
   }
 
