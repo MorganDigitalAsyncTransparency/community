@@ -11,12 +11,7 @@
     { "name": "Infrastructure", "primaryTag": "installation" }
   ],
   "tags": {
-    "api": {
-      "area": "Integration",
-      "closedTag": "closed",
-      "stalledDays": 14,
-      "slo": { "firstReplyHours": 4, "resolutionHours": 48, "inactivityHours": 24 }
-    },
+    "api": { "area": "Integration", "closedTag": "closed", "stalledDays": 14, "slo": { "firstReplyHours": 4, "resolutionHours": 48, "inactivityHours": 24 } },
     "webhooks": { "area": "Integration" },
     "sso": { "area": "Integration" },
     "authentication": { "area": "Access" },
