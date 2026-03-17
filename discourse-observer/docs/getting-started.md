@@ -8,7 +8,7 @@ This guide explains how to configure, start, and access the discourse-observer d
 make start
 ```
 
-This copies `.env.example` to `.env`, `config/sloThresholds.example.json` to `config/sloThresholds.json`, and `config/tagConfig.example.json` to `config/tagConfig.json` (if needed), builds the containers, starts them, and opens the dashboard. Edit `.env` with your Discourse credentials, `config/sloThresholds.json` with your SLO thresholds, and `config/tagConfig.json` with your tag configuration before the first run.
+This copies `.env.example` to `.env` and `config/tagConfig.example.json` to `config/tagConfig.json` (if needed), builds the containers, starts them, and opens the dashboard. Edit `.env` with your Discourse credentials and `config/tagConfig.json` with your tag, area, SLO, and stalled-topic configuration before the first run.
 
 After code changes, use `make restart` to rebuild and relaunch.
 
@@ -65,25 +65,21 @@ DISCOURSE_API_USER=nickname
 
 The `.env` file is gitignored and will not be committed.
 
-### SLO thresholds
-
-Copy the example configuration and adjust the thresholds per tag:
-
-```sh
-cp config/sloThresholds.example.json config/sloThresholds.json
-```
-
-Edit `config/sloThresholds.json` to define SLO thresholds for each monitored tag. Tags not listed are excluded from SLO monitoring. The file is gitignored.
-
 ### Tag configuration
 
-Copy the example configuration and define your monitored tags and areas:
+Copy the example configuration and customize it for your forum:
 
 ```sh
 cp config/tagConfig.example.json config/tagConfig.json
 ```
 
-Edit `config/tagConfig.json` to define areas and their tags. Each area groups related tags for navigation; the union of all tags across areas defines the set of monitored tags used in dashboard metrics. The file is gitignored.
+Edit `config/tagConfig.json` to define your monitored tags, area groupings, SLO thresholds, and stalled-topic settings — all in a single file. The file has four sections:
+
+- **`defaults`** — fallback values for `stalledDays`, `area`, and `slo`. Applied to tags that don't override them. Tags using defaults are marked in the UI so viewers know the values are not explicitly agreed.
+- **`areas`** — named groups with a `primaryTag` for display ordering.
+- **`tags`** — one entry per monitored tag. Each entry can set `area`, `closedTag`, `stalledDays`, and `slo`. All fields are optional — absent values fall back to defaults (except `closedTag`, which has no default). Writing a value explicitly means it has been agreed upon; changing defaults later won't affect tags with explicit values.
+
+The file is gitignored.
 
 ## Build and start
 

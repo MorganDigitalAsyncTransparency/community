@@ -15,9 +15,25 @@ interface SloMonitorProps {
   resolvedTopics: Topic[];
   unrepliedTopics: Topic[];
   sloConfig: SloConfig;
+  defaultSloTags: Set<string>;
 }
 
-function ViolationTable({ violations, title }: { violations: Violation[]; title: string }) {
+function DefaultIndicator({ tag, defaultTags }: { tag: string; defaultTags: Set<string> }) {
+  if (!defaultTags.has(tag)) return null;
+  return (
+    <span className="slo-default-indicator"> (default thresholds)</span>
+  );
+}
+
+function ViolationTable({
+  violations,
+  title,
+  defaultSloTags,
+}: {
+  violations: Violation[];
+  title: string;
+  defaultSloTags: Set<string>;
+}) {
   return (
     <section className="app-section">
       <h3 className="slo-section-title">{title}</h3>
@@ -38,7 +54,10 @@ function ViolationTable({ violations, title }: { violations: Violation[]; title:
             {violations.map((v) => (
               <tr key={`${v.topicId}-${v.tag}`} className="slo-row">
                 <td className="slo-td">{v.topicTitle}</td>
-                <td className="slo-td slo-td-tag">{v.tag}</td>
+                <td className="slo-td slo-td-tag">
+                  {v.tag}
+                  <DefaultIndicator tag={v.tag} defaultTags={defaultSloTags} />
+                </td>
                 <td className="slo-td slo-td-metric">{formatDuration(v.thresholdMs)}</td>
                 <td className="slo-td slo-td-metric">{formatDuration(v.actualMs)}</td>
                 <td className="slo-td slo-td-metric">{formatDuration(v.excessMs)}</td>
@@ -51,7 +70,13 @@ function ViolationTable({ violations, title }: { violations: Violation[]; title:
   );
 }
 
-function ComplianceTable({ rows }: { rows: TagCompliance[] }) {
+function ComplianceTable({
+  rows,
+  defaultSloTags,
+}: {
+  rows: TagCompliance[];
+  defaultSloTags: Set<string>;
+}) {
   if (rows.length === 0 || rows.every((r) =>
     r.firstReplyPercent === null && r.resolutionPercent === null && r.inactivityPercent === null
   )) {
@@ -71,7 +96,10 @@ function ComplianceTable({ rows }: { rows: TagCompliance[] }) {
       <tbody>
         {rows.map((r) => (
           <tr key={r.tag} className="slo-row">
-            <td className="slo-td">{r.tag}</td>
+            <td className="slo-td">
+              {r.tag}
+              <DefaultIndicator tag={r.tag} defaultTags={defaultSloTags} />
+            </td>
             <td className="slo-td slo-td-metric">
               {r.firstReplyPercent === null ? "–" : `${r.firstReplyPercent}%`}
             </td>
@@ -88,7 +116,12 @@ function ComplianceTable({ rows }: { rows: TagCompliance[] }) {
   );
 }
 
-export function SloMonitor({ resolvedTopics, unrepliedTopics, sloConfig }: SloMonitorProps) {
+export function SloMonitor({
+  resolvedTopics,
+  unrepliedTopics,
+  sloConfig,
+  defaultSloTags,
+}: SloMonitorProps) {
   const configuredTags = Object.keys(sloConfig);
 
   // SL-25: empty config
@@ -104,14 +137,14 @@ export function SloMonitor({ resolvedTopics, unrepliedTopics, sloConfig }: SloMo
     <>
       <section className="app-section">
         <h2 className="app-section-title">Threshold violations</h2>
-        <ViolationTable violations={violations.firstReply} title="First reply violations" />
-        <ViolationTable violations={violations.resolution} title="Resolution violations" />
-        <ViolationTable violations={violations.inactivity} title="Inactivity violations" />
+        <ViolationTable violations={violations.firstReply} title="First reply violations" defaultSloTags={defaultSloTags} />
+        <ViolationTable violations={violations.resolution} title="Resolution violations" defaultSloTags={defaultSloTags} />
+        <ViolationTable violations={violations.inactivity} title="Inactivity violations" defaultSloTags={defaultSloTags} />
       </section>
 
       <section className="app-section">
         <h2 className="app-section-title">SLO compliance</h2>
-        <ComplianceTable rows={compliance} />
+        <ComplianceTable rows={compliance} defaultSloTags={defaultSloTags} />
       </section>
     </>
   );

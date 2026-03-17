@@ -1,7 +1,7 @@
 // Spec: specs/dashboard/tag-area-filter.md
 // Tests: tests/dashboard/tag-area-filter.unit.test.ts
 
-import { type TagConfig, tagsForArea } from "./tagFilter";
+import { type TagConfig, tagsForArea, allAreas } from "./tagFilter";
 
 interface TagSelectorProps {
   config: TagConfig;
@@ -19,6 +19,7 @@ export function TagSelector({
   onAreaSelect,
 }: TagSelectorProps) {
   const visibleTags = tagsForArea(config, activeArea);
+  const areas = allAreas(config);
 
   return (
     <div className="tag-selector">
@@ -29,9 +30,9 @@ export function TagSelector({
         onChange={(e) => onAreaSelect(e.target.value || null)}
       >
         <option value="">All areas</option>
-        {config.areas.map((area) => (
-          <option key={area.name} value={area.name}>
-            {area.name}
+        {areas.map((area) => (
+          <option key={area} value={area}>
+            {area}
           </option>
         ))}
       </select>

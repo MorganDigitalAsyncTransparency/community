@@ -2,6 +2,7 @@
 // Tests: tests/dashboard/stalled-topics.unit.test.ts
 
 import type { Topic } from "../mock/data";
+import type { ResolvedTag } from "./tagFilter";
 
 const DAY_MS = 86_400_000;
 
@@ -10,20 +11,54 @@ export function daysSinceLastActivity(topic: Topic, now: Date = new Date()): num
   return Math.floor((now.getTime() - new Date(lastActivity).getTime()) / DAY_MS);
 }
 
+// Finds the strictest (lowest) stalledDays across a topic's configured tags.
+// Returns null when the topic has no configured tags.
+function strictestStalledDays(
+  topicTags: string[],
+  resolved: Record<string, ResolvedTag>,
+): number | null {
+  let best: number | null = null;
+  for (const tag of topicTags) {
+    const r = resolved[tag];
+    if (!r) continue;
+    if (best === null || r.stalledDays < best) {
+      best = r.stalledDays;
+    }
+  }
+  return best;
+}
+
+// Collects all closedTag values from a topic's configured tags.
+function closedTagsForTopic(
+  topicTags: string[],
+  resolved: Record<string, ResolvedTag>,
+): Set<string> {
+  const result = new Set<string>();
+  for (const tag of topicTags) {
+    const r = resolved[tag];
+    if (r?.closedTag) {
+      result.add(r.closedTag);
+    }
+  }
+  return result;
+}
+
 export function filterStalledTopics(
   topics: Topic[],
-  stalledDays: number,
-  closedTag: string,
+  resolved: Record<string, ResolvedTag>,
   now: Date = new Date(),
 ): Topic[] {
-  const thresholdMs = stalledDays * DAY_MS;
-
   return topics
     .filter((t) => {
-      if (t.tags.includes(closedTag)) return false;
+      const closedTags = closedTagsForTopic(t.tags, resolved);
+      if (t.tags.some((tag) => closedTags.has(tag))) return false;
+
+      const threshold = strictestStalledDays(t.tags, resolved);
+      if (threshold === null) return false;
+
       const lastActivity = t.lastActivityAt ?? t.createdAt;
       const elapsed = now.getTime() - new Date(lastActivity).getTime();
-      return elapsed > thresholdMs;
+      return elapsed > threshold * DAY_MS;
     })
     .sort((a, b) => {
       const aTime = new Date(a.lastActivityAt ?? a.createdAt).getTime();
@@ -35,4 +70,11 @@ export function filterStalledTopics(
 export function formatStalledTag(topic: Topic, monitored: Set<string>): string {
   const found = topic.tags.find((t) => monitored.has(t));
   return found ?? "–";
+}
+
+// Returns the minimum stalledDays across all resolved tags, for display in headings.
+export function minimumStalledDays(resolved: Record<string, ResolvedTag>): number {
+  const values = Object.values(resolved).map((r) => r.stalledDays);
+  if (values.length === 0) return 0;
+  return Math.min(...values);
 }

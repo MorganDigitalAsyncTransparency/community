@@ -2,32 +2,33 @@
 // Tests: tests/dashboard/stalled-topics.unit.test.ts
 
 import type { Topic } from "../mock/data";
+import type { ResolvedTag } from "./tagFilter";
 import {
   filterStalledTopics,
   daysSinceLastActivity,
   formatStalledTag,
+  minimumStalledDays,
 } from "./stalledMetrics";
 
 interface StalledTopicsProps {
   topics: Topic[];
-  stalledDays: number;
-  closedTag: string;
+  resolvedTags: Record<string, ResolvedTag>;
   monitoredTags: string[];
 }
 
 export function StalledTopics({
   topics,
-  stalledDays,
-  closedTag,
+  resolvedTags,
   monitoredTags,
 }: StalledTopicsProps) {
-  const stalled = filterStalledTopics(topics, stalledDays, closedTag);
+  const stalled = filterStalledTopics(topics, resolvedTags);
   const monitored = new Set(monitoredTags);
+  const minDays = minimumStalledDays(resolvedTags);
 
   return (
     <section className="stalled-section">
       <h2 className="stalled-heading">
-        Stalled topics (inactive &gt; {stalledDays} days)
+        Stalled topics (inactive &gt; {minDays} days)
       </h2>
       {stalled.length === 0 ? (
         <p className="stalled-empty">No stalled topics</p>
@@ -41,17 +42,24 @@ export function StalledTopics({
             </tr>
           </thead>
           <tbody>
-            {stalled.map((topic) => (
-              <tr key={topic.id} className="stalled-row">
-                <td className="stalled-cell-title">{topic.title}</td>
-                <td className="stalled-cell-tag">
-                  {formatStalledTag(topic, monitored)}
-                </td>
-                <td className="stalled-cell-days">
-                  {daysSinceLastActivity(topic)}
-                </td>
-              </tr>
-            ))}
+            {stalled.map((topic) => {
+              const tagName = formatStalledTag(topic, monitored);
+              const isDefault = tagName !== "–" && resolvedTags[tagName]?.stalledDaysIsDefault;
+              return (
+                <tr key={topic.id} className="stalled-row">
+                  <td className="stalled-cell-title">{topic.title}</td>
+                  <td className="stalled-cell-tag">
+                    {tagName}
+                    {isDefault && (
+                      <span className="stalled-default-indicator"> (default threshold)</span>
+                    )}
+                  </td>
+                  <td className="stalled-cell-days">
+                    {daysSinceLastActivity(topic)}
+                  </td>
+                </tr>
+              );
+            })}
           </tbody>
         </table>
       )}

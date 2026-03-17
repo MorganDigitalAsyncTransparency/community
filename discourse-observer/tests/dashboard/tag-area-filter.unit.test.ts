@@ -4,7 +4,13 @@ import {
   filterByMonitoredTags,
   monitoredTags,
   tagsForArea,
+  allAreas,
+  resolveTag,
+  resolveAllTags,
+  extractSloConfig,
+  sloDefaultTags,
   type TagConfig,
+  type ResolvedTag,
 } from "../../frontend/src/components/tagFilter";
 import { filterByPeriod } from "../../frontend/src/components/timePeriod";
 import type { Topic } from "../../frontend/src/mock/data";
@@ -21,13 +27,27 @@ function makeTopic(overrides: Partial<Topic> & { id: number }): Topic {
 }
 
 const CONFIG: TagConfig = {
-  closedTag: "closed",
-  stalledDays: 14,
+  defaults: {
+    stalledDays: 14,
+    area: "Other",
+    slo: { firstReplyHours: 24, resolutionHours: 336, inactivityHours: 48 },
+  },
   areas: [
-    { name: "Integration", primaryTag: "api", tags: ["api", "webhooks", "sso"] },
-    { name: "Access", primaryTag: "authentication", tags: ["authentication", "ssl"] },
-    { name: "Content", primaryTag: "editor", tags: ["editor", "search"] },
+    { name: "Integration", primaryTag: "api" },
+    { name: "Access", primaryTag: "authentication" },
+    { name: "Content", primaryTag: "editor" },
   ],
+  tags: {
+    api: { area: "Integration", closedTag: "closed", stalledDays: 7, slo: { firstReplyHours: 4, resolutionHours: 48, inactivityHours: 24 } },
+    webhooks: { area: "Integration" },
+    sso: { area: "Integration" },
+    authentication: { area: "Access", stalledDays: 7 },
+    ssl: { area: "Access" },
+    editor: { area: "Content" },
+    search: { area: "Content" },
+    plugin: { slo: { firstReplyHours: 8, resolutionHours: 72, inactivityHours: 48 } },
+    migration: {},
+  },
 };
 
 // ---------------------------------------------------------------------------
@@ -35,9 +55,9 @@ const CONFIG: TagConfig = {
 // ---------------------------------------------------------------------------
 
 describe("monitoredTags", () => {
-  it("returns deduplicated union of all area tags", () => {
+  it("returns all tag keys from config", () => {
     const result = monitoredTags(CONFIG);
-    expect(result).toHaveLength(7);
+    expect(result).toHaveLength(9);
     expect(result).toContain("api");
     expect(result).toContain("webhooks");
     expect(result).toContain("sso");
@@ -45,24 +65,66 @@ describe("monitoredTags", () => {
     expect(result).toContain("ssl");
     expect(result).toContain("editor");
     expect(result).toContain("search");
+    expect(result).toContain("plugin");
+    expect(result).toContain("migration");
   });
 
-  it("deduplicates tags appearing in multiple areas", () => {
-    const config: TagConfig = {
-      closedTag: "closed",
-      stalledDays: 14,
-      areas: [
-        { name: "A", primaryTag: "shared", tags: ["shared", "x"] },
-        { name: "B", primaryTag: "shared", tags: ["shared", "y"] },
-      ],
-    };
-    const result = monitoredTags(config);
-    expect(result.filter((t) => t === "shared")).toHaveLength(1);
-    expect(result).toHaveLength(3);
+  it("returns empty array for config with no tags", () => {
+    const config: TagConfig = { ...CONFIG, tags: {} };
+    expect(monitoredTags(config)).toEqual([]);
+  });
+});
+
+// ---------------------------------------------------------------------------
+// resolveTag — default resolution and provenance
+// ---------------------------------------------------------------------------
+
+describe("resolveTag", () => {
+  it("uses explicit values when present", () => {
+    const resolved = resolveTag(
+      { area: "Integration", closedTag: "closed", stalledDays: 7, slo: { firstReplyHours: 4, resolutionHours: 48, inactivityHours: 24 } },
+      CONFIG.defaults,
+    );
+    expect(resolved.area).toBe("Integration");
+    expect(resolved.areaIsDefault).toBe(false);
+    expect(resolved.closedTag).toBe("closed");
+    expect(resolved.stalledDays).toBe(7);
+    expect(resolved.stalledDaysIsDefault).toBe(false);
+    expect(resolved.slo.firstReplyHours).toBe(4);
+    expect(resolved.sloIsDefault).toBe(false);
   });
 
-  it("returns empty array for empty config", () => {
-    expect(monitoredTags({ closedTag: "closed", stalledDays: 14, areas: [] })).toEqual([]);
+  it("falls back to defaults for absent fields", () => {
+    const resolved = resolveTag({}, CONFIG.defaults);
+    expect(resolved.area).toBe("Other");
+    expect(resolved.areaIsDefault).toBe(true);
+    expect(resolved.closedTag).toBeNull();
+    expect(resolved.stalledDays).toBe(14);
+    expect(resolved.stalledDaysIsDefault).toBe(true);
+    expect(resolved.slo).toEqual(CONFIG.defaults.slo);
+    expect(resolved.sloIsDefault).toBe(true);
+  });
+
+  it("allows partial overrides", () => {
+    const resolved = resolveTag({ stalledDays: 3 }, CONFIG.defaults);
+    expect(resolved.stalledDays).toBe(3);
+    expect(resolved.stalledDaysIsDefault).toBe(false);
+    expect(resolved.area).toBe("Other");
+    expect(resolved.areaIsDefault).toBe(true);
+  });
+});
+
+// ---------------------------------------------------------------------------
+// resolveAllTags
+// ---------------------------------------------------------------------------
+
+describe("resolveAllTags", () => {
+  it("resolves every tag in config", () => {
+    const resolved = resolveAllTags(CONFIG);
+    expect(Object.keys(resolved)).toHaveLength(9);
+    expect(resolved.api.area).toBe("Integration");
+    expect(resolved.migration.area).toBe("Other");
+    expect(resolved.migration.sloIsDefault).toBe(true);
   });
 });
 
@@ -158,7 +220,7 @@ describe("filterByMonitoredTags", () => {
 // ---------------------------------------------------------------------------
 
 describe("tagsForArea", () => {
-  it("returns primary tag first, rest alphabetical for a given area (TA-12)", () => {
+  it("returns primary tag first, rest alphabetical for a named area (TA-12)", () => {
     const result = tagsForArea(CONFIG, "Integration");
     expect(result).toEqual(["api", "sso", "webhooks"]);
   });
@@ -166,7 +228,7 @@ describe("tagsForArea", () => {
   it("returns all tags sorted alphabetically when area is null (TA-13)", () => {
     const result = tagsForArea(CONFIG, null);
     expect(result).toEqual([
-      "api", "authentication", "editor", "search", "ssl", "sso", "webhooks",
+      "api", "authentication", "editor", "migration", "plugin", "search", "ssl", "sso", "webhooks",
     ]);
   });
 
@@ -174,15 +236,62 @@ describe("tagsForArea", () => {
     expect(tagsForArea(CONFIG, "Unknown")).toEqual([]);
   });
 
+  it("returns tags in default area sorted alphabetically (no primaryTag)", () => {
+    const result = tagsForArea(CONFIG, "Other");
+    expect(result).toEqual(["migration", "plugin"]);
+  });
+
   it("handles area with only one tag", () => {
     const config: TagConfig = {
-      closedTag: "closed",
-      stalledDays: 14,
-      areas: [
-        { name: "Solo", primaryTag: "only", tags: ["only"] },
-      ],
+      defaults: CONFIG.defaults,
+      areas: [{ name: "Solo", primaryTag: "only" }],
+      tags: { only: { area: "Solo" } },
     };
     expect(tagsForArea(config, "Solo")).toEqual(["only"]);
+  });
+});
+
+// ---------------------------------------------------------------------------
+// allAreas
+// ---------------------------------------------------------------------------
+
+describe("allAreas", () => {
+  it("returns named areas plus default area when tags use it", () => {
+    const result = allAreas(CONFIG);
+    expect(result).toEqual(["Integration", "Access", "Content", "Other"]);
+  });
+
+  it("omits default area when no tags use it", () => {
+    const config: TagConfig = {
+      defaults: CONFIG.defaults,
+      areas: [{ name: "Integration", primaryTag: "api" }],
+      tags: { api: { area: "Integration" } },
+    };
+    const result = allAreas(config);
+    expect(result).toEqual(["Integration"]);
+  });
+});
+
+// ---------------------------------------------------------------------------
+// extractSloConfig and sloDefaultTags
+// ---------------------------------------------------------------------------
+
+describe("extractSloConfig", () => {
+  it("returns SLO thresholds for all tags (explicit and default)", () => {
+    const slo = extractSloConfig(CONFIG);
+    expect(slo.api.firstReplyHours).toBe(4);
+    expect(slo.migration.firstReplyHours).toBe(24); // from defaults
+    expect(Object.keys(slo)).toHaveLength(9);
+  });
+});
+
+describe("sloDefaultTags", () => {
+  it("returns tags without explicit SLO", () => {
+    const defaults = sloDefaultTags(CONFIG);
+    expect(defaults.has("migration")).toBe(true);
+    expect(defaults.has("webhooks")).toBe(true);
+    expect(defaults.has("api")).toBe(false);
+    expect(defaults.has("plugin")).toBe(false);
   });
 });
 

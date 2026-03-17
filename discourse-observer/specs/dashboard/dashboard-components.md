@@ -129,7 +129,7 @@ Accepts five props:
 
 | Prop | Type | Purpose |
 |------|------|---------|
-| `config` | `TagConfig` | Area/tag configuration loaded from `config/tagConfig.json` |
+| `config` | `TagConfig` | Unified tag/area/SLO configuration loaded from `config/tagConfig.json` |
 | `activeTag` | `string \| null` | Currently selected tag, or `null` for all |
 | `activeArea` | `string \| null` | Currently selected area, or `null` for all |
 | `onTagSelect` | `(tag: string \| null) => void` | Called when a tag button is clicked |
@@ -181,13 +181,14 @@ CSS class prefix: `dist-` for all elements specific to this component.
 
 ## SloMonitor
 
-Accepts three props:
+Accepts four props:
 
 | Prop | Type | Purpose |
 |------|------|---------|
 | `unrepliedTopics` | `Topic[]` | Filtered unreplied topics — used for first reply and inactivity violation checks and compliance |
 | `resolvedTopics` | `Topic[]` | Filtered resolved topics — used for all three violation checks and compliance |
-| `sloConfig` | `SloConfig` | Tag-to-threshold mapping loaded from configuration |
+| `sloConfig` | `SloConfig` | Tag-to-threshold mapping extracted from unified configuration |
+| `defaultSloTags` | `Set<string>` | Tags using default SLO thresholds — shown with "(default thresholds)" indicator |
 
 Renders two sections in order:
 
@@ -247,16 +248,15 @@ CSS class prefix: `intake-chart-` for chart-specific elements.
 
 ## StalledTopics
 
-Accepts four props:
+Accepts three props:
 
 | Prop | Type | Purpose |
 |------|------|---------|
 | `topics` | `Topic[]` | Filtered replied open topics (period + tag filters already applied) |
-| `stalledDays` | `number` | Inactivity threshold from configuration |
-| `closedTag` | `string` | Closed tag from configuration — topics carrying this tag are excluded |
+| `resolvedTags` | `Record<string, ResolvedTag>` | Resolved tag configuration with per-tag stalledDays and closedTag |
 | `monitoredTags` | `string[]` | All monitored tags — used to display the first monitored tag per topic |
 
-Calls `filterStalledTopics(topics, stalledDays, closedTag)` and renders:
+Calls `filterStalledTopics(topics, resolvedTags)` and renders:
 
 - A section heading showing the threshold — "Stalled topics (inactive > N days)" where N is `stalledDays`.
 - A table with three columns:

@@ -27,8 +27,7 @@ import { PeakActivity } from "./components/PeakActivity";
 import { ResponseTimeDistribution } from "./components/ResponseTimeDistribution";
 import { PeriodSelector } from "./components/PeriodSelector";
 import { TagSelector } from "./components/TagSelector";
-import sloConfig from "../../config/sloThresholds.json";
-import tagConfig from "../../config/tagConfig.json";
+import tagConfigJson from "../../config/tagConfig.json";
 import distributionConfig from "../../config/distributionBuckets.json";
 import {
   type ActivePeriod,
@@ -42,6 +41,9 @@ import {
   filterByMonitoredTags,
   monitoredTags,
   tagsForArea,
+  extractSloConfig,
+  sloDefaultTags,
+  resolveAllTags,
 } from "./components/tagFilter";
 import { intakeGranularity } from "./components/intakeMetrics";
 
@@ -67,8 +69,11 @@ export function App() {
   const [activeTag, setActiveTag] = useState<string | null>(null);
   const [activeArea, setActiveArea] = useState<string | null>(null);
 
-  const typedTagConfig = tagConfig as TagConfig;
+  const typedTagConfig = tagConfigJson as TagConfig;
   const monitored = monitoredTags(typedTagConfig);
+  const sloConfig = extractSloConfig(typedTagConfig);
+  const defaultSloTags = sloDefaultTags(typedTagConfig);
+  const resolvedTags = resolveAllTags(typedTagConfig);
 
   function handlePresetSelect(preset: PeriodPreset) {
     setActivePeriod({ kind: "preset", preset });
@@ -230,6 +235,7 @@ export function App() {
             resolvedTopics={filteredData.resolvedTopics}
             unrepliedTopics={filteredData.unrepliedTopics}
             sloConfig={sloConfig}
+            defaultSloTags={defaultSloTags}
           />
         )}
 
@@ -246,8 +252,7 @@ export function App() {
             {/* ST-8: period filter applies; ST-9: tag filter applies */}
             <StalledTopics
               topics={filteredData.repliedOpenTopics}
-              stalledDays={typedTagConfig.stalledDays}
-              closedTag={typedTagConfig.closedTag}
+              resolvedTags={resolvedTags}
               monitoredTags={monitored}
             />
             {/* PA-8: all topics (unreplied + resolved); PA-11: period filter; PA-12: tag filter */}

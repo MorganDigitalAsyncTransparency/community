@@ -4,10 +4,10 @@ import { describe, expect, it } from "vitest";
 import {
   findViolations,
   computeCompliance,
-  type SloConfig,
   type Violation,
   type TagCompliance,
 } from "../../frontend/src/components/sloMetrics";
+import type { SloConfig } from "../../frontend/src/components/tagFilter";
 import type { Topic } from "../../frontend/src/mock/data";
 
 const HOUR_MS = 3_600_000;

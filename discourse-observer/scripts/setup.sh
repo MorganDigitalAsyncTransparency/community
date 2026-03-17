@@ -118,14 +118,14 @@ else
   fi
 fi
 
-if [ -f "$PROJECT_DIR/config/sloThresholds.json" ]; then
-  pass "config/sloThresholds.json exists"
+if [ -f "$PROJECT_DIR/config/tagConfig.json" ]; then
+  pass "config/tagConfig.json exists"
 else
-  if [ -f "$PROJECT_DIR/config/sloThresholds.example.json" ]; then
-    cp "$PROJECT_DIR/config/sloThresholds.example.json" "$PROJECT_DIR/config/sloThresholds.json"
-    warn "sloThresholds.json created from example" "edit it with your SLO thresholds"
+  if [ -f "$PROJECT_DIR/config/tagConfig.example.json" ]; then
+    cp "$PROJECT_DIR/config/tagConfig.example.json" "$PROJECT_DIR/config/tagConfig.json"
+    warn "tagConfig.json created from example" "edit it with your tag and SLO configuration"
   else
-    fail "config/sloThresholds.json" "sloThresholds.example.json not found"
+    fail "config/tagConfig.json" "tagConfig.example.json not found"
     required_ok=false
   fi
 fi
