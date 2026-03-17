@@ -95,16 +95,16 @@ export function App() {
     }
   }
 
-  // TA-4: tag filter composes with period filter — apply both sequentially.
-  // TA-17: when no tag is selected, filterByMonitoredTags scopes to configured tags.
-  // TA-4: tag filter composes with area selection.
-  // When a specific tag is selected, filter to that tag.
-  // When "All" is selected within an area, filter to that area's tags.
-  // When "All" is selected with no area, filter to all monitored tags.
+  // TA-4, TA-17: visible tags depend on area and tag selection.
+  // Specific tag → just that tag. "All" within area → area's tags. No area → all monitored.
+  const visibleTags = activeTag !== null
+    ? [activeTag]
+    : tagsForArea(typedTagConfig, activeArea);
+
   const applyTagFilter = (topics: Topic[]) =>
     activeTag !== null
       ? filterByTag(topics, activeTag)
-      : filterByMonitoredTags(topics, tagsForArea(typedTagConfig, activeArea));
+      : filterByMonitoredTags(topics, visibleTags);
 
   // Period-filtered topics (before tag filter) — used for global time range.
   const periodFiltered = {
@@ -124,6 +124,12 @@ export function App() {
     // ST-8: period filter applies; ST-9: tag filter applies
     repliedOpenTopics: applyTagFilter(periodFiltered.repliedOpenTopics),
   };
+
+  const hasActiveFilters =
+    activePeriod.kind !== "preset" ||
+    activePeriod.preset !== "allTime" ||
+    activeTag !== null ||
+    activeArea !== null;
 
   // TI-8a: global time range from period-filtered + monitored-tag topics.
   // Uses all monitored tags (not the active tag) so the x-axis stays
@@ -201,7 +207,7 @@ export function App() {
         onAreaSelect={setActiveArea}
       />
 
-      {(activePeriod.kind !== "preset" || activePeriod.preset !== "allTime" || activeTag !== null || activeArea !== null) && (
+      {hasActiveFilters && (
         <button
           className="clear-filters-btn"
           onClick={() => {
@@ -263,7 +269,7 @@ export function App() {
           <SloMonitor
             resolvedTopics={filteredData.resolvedTopics}
             unrepliedTopics={filteredData.unrepliedTopics}
-            sloConfig={scopeSloConfig(sloConfig, activeTag !== null ? [activeTag] : tagsForArea(typedTagConfig, activeArea))}
+            sloConfig={scopeSloConfig(sloConfig, visibleTags)}
             defaultSloTags={defaultSloTags}
           />
         )}
