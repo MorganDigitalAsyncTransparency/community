@@ -83,6 +83,8 @@ function fillRange(
   granularity: IntakeGranularity,
   range: TimeRange,
 ): Map<string, number> {
+  if (range.first > range.last) return new Map();
+
   const advance = granularity === "daily" ? nextDay : nextMonday;
 
   const filled = new Map<string, number>();

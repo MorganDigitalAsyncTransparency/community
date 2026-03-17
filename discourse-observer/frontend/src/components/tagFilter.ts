@@ -97,7 +97,7 @@ export function tagsForArea(
     .filter(([, r]) => r.area === area)
     .map(([tag]) => tag);
 
-  if (areaEntry) {
+  if (areaEntry && matching.includes(areaEntry.primaryTag)) {
     const rest = matching
       .filter((t) => t !== areaEntry.primaryTag)
       .sort();
