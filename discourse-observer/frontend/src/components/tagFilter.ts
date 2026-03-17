@@ -144,11 +144,6 @@ export function filterByMonitoredTags(
 
 export type SloConfig = Record<string, SloThresholds>;
 
-export interface SloTagMeta {
-  tag: string;
-  isDefault: boolean;
-}
-
 export function extractSloConfig(config: TagConfig): SloConfig {
   const resolved = resolveAllTags(config);
   const result: SloConfig = {};

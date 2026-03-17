@@ -516,6 +516,12 @@ body {
   padding: 1rem 0;
 }
 
+.slo-default-indicator {
+  font-size: 0.75rem;
+  color: #b08000;
+  font-style: italic;
+}
+
 .slo-table {
   width: 100%;
   border-collapse: collapse;
@@ -704,6 +710,12 @@ body {
 .stalled-header-tag,
 .stalled-cell-tag {
   width: 8rem;
+}
+
+.stalled-default-indicator {
+  font-size: 0.75rem;
+  color: #b08000;
+  font-style: italic;
 }
 
 .stalled-header-days,
