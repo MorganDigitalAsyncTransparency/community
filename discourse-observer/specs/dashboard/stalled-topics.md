@@ -30,9 +30,9 @@ This file defines *what* the user sees and why. [dashboard-components.md](dashbo
 
 **ST-3.** Last activity is represented by the `lastActivityAt` field on the topic. This is the timestamp of the most recent post or activity on the topic, supplied by the backend (Discourse API `last_posted_at` or `bumped_at`).
 
-**ST-4.** The stalled-days threshold is a global setting defined in the tag configuration file (`config/tagConfig.json`). It is not configurable per tag — all monitored tags share the same threshold.
+**ST-4.** The stalled-days threshold is defined per tag in the configuration file (`config/tagConfig.json`), under each tag's optional `stalledDays` field. Tags without an explicit value inherit from `defaults.stalledDays`. When a topic has multiple configured tags, the strictest (lowest) `stalledDays` determines whether it is stalled.
 
-**ST-5.** The closed tag is a global setting defined in the tag configuration file. A topic carrying this tag is considered closed (not stalled), regardless of whether it has an accepted answer. This distinguishes stalled topics (open and quiet) from self-closed topics (explicitly closed without resolution).
+**ST-5.** The closed tag is defined per tag in the configuration file, under each tag's optional `closedTag` field. There is no default — absence means the tag does not participate in closed-tag exclusion. When a topic has multiple configured tags, the closed tags from all of them are checked. A topic carrying any of its tags' configured closed tags is considered closed (not stalled).
 
 **ST-6.** The list is sorted by time since last activity, oldest first. Topics that have been quiet the longest appear at the top.
 
@@ -46,21 +46,9 @@ This file defines *what* the user sees and why. [dashboard-components.md](dashbo
 
 ### Configuration (ST-4, ST-5 detail)
 
-**ST-10.** The tag configuration file changes from an array of area objects to an object with the following structure:
+**ST-10.** The tag configuration file uses the unified `config/tagConfig.json` structure. Each tag entry may include `closedTag` (string, optional, no default) and `stalledDays` (number, optional, falls back to `defaults.stalledDays`). See [tag-area-filter.md](tag-area-filter.md) for the full schema.
 
-```json
-{
-  "closedTag": "closed",
-  "stalledDays": 14,
-  "areas": [ ... ]
-}
-```
-
-- `closedTag` — the Discourse tag that marks a topic as closed.
-- `stalledDays` — the number of days of inactivity after which an open, replied topic is considered stalled.
-- `areas` — the existing array of area configurations (unchanged).
-
-**ST-11.** The example configuration file (`config/tagConfig.example.json`) is updated to match the new structure.
+**ST-11.** The example configuration file (`config/tagConfig.example.json`) documents the unified structure including `closedTag` and `stalledDays` fields.
 
 ### Placement
 
@@ -74,19 +62,9 @@ This file defines *what* the user sees and why. [dashboard-components.md](dashbo
 
 ## Design
 
-### Tag configuration evolution
+### Tag configuration
 
-The `TagConfig` type changes from `AreaConfig[]` to:
-
-```typescript
-interface TagConfig {
-  closedTag: string;
-  stalledDays: number;
-  areas: AreaConfig[];
-}
-```
-
-All existing functions in `tagFilter.ts` that accept `TagConfig` are updated to read from `.areas`. The `TagSelector` component and `App` are updated accordingly.
+The `TagConfig` type is the unified configuration structure defined in [tag-area-filter.md](tag-area-filter.md). `closedTag` and `stalledDays` are per-tag optional fields. The `resolveAllTags` function merges each tag entry with defaults and tracks provenance (`stalledDaysIsDefault`). The stalled detection logic uses resolved tags to determine per-topic thresholds.
 
 ### Data model
 
@@ -115,14 +93,15 @@ The `filterStalledTopics` function identifies stalled topics from a pre-filtered
 ```typescript
 function filterStalledTopics(
   topics: Topic[],
-  stalledDays: number,
-  closedTag: string,
+  resolved: Record<string, ResolvedTag>,
   now?: Date,
 ): Topic[];
 ```
 
-- Excludes topics whose `tags` array includes `closedTag`.
-- Excludes topics whose `lastActivityAt` is within `stalledDays` days of `now`.
+- For each topic, collects `closedTag` values from its configured tags and excludes the topic if it carries any of them.
+- Uses the strictest (lowest) `stalledDays` across the topic's configured tags.
+- Excludes topics with no configured tags (threshold cannot be determined).
+- Excludes topics whose `lastActivityAt` is within the threshold.
 - Returns the remaining topics sorted by `lastActivityAt` ascending (oldest first).
 - `now` defaults to `new Date()` and is injectable for testing.
 
@@ -141,10 +120,10 @@ Returns the number of whole days (truncated) between `lastActivityAt` and `now`.
 | Prop | Type | Purpose |
 |------|------|---------|
 | `topics` | `Topic[]` | Filtered replied open topics (period + tag filters already applied) |
-| `stalledDays` | `number` | Inactivity threshold from configuration |
-| `closedTag` | `string` | Closed tag from configuration |
+| `resolvedTags` | `Record<string, ResolvedTag>` | Resolved tag configuration with provenance tracking |
+| `monitoredTags` | `string[]` | All monitored tags — used to display the first monitored tag per topic |
 
-Calls `filterStalledTopics(topics, stalledDays, closedTag)` and renders:
+Calls `filterStalledTopics(topics, resolvedTags)` and renders:
 
 - A section heading showing the threshold — "Stalled topics (inactive > N days)" where N is `stalledDays`.
 - A table with columns: Title, Tag, Days inactive.
@@ -167,8 +146,8 @@ The Activity page is added as a new navigation option. The `Page` type is extend
 | `App` | App.tsx | ST-8 — period filter applied; ST-9 — tag filter applied; ST-12 — activity page navigation |
 | `StalledTopics` | StalledTopics.tsx | ST-1 — renders stalled list; ST-6 — sort order; ST-7 — columns; ST-13 — empty state |
 | `stalledMetrics` | stalledMetrics.ts | ST-2 — stalled criteria; ST-3 — lastActivityAt usage; ST-4 — stalledDays threshold; ST-5 — closedTag exclusion |
-| `tagFilter` | tagFilter.ts | ST-10 — TagConfig structure change |
-| Config files | tagConfig.json, tagConfig.example.json | ST-10 — new structure; ST-11 — example updated |
+| `tagFilter` | tagFilter.ts | ST-10 — TagConfig structure; resolveAllTags for per-tag resolution |
+| Config file | tagConfig.json (tagConfig.example.json) | ST-10 — unified structure; ST-11 — example updated |
 
 ---
 

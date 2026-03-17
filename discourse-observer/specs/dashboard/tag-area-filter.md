@@ -18,11 +18,11 @@ This file defines *what* the user can do and how filtering behaves. Component de
 
 ## Configuration
 
-**TA-15.** Tags and areas are defined in a JSON configuration file (`config/tagConfig.json`). The file contains an array of area objects. Each area has a `name`, a `primaryTag`, and a `tags` array listing all tags in the area (including the primary tag).
+**TA-15.** Tags and areas are defined in a single JSON configuration file (`config/tagConfig.json`). The file has four top-level keys: `defaults` (fallback values), `areas` (named groups with `name` and `primaryTag`), and `tags` (an object keyed by tag name). Each tag entry may contain `area`, `closedTag`, `stalledDays`, and `slo` — all optional. Absent fields fall back to `defaults` (except `closedTag`, which has no default). Tags with explicit values represent agreed-upon configuration; tags using defaults are shown with an informational indicator in the UI.
 
-**TA-16.** A committed example file (`config/tagConfig.example.json`) documents the expected schema. The runtime file is gitignored and created from the example during setup, following the same pattern as `config/sloThresholds.json`.
+**TA-16.** A committed example file (`config/tagConfig.example.json`) documents the expected schema. The runtime file is gitignored and created from the example during setup. SLO thresholds, stalled-days settings, and area assignments are all part of this single file — there is no separate `sloThresholds.json`.
 
-**TA-17.** The union of all tags across all areas defines the set of monitored tags. Only topics carrying at least one monitored tag are counted in metrics when no tag is selected.
+**TA-17.** The set of keys in `tags` defines the monitored tags. Only topics carrying at least one monitored tag are counted in metrics when no tag is selected.
 
 ---
 
@@ -79,23 +79,50 @@ This file defines *what* the user can do and how filtering behaves. Component de
 The tag configuration is loaded from `config/tagConfig.json`:
 
 ```typescript
-interface AreaConfig {
-  name: string;
-  primaryTag: string;
-  tags: string[];
+interface SloThresholds {
+  firstReplyHours: number;
+  resolutionHours: number;
+  inactivityHours: number;
 }
 
-type TagConfig = AreaConfig[];
+interface TagEntry {
+  area?: string;
+  closedTag?: string;
+  stalledDays?: number;
+  slo?: SloThresholds;
+}
+
+interface AreaEntry {
+  name: string;
+  primaryTag: string;
+}
+
+interface DefaultsEntry {
+  stalledDays: number;
+  area: string;
+  slo: SloThresholds;
+}
+
+interface TagConfig {
+  defaults: DefaultsEntry;
+  areas: AreaEntry[];
+  tags: Record<string, TagEntry>;
+}
 ```
+
+Tags are resolved at runtime by merging each entry with `defaults`. A `ResolvedTag` carries the effective values plus `*IsDefault` booleans indicating provenance — enabling the UI to show informational messages when a tag uses default values rather than explicitly agreed configuration.
 
 ### Filter functions
 
 Defined in `tagFilter.ts`:
 
-- `monitoredTags(config)` — returns the deduplicated set of all tags across all areas.
+- `monitoredTags(config)` — returns the keys of `config.tags`.
 - `filterByTag(topics, tag)` — returns topics whose `tags` array includes the given tag. When `tag` is `null`, returns all topics unchanged.
 - `filterByMonitoredTags(topics, monitored)` — returns topics that carry at least one monitored tag.
-- `tagsForArea(config, area)` — returns the tag list for a given area with the primary tag first and the rest sorted alphabetically. When `area` is `null`, returns all monitored tags sorted alphabetically.
+- `tagsForArea(config, area)` — returns tags whose resolved `area` matches, with the primary tag first (from the matching `areas` entry) and the rest sorted alphabetically. For the default area (no `areas` entry), tags sort alphabetically with no primary. When `area` is `null`, returns all monitored tags sorted alphabetically.
+- `allAreas(config)` — returns the list of named areas plus the default area (if any tags use it). The default area appears last.
+- `resolveTag(entry, defaults)` / `resolveAllTags(config)` — applies defaults and tracks provenance.
+- `extractSloConfig(config)` / `sloDefaultTags(config)` — extracts SLO thresholds for all tags and identifies which use defaults.
 
 ### Component
 

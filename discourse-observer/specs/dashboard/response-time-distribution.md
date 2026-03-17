@@ -69,7 +69,7 @@ This file defines *what* the user sees and why. [dashboard-components.md](dashbo
 
 This produces 8 buckets: < 1h, 1–4h, 4–12h, 12h–1d, 1–2d, 2–4d, 4–7d, > 7d.
 
-The configuration is imported in `App.tsx` and passed as a prop to the distribution component, following the same pattern as `sloThresholds.json`.
+The configuration is imported in `App.tsx` and passed as a prop to the distribution component.
 
 ### Bucket label formatting
 

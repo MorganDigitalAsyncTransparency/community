@@ -1,26 +1,35 @@
 {
-  "closedTag": "closed",
-  "stalledDays": 14,
+  "defaults": {
+    "stalledDays": 14,
+    "area": "Other",
+    "slo": { "firstReplyHours": 24, "resolutionHours": 336, "inactivityHours": 48 }
+  },
   "areas": [
-    {
-      "name": "Integration",
-      "primaryTag": "api",
-      "tags": ["api", "webhooks", "sso"]
+    { "name": "Integration", "primaryTag": "api" },
+    { "name": "Access", "primaryTag": "authentication" },
+    { "name": "Content", "primaryTag": "editor" },
+    { "name": "Infrastructure", "primaryTag": "installation" }
+  ],
+  "tags": {
+    "api": {
+      "area": "Integration",
+      "closedTag": "closed",
+      "stalledDays": 14,
+      "slo": { "firstReplyHours": 4, "resolutionHours": 48, "inactivityHours": 24 }
     },
-    {
-      "name": "Access",
-      "primaryTag": "authentication",
-      "tags": ["authentication", "ssl"]
-    },
-    {
-      "name": "Content",
-      "primaryTag": "editor",
-      "tags": ["editor", "search"]
-    },
-    {
-      "name": "Infrastructure",
-      "primaryTag": "installation",
-      "tags": ["backup", "configuration", "data-import", "email", "installation", "setup"]
-    }
-  ]
+    "webhooks": { "area": "Integration" },
+    "sso": { "area": "Integration" },
+    "authentication": { "area": "Access" },
+    "ssl": { "area": "Access" },
+    "editor": { "area": "Content" },
+    "search": { "area": "Content" },
+    "backup": { "area": "Infrastructure" },
+    "configuration": { "area": "Infrastructure" },
+    "data-import": { "area": "Infrastructure" },
+    "email": { "area": "Infrastructure" },
+    "installation": { "area": "Infrastructure" },
+    "setup": { "area": "Infrastructure" },
+    "plugin": { "slo": { "firstReplyHours": 8, "resolutionHours": 72, "inactivityHours": 48 } },
+    "migration": {}
+  }
 }

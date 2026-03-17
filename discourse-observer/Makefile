@@ -50,19 +50,15 @@ down:
 	docker compose down --timeout 10 --remove-orphans
 
 ## Start — one-command onboarding: configure, build, launch, open browser
-start: .env config/sloThresholds.json config/tagConfig.json verify build up open
+start: .env config/tagConfig.json verify build up open
 
 .env:
 	cp .env.example .env
 	@echo "Created .env from .env.example — edit it with your Discourse credentials."
 
-config/sloThresholds.json:
-	cp config/sloThresholds.example.json config/sloThresholds.json
-	@echo "Created config/sloThresholds.json from example — edit it with your SLO thresholds."
-
 config/tagConfig.json:
 	cp config/tagConfig.example.json config/tagConfig.json
-	@echo "Created config/tagConfig.json from example — edit it with your tag configuration."
+	@echo "Created config/tagConfig.json from example — edit it with your tag and SLO configuration."
 
 ## Restart — rebuild and relaunch after code changes
 restart: down verify build up open

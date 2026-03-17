@@ -1,5 +1,0 @@
-{
-  "api": { "firstReplyHours": 4, "resolutionHours": 48, "inactivityHours": 24 },
-  "plugin": { "firstReplyHours": 8, "resolutionHours": 72, "inactivityHours": 48 },
-  "migration": { "firstReplyHours": 12, "resolutionHours": 96, "inactivityHours": 48 }
-}

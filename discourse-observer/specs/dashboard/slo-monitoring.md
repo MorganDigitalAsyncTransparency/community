@@ -18,9 +18,11 @@ This file defines *what* the user sees and why. [dashboard-components.md](dashbo
 
 ## Configuration
 
-**SL-21.** SLO thresholds are defined per tag in a JSON configuration file (`config/sloThresholds.json`). Each entry maps a tag name to three numeric thresholds: `firstReplyHours`, `resolutionHours`, and `inactivityHours`. Only tags present in the configuration are monitored.
+**SL-21.** SLO thresholds are defined per tag in the unified configuration file (`config/tagConfig.json`), under each tag's optional `slo` field. Each `slo` object contains three numeric thresholds: `firstReplyHours`, `resolutionHours`, and `inactivityHours`. Tags without an explicit `slo` field inherit default thresholds from `defaults.slo`. All monitored tags participate in SLO monitoring.
 
-**SL-22.** A committed example file (`config/sloThresholds.example.json`) documents the expected schema. The runtime file is gitignored and created from the example during `make start` and `make check`, following the same pattern as `.env`.
+**SL-21a.** Tags using default SLO thresholds (not explicitly configured) are indicated in the UI with an informational message — "(default thresholds)" — so that viewers do not mistake fallback values for agreed commitments.
+
+**SL-22.** The configuration file is documented by a committed example (`config/tagConfig.example.json`). The runtime file is gitignored and created from the example during `make start`. There is no separate `sloThresholds.json`.
 
 ---
 

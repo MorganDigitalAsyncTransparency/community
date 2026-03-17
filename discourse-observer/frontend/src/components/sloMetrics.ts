@@ -2,14 +2,10 @@
 // Tests: tests/dashboard/slo-monitoring.unit.test.ts
 
 import type { Topic } from "../mock/data";
+import type { SloThresholds, SloConfig } from "./tagFilter";
 
-export interface TagSloThresholds {
-  firstReplyHours: number;
-  resolutionHours: number;
-  inactivityHours: number;
-}
-
-export type SloConfig = Record<string, TagSloThresholds>;
+export type { SloConfig };
+export type TagSloThresholds = SloThresholds;
 
 export interface Violation {
   topicId: number;
