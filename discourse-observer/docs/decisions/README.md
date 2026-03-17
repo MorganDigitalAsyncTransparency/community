@@ -40,7 +40,7 @@ Each ADR contains these sections in this order:
 | **Decision**                | What was decided and why                                     |
 | **Consequences**            | What follows from this decision — both positive and negative |
 
-A template is available at [template.md](template.md). Copy it when creating a new ADR.
+A template is available at `template.md` in this directory. Copy it when creating a new ADR.
 
 ## Status model
 

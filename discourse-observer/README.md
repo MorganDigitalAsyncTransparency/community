@@ -61,7 +61,7 @@ See [docs/getting-started.md](docs/getting-started.md) for prerequisites, config
 1. Read [ARCHITECTURE.md](ARCHITECTURE.md) to understand the module boundaries.
 2. Read [docs/purpose.md](docs/purpose.md) for project goals and direction.
 3. Read [CONTRIBUTING.md](CONTRIBUTING.md) before making changes.
-4. Check [docs/decisions/](docs/decisions/) for recorded architecture decisions.
+4. Check [docs/decisions/](docs/decisions/README.md) for recorded architecture decisions.
 
 ## License
 
