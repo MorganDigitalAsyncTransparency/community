@@ -54,7 +54,7 @@ This file defines *what* the user can do and how filtering behaves. Component de
 
 **TA-11.** Selecting an area narrows the visible tag list to tags belonging to that area. It does not select a tag — the current tag selection (or lack of one) is preserved.
 
-**TA-12.** Within an area, the primary tag appears first. Remaining tags are sorted alphabetically.
+**TA-12.** Within an area, the primary tag appears first. Remaining tags are sorted alphabetically. Primary tags are marked with an asterisk suffix (e.g. `api*`) in all views — both area-specific and "All areas".
 
 **TA-13.** When no area is selected, tags are sorted alphabetically across all areas.
 
