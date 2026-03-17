@@ -107,6 +107,15 @@ export function tagsForArea(
   return matching.sort();
 }
 
+export function primaryTagForArea(
+  config: TagConfig,
+  area: string | null,
+): string | null {
+  if (area === null) return null;
+  const entry = config.areas.find((a) => a.name === area);
+  return entry?.primaryTag ?? null;
+}
+
 export function allAreas(config: TagConfig): string[] {
   const resolved = resolveAllTags(config);
   const defaultArea = config.defaults.area;

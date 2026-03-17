@@ -20,6 +20,7 @@ export function TagSelector({
 }: TagSelectorProps) {
   const visibleTags = tagsForArea(config, activeArea);
   const areas = allAreas(config);
+  const primaryTags = new Set(config.areas.map((a) => a.primaryTag));
 
   return (
     <div className="tag-selector">
@@ -50,7 +51,7 @@ export function TagSelector({
           className={`tag-btn${activeTag === tag ? " tag-btn-active" : ""}`}
           onClick={() => onTagSelect(tag)}
         >
-          {tag}
+          {tag}{primaryTags.has(tag) ? "*" : ""}
         </button>
       ))}
     </div>
