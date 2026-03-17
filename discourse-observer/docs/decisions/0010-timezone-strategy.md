@@ -1,6 +1,6 @@
 # 10. Timezone Strategy
 
-**Status:** Proposed
+**Status:** Accepted
 **Date:** 2026-03-18
 
 ## Context
@@ -216,58 +216,64 @@ This means UTC is the correct choice for the system as a whole, and the problem 
 
 This reframing opens an alternative that the system-wide analysis would not surface — one that leaves the data untouched and adds timezone context as a visual reading aid.
 
-### Alternative F — Configurable timezone header rows on the heatmap
+### Alternative F — User-added timezone header rows on the heatmap
 
-The heatmap keeps its UTC data grid unchanged. Additional header rows are added above the UTC hour header, each showing offset hour labels for a configured timezone. The UTC row is always present and visually marked as the primary reference. Up to three additional timezone rows can be configured.
+The heatmap keeps its UTC data grid unchanged. Users can add up to three additional timezone header rows above the UTC hour header, each showing offset hour labels for a chosen timezone. The UTC row is always present and visually marked as the primary reference. Timezone selections are persisted in a cookie with explicit user consent.
 
 **How it works:**
 
-- A new configuration array (e.g., in a config file alongside [tagConfig.json](../../config/tagConfig.json)) defines up to three timezone entries, each with a label and a UTC offset:
+- The heatmap renders a UTC hour header row (0–23) by default, with an "Add timezone" button.
+- Clicking the button opens a timezone picker (e.g., a searchable dropdown of common IANA timezones or a curated list grouped by region). The user selects a timezone, and a new header row appears above the UTC row showing offset hours for that timezone.
+- Each added timezone row has a remove button so the user can delete it individually.
+- The "Add timezone" button is hidden once three timezone rows are present. It reappears when one is removed.
+- The UTC row is always present, always at the bottom of the header area, and cannot be removed.
 
-  ```json
-  {
-    "heatmapTimezones": [
-      { "label": "CET", "offset": 1 },
-      { "label": "IST", "offset": 5.5 },
-      { "label": "PST", "offset": -8 }
-    ]
-  }
-  ```
+**Persistence via cookie with consent:**
 
-- The heatmap renders one header row per configured timezone above the existing UTC row. Each row shows the hour numbers shifted by the configured offset: if the UTC column is 8, the CET row shows 9, the IST row shows 13:30.
-- The UTC row is always present, always at the bottom of the header area, and visually marked as the primary reference.
+- When a user adds their first timezone, a modal appears explaining that the selection will be stored in a browser cookie so it persists across visits.
+- The modal offers two choices: **Accept** (store the cookie, persist the selection) or **Deny** (the timezone is shown for the current session only and lost on page reload).
+- If the user chose Deny, the consent modal appears again the next time they add a timezone — giving them the opportunity to change their mind.
+- If the user chose Accept, subsequent timezone additions are persisted without re-prompting.
+- The cookie stores the list of selected timezone identifiers (e.g., `["Europe/Berlin", "Asia/Kolkata"]`). No personal data beyond the timezone preference is stored.
+
+**Data grid and header interaction:**
+
 - The data grid (7 rows × 24 columns) is unchanged — it still shows topic counts bucketed by UTC day and hour. No re-bucketing occurs.
 - Each timezone header row is purely a reading aid — a ruler the user holds against the same data to find "my 09:00".
-- Deployments with no timezone diversity omit the configuration and get the current UTC-only behavior — no visible change.
+- Hour labels are computed from the IANA timezone identifier using `Intl.DateTimeFormat` to resolve the current UTC offset, which means the displayed offset automatically reflects whether DST is active.
 - The three-timezone maximum keeps the header area readable.
 
 **Visual sketch:**
 
 ```text
-         0    1    2    3    4    5    6    7    8    9   10  ...  23
-  IST   5:30 6:30 7:30 8:30 9:30 10:30 ...
-  CET    1    2    3    4    5    6    7    8    9   10   11  ...   0
-  UTC    0    1    2    3    4    5    6    7    8    9   10  ...  23
-  Mon    0    0    1    2    5    8   12   15   14   11    7  ...   0
-  Tue    ...
+                0    1    2    3    4    5    6    7    8    9   10  ...  23
+  IST (+5:30)  5:30 6:30 7:30 8:30 9:30 10:30 ...                       ✕
+  CET (+1)      1    2    3    4    5    6    7    8    9   10   11  ...  ✕
+  UTC            0    1    2    3    4    5    6    7    8    9   10  ...  23
+  Mon            0    0    1    2    5    8   12   15   14   11    7  ...   0
+  Tue            ...
+                                                              [+ Add timezone]
 ```
 
 **Strengths:**
 
-- The underlying data is unchanged. All users see the same counts in the same cells. No re-bucketing, no data transformation, no DST-dependent shifts in the grid.
-- Multiple timezones are visible simultaneously. A distributed team can each find their own working hours without the dashboard showing different data to different people.
+- The underlying data is unchanged. All users see the same counts in the same cells. No re-bucketing, no data transformation.
+- Each user personalizes their own view — a CET user adds CET, an IST user adds IST. No deployment-time configuration needed.
+- Multiple timezones are visible simultaneously. A user working with teams in several zones can add all of them and compare patterns at a glance.
 - The UTC row remains the anchor — anyone looking at server logs or raw data can correlate directly.
-- Configuration is minimal — a short list of labels and offsets in a static file, not a runtime setting.
-- Implementation is simple — the header rows are pure display logic (add offset, modulo 24). No date library, no timezone database lookup, no DST calculation needed at render time.
-- The three-timezone limit keeps the heatmap readable.
-- No spec changes needed to the data model, bucketing logic, or any other dashboard view. Only the heatmap's column header rendering is affected.
+- Using IANA timezone identifiers with `Intl.DateTimeFormat` means DST is handled automatically — the header shows the correct offset for the current date without manual configuration.
+- Cookie consent flow respects user choice. Users who decline cookies still get the feature for the current session.
+- No spec changes needed to the data model, bucketing logic, or any other dashboard view. Only the heatmap's header area and the consent flow are affected.
+- No backend changes required — the cookie is read and written entirely by the frontend.
 
 **Weaknesses:**
 
 - Day-of-week rows remain in UTC. For a user reading the IST header, the "Monday" row includes their Sunday evening and excludes their Monday evening. This is a known simplification — the heatmap answers "which hours are busiest" more accurately than "which day is busiest," and day-of-week patterns are less affected by timezone offset than hour-of-day patterns.
-- Fixed offsets do not account for DST. A CET offset of +1 is correct in winter but should be +2 (CEST) in summer. This could be addressed by using IANA timezone identifiers and computing the current offset dynamically, but that adds complexity. Alternatively, the configuration can document that offsets are approximate and should be updated if DST precision matters.
+- The cookie consent modal adds a small interaction cost on first use. This is unavoidable if cookie persistence is desired without assuming consent.
+- The timezone picker needs a curated or searchable list of IANA timezones. The full database has ~400+ entries, so some UX work is needed to make selection fast (grouped by region, searchable, or showing common offsets).
 - Half-hour offsets (IST +5:30, Nepal +5:45) produce non-integer hour labels. The display must handle this gracefully — showing "5:30", "13:30" rather than rounding.
 - The visual design needs care to distinguish timezone header rows from the data grid. Color, typography, or separator lines must make the boundary clear so users do not mistake a header row for a data row.
+- Implementation is more involved than a static config file approach — it requires a timezone picker component, cookie read/write logic, and a consent modal. However, the scope remains confined to the peak activity view.
 
 ## Comparison
 
@@ -290,14 +296,14 @@ The heatmap keeps its UTC data grid unchanged. Additional header rows are added 
 
 | Concern | A: UTC | F: Multi-header | B–E (best case) |
 |---|---|---|---|
-| Users can read local hours on heatmap | No | Up to 3 timezones + UTC | Yes (one timezone) |
-| All users see the same heatmap data | Yes | Yes | B, D, E: No. C: Yes |
-| UTC remains visible on heatmap | Yes | Yes (always present) | B: No. C: No. D: only if selected. E: only if local = UTC |
+| Users can read local hours on heatmap | No | Up to 3 user-chosen timezones + UTC | Yes (one timezone) |
+| All users see the same heatmap data | Yes | Yes (grid unchanged, headers personalized) | B, D, E: No. C: Yes |
+| UTC remains visible on heatmap | Yes | Yes (always present, cannot be removed) | B: No. C: No. D: only if selected. E: only if local = UTC |
 | Multiple timezones visible simultaneously | No | Yes | No |
 | Rest of dashboard unchanged | Yes | Yes | No — all views affected |
-| Implementation complexity | None | Low | Low-medium to high |
-| Configuration required | None | Up to 3 offsets in config file | Varies |
-| DST handling needed | No | No (fixed offsets) | B, C, D, E: Yes |
+| Implementation complexity | None | Medium (picker, consent, cookie) | Low-medium to high |
+| Configuration required | None | None (user self-service) | Varies |
+| DST handling needed | No | Yes (automatic via Intl API) | B, C, D, E: Yes (same) |
 | Spec changes required | None | PA-5 addendum, PA-7 addendum | Multiple specs across dashboard |
 
 ### Interaction with existing specs
@@ -310,23 +316,55 @@ The heatmap keeps its UTC data grid unchanged. Additional header rows are added 
 | [topic-intake.md](../../specs/dashboard/topic-intake.md) TI-2 | Daily bucketing via `toISOString().slice(0, 10)` | A, F: unchanged. B, C, D: day boundaries shift. |
 | [response-time-trends.md](../../specs/dashboard/response-time-trends.md) RT-2 | Weekly bucketing uses UTC Monday | A, F: unchanged. B, C, D: week start shifts. |
 | [dashboard-components.md](../../specs/dashboard/dashboard-components.md) | `formatWeekLabel`, `formatDayLabel` use `timeZone: "UTC"` | A, F: unchanged. B, C, D, E: timezone parameter changes. |
-| [operational-constraints.md](../../specs/operational-constraints.md) | "working hours" undefined timezone | F: configured offsets implicitly define which timezones' working hours matter. C, E: configured timezone resolves this. |
+| [operational-constraints.md](../../specs/operational-constraints.md) | "working hours" undefined timezone | F: user-chosen timezone headers make individual working hours readable. C, E: configured timezone resolves this. |
 
 ### Migration cost
 
 For alternatives A–E, the frontend changes span formatting functions, bucketing functions, filter boundary calculations, and tests across multiple files. For Alternative F, changes are confined to:
 
-1. The `PeakActivity` component — render additional header rows.
-2. A new or extended configuration file — define timezone labels and offsets.
-3. The peak activity spec — add requirements for the timezone header rows.
-4. Tests — verify header row offset arithmetic.
+1. The `PeakActivity` component — render timezone header rows, "Add timezone" button, and per-row remove buttons.
+2. A timezone picker component — searchable or grouped list of IANA timezones.
+3. A cookie consent modal — shown on first timezone addition, with Accept/Deny flow.
+4. Cookie read/write logic — persist and restore the list of selected timezone identifiers.
+5. Offset computation — use `Intl.DateTimeFormat` with the selected IANA identifier to resolve the current UTC offset (DST-aware).
+6. The peak activity spec — add requirements for the timezone header rows and consent flow.
+7. Tests — verify header row offset arithmetic, add/remove interactions, cookie persistence, and consent states.
 
-No changes to bucketing logic, filter logic, other dashboard views, or backend. No external library required.
+No changes to bucketing logic, filter logic, other dashboard views, or backend. No external library required — `Intl.DateTimeFormat` and `document.cookie` are native browser APIs.
 
 ## Decision
 
-*No decision has been made. This ADR presents the alternatives for evaluation.*
+We choose a two-part strategy:
+
+1. **UTC is the system-wide standard for all dashboard views.** Storage, computation, filtering, date labels, trend bucketing, and custom date ranges all use UTC. This is already implemented and the analysis of Alternatives A–E confirms it is the right default: it guarantees cross-user consistency, eliminates conversion errors, and keeps the implementation simple. The only view where UTC causes meaningful friction is the peak activity heatmap.
+
+2. **The peak activity heatmap gets user-added timezone header rows (Alternative F).** Users can add up to three timezone headers above the UTC row, each showing offset hour labels for an IANA timezone of their choice. The data grid remains UTC-bucketed and identical for all users. Timezone selections are persisted via a cookie with explicit consent. This solves the core problem — making hour-of-day patterns readable for users in any timezone — without introducing system-wide timezone complexity.
+
+Alternative F was chosen over the system-wide alternatives because the problem is narrower than initially assumed. Only the heatmap's hour axis is timezone-sensitive; all other dashboard views work well in UTC. Alternatives B–E would introduce timezone conversion across the entire dashboard for a problem that exists in one component. Alternative F keeps the blast radius small: no bucketing changes, no filter changes, no backend changes.
+
+Alternative F was chosen over the simpler static-config variant because the dashboard has no user accounts and serves a potentially distributed audience. A deployment-time config file would require someone to predict which timezones matter. A user-driven UI lets each person add their own timezone without coordinating with the deployment owner.
 
 ## Consequences
 
-*Consequences will be documented once a decision is made.*
+**Positive:**
+
+- UTC remains the single source of truth across the entire system. No ambiguity about date boundaries, no cross-user data differences, no timezone conversion in storage or computation.
+- The peak activity heatmap becomes useful for distributed teams. A user in any timezone can add their local zone and immediately read "my 09:00 is this column."
+- Multiple timezones are visible simultaneously — a manager overseeing teams in CET, IST, and PST can add all three and compare patterns in one view.
+- The implementation scope is confined to the `PeakActivity` component, a timezone picker, a cookie consent modal, and cookie read/write logic. No other dashboard views are touched.
+- DST is handled automatically by using IANA timezone identifiers with `Intl.DateTimeFormat` to compute offsets.
+- Users who decline cookies still get the feature for the current session — the consent requirement does not block functionality.
+
+**Negative:**
+
+- Day-of-week rows remain in UTC. Users reading a non-UTC header row may see activity attributed to the "wrong" day near midnight boundaries. This is documented as a known simplification.
+- The timezone picker requires UX design work — the IANA database has ~400+ entries, so grouping, searching, or curating is needed.
+- The cookie consent modal adds interaction friction on first use. This is inherent to any cookie-based persistence approach.
+- Half-hour offsets (IST +5:30, Nepal +5:45) require the header to display non-integer hour labels, which adds visual complexity.
+- The `formatSyncTime` inconsistency noted in Context (browser-local while the rest of the dashboard is UTC) is not addressed by this decision. It should be resolved separately — either by making it explicitly UTC or by accepting browser-local as appropriate for a "last synced" timestamp.
+
+**Specs that need updating when this ADR is implemented:**
+
+- [peak-activity.md](../../specs/dashboard/peak-activity.md) — add requirements for timezone header rows (add/remove interaction, three-row limit, UTC always present), cookie consent flow, and visual design constraints.
+- [dashboard-components.md](../../specs/dashboard/dashboard-components.md) — document the timezone picker and consent modal components.
+- [traceability.md](../../specs/dashboard/traceability.md) — add requirement-to-code mappings for the new components.
