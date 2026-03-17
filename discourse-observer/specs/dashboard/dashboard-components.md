@@ -258,7 +258,7 @@ Accepts four props:
 
 Calls `filterStalledTopics(topics, stalledDays, closedTag)` and renders:
 
-- A section heading "Stalled topics".
+- A section heading showing the threshold — "Stalled topics (inactive > N days)" where N is `stalledDays`.
 - A table with three columns:
 
 | Column | Content |

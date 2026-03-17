@@ -85,10 +85,14 @@ export function App() {
 
   // TA-4: tag filter composes with period filter — apply both sequentially.
   // TA-17: when no tag is selected, filterByMonitoredTags scopes to configured tags.
+  // TA-4: tag filter composes with area selection.
+  // When a specific tag is selected, filter to that tag.
+  // When "All" is selected within an area, filter to that area's tags.
+  // When "All" is selected with no area, filter to all monitored tags.
   const applyTagFilter = (topics: Topic[]) =>
     activeTag !== null
       ? filterByTag(topics, activeTag)
-      : filterByMonitoredTags(topics, monitored);
+      : filterByMonitoredTags(topics, tagsForArea(typedTagConfig, activeArea));
 
   const filteredData = {
     ...MOCK_DATA,

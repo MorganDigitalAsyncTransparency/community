@@ -26,7 +26,9 @@ export function StalledTopics({
 
   return (
     <section className="stalled-section">
-      <h2 className="stalled-heading">Stalled topics</h2>
+      <h2 className="stalled-heading">
+        Stalled topics (inactive &gt; {stalledDays} days)
+      </h2>
       {stalled.length === 0 ? (
         <p className="stalled-empty">No stalled topics</p>
       ) : (

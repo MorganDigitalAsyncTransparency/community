@@ -38,6 +38,8 @@ This file defines *what* the user sees and why. [dashboard-components.md](dashbo
 
 **ST-7.** Each row displays: topic title, tag (first monitored tag on the topic, or "–" if none), and days since last activity (whole days, truncated).
 
+**ST-7a.** The section heading includes the configured threshold so the viewer knows what qualifies as stalled — for example, "Stalled topics (inactive > 14 days)".
+
 **ST-8.** The period filter (UC-12) applies. Only topics created within the selected time period are shown.
 
 **ST-9.** The tag filter (UC-15) applies. When a tag is selected, only topics carrying that tag are shown. When no tag is selected, only topics carrying a monitored tag are shown.
@@ -144,7 +146,7 @@ Returns the number of whole days (truncated) between `lastActivityAt` and `now`.
 
 Calls `filterStalledTopics(topics, stalledDays, closedTag)` and renders:
 
-- A section heading "Stalled topics".
+- A section heading showing the threshold — "Stalled topics (inactive > N days)" where N is `stalledDays`.
 - A table with columns: Title, Tag, Days inactive.
 - If `filterStalledTopics` returns an empty array, renders an empty-state paragraph ("No stalled topics") instead of the table.
 
