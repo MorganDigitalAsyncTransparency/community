@@ -20,11 +20,15 @@ function makeTopic(overrides: Partial<Topic> & { id: number }): Topic {
   };
 }
 
-const CONFIG: TagConfig = [
-  { name: "Integration", primaryTag: "api", tags: ["api", "webhooks", "sso"] },
-  { name: "Access", primaryTag: "authentication", tags: ["authentication", "ssl"] },
-  { name: "Content", primaryTag: "editor", tags: ["editor", "search"] },
-];
+const CONFIG: TagConfig = {
+  closedTag: "closed",
+  stalledDays: 14,
+  areas: [
+    { name: "Integration", primaryTag: "api", tags: ["api", "webhooks", "sso"] },
+    { name: "Access", primaryTag: "authentication", tags: ["authentication", "ssl"] },
+    { name: "Content", primaryTag: "editor", tags: ["editor", "search"] },
+  ],
+};
 
 // ---------------------------------------------------------------------------
 // monitoredTags (TA-17)
@@ -44,17 +48,21 @@ describe("monitoredTags", () => {
   });
 
   it("deduplicates tags appearing in multiple areas", () => {
-    const config: TagConfig = [
-      { name: "A", primaryTag: "shared", tags: ["shared", "x"] },
-      { name: "B", primaryTag: "shared", tags: ["shared", "y"] },
-    ];
+    const config: TagConfig = {
+      closedTag: "closed",
+      stalledDays: 14,
+      areas: [
+        { name: "A", primaryTag: "shared", tags: ["shared", "x"] },
+        { name: "B", primaryTag: "shared", tags: ["shared", "y"] },
+      ],
+    };
     const result = monitoredTags(config);
     expect(result.filter((t) => t === "shared")).toHaveLength(1);
     expect(result).toHaveLength(3);
   });
 
   it("returns empty array for empty config", () => {
-    expect(monitoredTags([])).toEqual([]);
+    expect(monitoredTags({ closedTag: "closed", stalledDays: 14, areas: [] })).toEqual([]);
   });
 });
 
@@ -167,9 +175,13 @@ describe("tagsForArea", () => {
   });
 
   it("handles area with only one tag", () => {
-    const config: TagConfig = [
-      { name: "Solo", primaryTag: "only", tags: ["only"] },
-    ];
+    const config: TagConfig = {
+      closedTag: "closed",
+      stalledDays: 14,
+      areas: [
+        { name: "Solo", primaryTag: "only", tags: ["only"] },
+      ],
+    };
     expect(tagsForArea(config, "Solo")).toEqual(["only"]);
   });
 });

@@ -29,7 +29,7 @@ export function TagSelector({
         onChange={(e) => onAreaSelect(e.target.value || null)}
       >
         <option value="">All areas</option>
-        {config.map((area) => (
+        {config.areas.map((area) => (
           <option key={area.name} value={area.name}>
             {area.name}
           </option>
