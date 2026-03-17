@@ -91,6 +91,15 @@ This matrix shows how use cases decompose into specifications, requirements, and
 
 ---
 
+## Stalled topics
+
+| Use case | Spec | Requirements | Verification |
+|----------|------|-------------|--------------|
+| UC-18: Detect stalled topics | [stalled-topics.md](stalled-topics.md) | ST-1 – ST-9 | [stalled-topics.unit.test.ts](../../tests/dashboard/stalled-topics.unit.test.ts) (ST-2 – ST-7, ST-13); manual (ST-1, ST-8, ST-9) |
+| (cross-cutting: config, placement, empty) | [stalled-topics.md](stalled-topics.md) | ST-10 – ST-13 | [stalled-topics.unit.test.ts](../../tests/dashboard/stalled-topics.unit.test.ts) (ST-3, ST-13); manual (ST-10, ST-11, ST-12) |
+
+---
+
 ## Gaps
 
 - UC-3 partial: untagged share as percentage of all topics (deferred until total topic count is available from backend).

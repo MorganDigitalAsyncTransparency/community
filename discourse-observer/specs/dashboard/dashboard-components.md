@@ -2,7 +2,7 @@
 
 This document specifies the behavior of the dashboard view components rendered in the frontend.
 
-These components implement the visual layer for the requirements defined in [queue-visibility.md](queue-visibility.md), [response-metrics.md](response-metrics.md), [time-period-filter.md](time-period-filter.md), [response-time-trends.md](response-time-trends.md), [tag-distribution.md](tag-distribution.md), [slo-monitoring.md](slo-monitoring.md), [tag-area-filter.md](tag-area-filter.md), and [topic-intake.md](topic-intake.md). Those files define *what* the user sees and why; this file defines *how* each component behaves to fulfill those requirements.
+These components implement the visual layer for the requirements defined in [queue-visibility.md](queue-visibility.md), [response-metrics.md](response-metrics.md), [time-period-filter.md](time-period-filter.md), [response-time-trends.md](response-time-trends.md), [tag-distribution.md](tag-distribution.md), [slo-monitoring.md](slo-monitoring.md), [tag-area-filter.md](tag-area-filter.md), [topic-intake.md](topic-intake.md), and [stalled-topics.md](stalled-topics.md). Those files define *what* the user sees and why; this file defines *how* each component behaves to fulfill those requirements.
 
 ---
 
@@ -245,9 +245,39 @@ CSS class prefix: `intake-chart-` for chart-specific elements.
 
 ---
 
+## StalledTopics
+
+Accepts four props:
+
+| Prop | Type | Purpose |
+|------|------|---------|
+| `topics` | `Topic[]` | Filtered replied open topics (period + tag filters already applied) |
+| `stalledDays` | `number` | Inactivity threshold from configuration |
+| `closedTag` | `string` | Closed tag from configuration — topics carrying this tag are excluded |
+| `monitoredTags` | `string[]` | All monitored tags — used to display the first monitored tag per topic |
+
+Calls `filterStalledTopics(topics, stalledDays, closedTag)` and renders:
+
+- A section heading "Stalled topics".
+- A table with three columns:
+
+| Column | Content |
+|--------|---------|
+| Title | The topic title |
+| Tag | First monitored tag on the topic, or "–" if none |
+| Days inactive | Whole days since `lastActivityAt` (truncated), falling back to `createdAt` |
+
+- If no topics pass the stalled filter, renders an empty-state paragraph ("No stalled topics") instead of the table.
+
+`StalledTopics` is a pure function component. It holds no state — all filtering is handled by `App` before passing props. See [stalled-topics.md](stalled-topics.md) for the requirements.
+
+CSS class prefix: `stalled-` for all elements specific to this component.
+
+---
+
 ## Navigation
 
-The `App` component renders five navigation links in the header: "Queue", "Response metrics", "Distribution", "SLO", and "Volume". Clicking a link switches the visible page content. The active link is visually distinguished using a CSS class (`nav-link-active`).
+The `App` component renders six navigation links in the header: "Queue", "Response metrics", "Distribution", "SLO", "Volume", and "Activity". Clicking a link switches the visible page content. The active link is visually distinguished using a CSS class (`nav-link-active`).
 
 Navigation uses component state — no client-side router.
 
@@ -275,7 +305,7 @@ All time displays — both topic age and response time metrics — use a single 
 ### Styling
 
 - No inline styles. All styling uses CSS classes.
-- Class name prefixes: `summary-` for SummaryCards, `unreplied-` for UnrepliedTable, `untagged-` for UntaggedTable, `response-` for ResponseMetricsCards, `nav-` for navigation, `period-` for PeriodSelector, `tag-` for TagSelector, `trends-` for ResponseTimeTrends, `trends-chart-` for ResponseTimeTrendChart, `slo-` for SloMonitor, `intake-` for TopicIntake, `intake-chart-` for IntakeChart.
+- Class name prefixes: `summary-` for SummaryCards, `unreplied-` for UnrepliedTable, `untagged-` for UntaggedTable, `response-` for ResponseMetricsCards, `nav-` for navigation, `period-` for PeriodSelector, `tag-` for TagSelector, `trends-` for ResponseTimeTrends, `trends-chart-` for ResponseTimeTrendChart, `slo-` for SloMonitor, `intake-` for TopicIntake, `intake-chart-` for IntakeChart, `stalled-` for StalledTopics.
 
 ### Implementation constraints
 
