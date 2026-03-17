@@ -70,6 +70,8 @@ This file defines *what* the user can do and how filtering behaves. Component de
 
 **TA-21.** The tag selector indicates which tag is currently active. The area selector indicates which area is currently active.
 
+**TA-22.** A "Clear all filters" button is visible when any filter is non-default (period is not "All time", or a tag is selected, or an area is selected). Clicking it resets all filters to their defaults: period to "All time", tag to none, area to none.
+
 ---
 
 ## Design
@@ -123,6 +125,7 @@ Defined in `tagFilter.ts`:
 - `allAreas(config)` — returns the list of named areas plus the default area (if any tags use it). The default area appears last.
 - `resolveTag(entry, defaults)` / `resolveAllTags(config)` — applies defaults and tracks provenance.
 - `extractSloConfig(config)` / `sloDefaultTags(config)` — extracts SLO thresholds for all tags and identifies which use defaults.
+- `scopeSloConfig(full, visibleTags)` — filters a full `SloConfig` to include only tags in the `visibleTags` list. Used to scope SLO monitoring to the active area/tag selection so that the compliance table only shows tags relevant to the current filter.
 
 ### Component
 

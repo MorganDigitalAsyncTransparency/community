@@ -42,10 +42,11 @@ import {
   monitoredTags,
   tagsForArea,
   extractSloConfig,
+  scopeSloConfig,
   sloDefaultTags,
   resolveAllTags,
 } from "./components/tagFilter";
-import { intakeGranularity } from "./components/intakeMetrics";
+import { intakeGranularity, computeTimeRange } from "./components/intakeMetrics";
 
 type Page = "queue" | "response-metrics" | "distribution" | "slo" | "volume" | "activity";
 
@@ -105,23 +106,37 @@ export function App() {
       ? filterByTag(topics, activeTag)
       : filterByMonitoredTags(topics, tagsForArea(typedTagConfig, activeArea));
 
+  // Period-filtered topics (before tag filter) — used for global time range.
+  const periodFiltered = {
+    unrepliedTopics: filterByPeriod(MOCK_DATA.unrepliedTopics, activePeriod),
+    resolvedTopics: filterByPeriod(MOCK_DATA.resolvedTopics, activePeriod),
+    repliedOpenTopics: filterByPeriod(MOCK_DATA.repliedOpenTopics, activePeriod),
+  };
+
   const filteredData = {
     ...MOCK_DATA,
-    unrepliedTopics: applyTagFilter(
-      filterByPeriod(MOCK_DATA.unrepliedTopics, activePeriod),
-    ),
+    unrepliedTopics: applyTagFilter(periodFiltered.unrepliedTopics),
     // TA-6: untagged topics are empty when a tag is selected
     untaggedTopics: activeTag !== null
       ? []
       : filterByPeriod(MOCK_DATA.untaggedTopics, activePeriod),
-    resolvedTopics: applyTagFilter(
-      filterByPeriod(MOCK_DATA.resolvedTopics, activePeriod),
-    ),
+    resolvedTopics: applyTagFilter(periodFiltered.resolvedTopics),
     // ST-8: period filter applies; ST-9: tag filter applies
-    repliedOpenTopics: applyTagFilter(
-      filterByPeriod(MOCK_DATA.repliedOpenTopics, activePeriod),
-    ),
+    repliedOpenTopics: applyTagFilter(periodFiltered.repliedOpenTopics),
   };
+
+  // TI-8a: global time range from period-filtered + monitored-tag topics.
+  // Uses all monitored tags (not the active tag) so the x-axis stays
+  // consistent when switching between tags within the same period.
+  const allMonitored = tagsForArea(typedTagConfig, null);
+  const granularity = intakeGranularity(activePeriod);
+  const intakeTimeRange = computeTimeRange(
+    filterByMonitoredTags(
+      [...periodFiltered.unrepliedTopics, ...periodFiltered.resolvedTopics],
+      allMonitored,
+    ),
+    granularity,
+  );
 
   return (
     <div className="app">
@@ -186,6 +201,20 @@ export function App() {
         onAreaSelect={setActiveArea}
       />
 
+      {(activePeriod.kind !== "preset" || activePeriod.preset !== "allTime" || activeTag !== null || activeArea !== null) && (
+        <button
+          className="clear-filters-btn"
+          onClick={() => {
+            setActivePeriod({ kind: "preset", preset: "allTime" });
+            setCustomDraft(null);
+            setActiveTag(null);
+            setActiveArea(null);
+          }}
+        >
+          Clear all filters
+        </button>
+      )}
+
       <main className="app-content">
         {page === "queue" && (
           <>
@@ -234,7 +263,7 @@ export function App() {
           <SloMonitor
             resolvedTopics={filteredData.resolvedTopics}
             unrepliedTopics={filteredData.unrepliedTopics}
-            sloConfig={sloConfig}
+            sloConfig={scopeSloConfig(sloConfig, activeTag !== null ? [activeTag] : tagsForArea(typedTagConfig, activeArea))}
             defaultSloTags={defaultSloTags}
           />
         )}
@@ -243,7 +272,8 @@ export function App() {
           // TI-5: period filter applies; TI-6: tag filter applies; TI-7: all topics (unreplied + resolved)
           <TopicIntake
             topics={[...filteredData.unrepliedTopics, ...filteredData.resolvedTopics]}
-            granularity={intakeGranularity(activePeriod)}
+            granularity={granularity}
+            timeRange={intakeTimeRange}
           />
         )}
 

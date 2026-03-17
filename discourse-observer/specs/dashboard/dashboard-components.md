@@ -187,7 +187,7 @@ Accepts four props:
 |------|------|---------|
 | `unrepliedTopics` | `Topic[]` | Filtered unreplied topics — used for first reply and inactivity violation checks and compliance |
 | `resolvedTopics` | `Topic[]` | Filtered resolved topics — used for all three violation checks and compliance |
-| `sloConfig` | `SloConfig` | Tag-to-threshold mapping extracted from unified configuration |
+| `sloConfig` | `SloConfig` | Tag-to-threshold mapping scoped to visible tags (filtered by active area/tag selection) |
 | `defaultSloTags` | `Set<string>` | Tags using default SLO thresholds — shown with "(default thresholds)" indicator |
 
 Renders two sections in order:
@@ -216,7 +216,7 @@ Accepts two props:
 Calls `computeIntakeBuckets(topics, granularity)` and renders:
 
 - A section heading "Topic intake".
-- An `IntakeChart` displaying the bar chart (see below).
+- An `IntakeChart` displaying the line chart (see below).
 - If `computeIntakeBuckets` returns an empty array, renders an empty-state paragraph ("No data") instead of the chart.
 
 `TopicIntake` is a pure function component. It holds no state — all filtering is handled by `App` before passing props. See [topic-intake.md](topic-intake.md) for the requirements.
@@ -227,11 +227,11 @@ CSS class prefix: `intake-` for section-level elements.
 
 ## IntakeChart
 
-Accepts `data: IntakeBucket[]` (chart-ready data with labels and counts). Renders a Recharts `BarChart` inside a `ResponsiveContainer` (width 100%, height 300px).
+Accepts `data: IntakeBucket[]` (chart-ready data with labels and counts). Renders a Recharts `LineChart` inside a `ResponsiveContainer` (width 100%, height 300px).
 
-One `Bar` series:
+One `Line` series:
 
-- "Topics" (`count`) — colored `#5b8ff9`.
+- "Topics" (`count`) — colored `#5b8ff9`, monotone interpolation, small dots (radius 3) for point visibility.
 
 Chart features:
 

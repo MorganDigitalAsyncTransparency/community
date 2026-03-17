@@ -153,6 +153,20 @@ export function extractSloConfig(config: TagConfig): SloConfig {
   return result;
 }
 
+export function scopeSloConfig(
+  full: SloConfig,
+  visibleTags: string[],
+): SloConfig {
+  const set = new Set(visibleTags);
+  const result: SloConfig = {};
+  for (const [tag, thresholds] of Object.entries(full)) {
+    if (set.has(tag)) {
+      result[tag] = thresholds;
+    }
+  }
+  return result;
+}
+
 export function sloDefaultTags(config: TagConfig): Set<string> {
   const result = new Set<string>();
   for (const [tag, entry] of Object.entries(config.tags)) {

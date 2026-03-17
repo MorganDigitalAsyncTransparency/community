@@ -8,6 +8,7 @@ import {
   resolveTag,
   resolveAllTags,
   extractSloConfig,
+  scopeSloConfig,
   sloDefaultTags,
   type TagConfig,
   type ResolvedTag,
@@ -282,6 +283,25 @@ describe("extractSloConfig", () => {
     expect(slo.api.firstReplyHours).toBe(4);
     expect(slo.migration.firstReplyHours).toBe(24); // from defaults
     expect(Object.keys(slo)).toHaveLength(9);
+  });
+});
+
+describe("scopeSloConfig", () => {
+  it("returns only tags in the visible set", () => {
+    const full = extractSloConfig(CONFIG);
+    const scoped = scopeSloConfig(full, ["api", "webhooks"]);
+    expect(Object.keys(scoped).sort()).toEqual(["api", "webhooks"]);
+  });
+
+  it("returns empty config when visible tags is empty", () => {
+    const full = extractSloConfig(CONFIG);
+    expect(scopeSloConfig(full, [])).toEqual({});
+  });
+
+  it("ignores tags not in full config", () => {
+    const full = extractSloConfig(CONFIG);
+    const scoped = scopeSloConfig(full, ["api", "nonexistent"]);
+    expect(Object.keys(scoped)).toEqual(["api"]);
   });
 });
 

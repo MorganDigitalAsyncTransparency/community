@@ -33,13 +33,15 @@ This file defines *what* the user sees and why. [dashboard-components.md](dashbo
 
 **TI-7.** The data source for intake is all support topics — both unreplied and resolved — since intake measures when topics are created regardless of their current status.
 
-**TI-8.** The chart is a bar chart. Volume is a discrete count per bucket; bars communicate this better than a continuous line.
+**TI-8.** The chart is a line chart. A continuous line communicates volume trends — rises and falls over time — more clearly than discrete bars, especially when zero-count periods are included.
 
 **TI-9.** The chart X-axis shows time buckets in chronological order (oldest left, newest right), labelled by date. When there are more buckets than fit legibly, the axis may thin labels to avoid overlap.
 
 **TI-10.** The chart Y-axis shows topic count as whole numbers starting from zero.
 
-**TI-11.** Hovering over a bar shows a tooltip with the bucket label (date or week) and the topic count.
+**TI-11.** Hovering over a data point shows a tooltip with the bucket label (date or week) and the topic count.
+
+**TI-8a.** All time periods between the earliest and latest bucket are included in the chart, even if no topics were created in that period. Empty periods show a count of zero. This ensures the x-axis is continuous and accurately represents time gaps.
 
 ### Granularity (TI-2 detail)
 
@@ -65,7 +67,7 @@ This file defines *what* the user sees and why. [dashboard-components.md](dashbo
 
 ### Layout
 
-The Volume page contains the intake bar chart as a full-width section. A section heading "Topic intake" introduces the chart.
+The Volume page contains the intake line chart as a full-width section. A section heading "Topic intake" introduces the chart.
 
 ### Granularity selection
 
@@ -98,16 +100,16 @@ function computeIntakeBuckets(
 
 - Groups topics by `createdAt` into the appropriate bucket (daily or weekly).
 - Returns buckets in chronological order (oldest first).
-- Only buckets containing at least one topic are included.
+- All periods between the earliest and latest bucket are included (TI-8a). Missing periods are filled with count zero.
 - For weekly buckets, reuses `mondayOf` from `trendMetrics.ts`.
 - For daily buckets, a `dayOf` function extracts the UTC date as `YYYY-MM-DD`.
 - Labels are formatted using `toLocaleDateString` with `{ year: "numeric", month: "short", day: "numeric", timeZone: "UTC" }` — consistent with week labels in `ResponseTimeTrends`.
 
 ### Chart component
 
-`IntakeChart` renders a Recharts `BarChart` inside a `ResponsiveContainer` (width 100%, height 300px).
+`IntakeChart` renders a Recharts `LineChart` inside a `ResponsiveContainer` (width 100%, height 300px).
 
-- A single `Bar` series for topic count, colored `#5b8ff9`.
+- A single `Line` series for topic count, colored `#5b8ff9`, with `type="monotone"` and small dots (radius 3) so individual data points remain visible.
 - `XAxis` with `dataKey="label"` showing bucket date labels.
 - `YAxis` with `allowDecimals={false}` to show whole numbers only.
 - `Tooltip` showing the bucket label and count.
@@ -137,8 +139,8 @@ The Volume page is added as a new navigation option in `App`. The `Page` type is
 |-----------|------|-------------|
 | `App` | App.tsx | TI-5 — period filter applied; TI-6 — tag filter applied; TI-7 — combines unreplied and resolved; TI-13 — volume page navigation |
 | `TopicIntake` | TopicIntake.tsx | TI-1 — renders intake view; TI-14 — empty state |
-| `IntakeChart` | IntakeChart.tsx | TI-8 — bar chart; TI-9 — X-axis chronological; TI-10 — Y-axis whole numbers; TI-11 — tooltip |
-| `intakeMetrics` | intakeMetrics.ts | TI-2 — granularity selection; TI-3 — daily bucketing; TI-4 — weekly bucketing; TI-12 — threshold rules |
+| `IntakeChart` | IntakeChart.tsx | TI-8 — line chart; TI-9 — X-axis chronological; TI-10 — Y-axis whole numbers; TI-11 — tooltip |
+| `intakeMetrics` | intakeMetrics.ts | TI-2 — granularity selection; TI-3 — daily bucketing; TI-4 — weekly bucketing; TI-8a — gap filling; TI-12 — threshold rules |
 
 ---
 
@@ -163,6 +165,8 @@ The Volume page is added as a new navigation option in `App`. The `Page` type is
 | `computeIntakeBuckets` — weekly: Monday and Sunday of same week land in same bucket | TI-4 | Boundary correctness (same as RT-2). |
 | `computeIntakeBuckets` — weekly: Sunday and Monday on week boundary land in different buckets | TI-4 | Week-split correctness. |
 | `computeIntakeBuckets` — weekly: buckets are in chronological order | TI-9 | Chart X-axis ordering. |
+| `computeIntakeBuckets` — daily: fills gaps between days with zero-count buckets | TI-8a | Continuous x-axis. |
+| `computeIntakeBuckets` — weekly: fills gaps between weeks with zero-count buckets | TI-8a | Continuous x-axis. |
 | `computeIntakeBuckets` — empty input returns empty array | TI-14 | Empty state. |
 | `computeIntakeBuckets` — does not mutate input array | TI-1 | Pure function contract. |
 
@@ -173,8 +177,8 @@ Test location: `tests/dashboard/topic-intake.unit.test.ts`
 | What | Requirements | Rationale |
 |------|-------------|-----------|
 | Volume page is accessible via navigation link | TI-13 | Layout concern. |
-| Bar chart renders with correct bar heights | TI-8, TI-10 | Visual rendering concern. |
-| Hovering a bar shows tooltip with date and count | TI-11 | Interaction concern. |
+| Line chart renders with correct shape | TI-8, TI-10 | Visual rendering concern. |
+| Hovering a data point shows tooltip with date and count | TI-11 | Interaction concern. |
 | Switching period filter updates the chart | TI-5 | Cross-component interaction. |
 | Selecting a tag scopes the chart to that tag | TI-6 | Filter interaction. |
 | Granularity switches from daily to weekly for "Last year" | TI-2, TI-12 | Visual granularity change. |
