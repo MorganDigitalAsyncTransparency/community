@@ -98,6 +98,8 @@ All components receive data from the same `DashboardData` object, using the `res
 
 Per-tag breakdown of metrics (UC-9, UC-10) is implemented in [tag-distribution.md](tag-distribution.md) on the Distribution page.
 
+Response time distribution (UC-20) is implemented in [response-time-distribution.md](response-time-distribution.md). The distribution histograms appear on the same Response Metrics page, below the trend chart.
+
 Time period filtering (UC-12) is implemented in [time-period-filter.md](time-period-filter.md). The period selector applies to the resolved topics collection, so all metrics on this page reflect the selected window of topics by creation date.
 
 ---

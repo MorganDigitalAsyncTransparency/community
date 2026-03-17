@@ -2,7 +2,7 @@
 
 This document specifies the behavior of the dashboard view components rendered in the frontend.
 
-These components implement the visual layer for the requirements defined in [queue-visibility.md](queue-visibility.md), [response-metrics.md](response-metrics.md), [time-period-filter.md](time-period-filter.md), [response-time-trends.md](response-time-trends.md), [tag-distribution.md](tag-distribution.md), [slo-monitoring.md](slo-monitoring.md), [tag-area-filter.md](tag-area-filter.md), [topic-intake.md](topic-intake.md), [stalled-topics.md](stalled-topics.md), and [peak-activity.md](peak-activity.md). Those files define *what* the user sees and why; this file defines *how* each component behaves to fulfill those requirements.
+These components implement the visual layer for the requirements defined in [queue-visibility.md](queue-visibility.md), [response-metrics.md](response-metrics.md), [time-period-filter.md](time-period-filter.md), [response-time-trends.md](response-time-trends.md), [tag-distribution.md](tag-distribution.md), [slo-monitoring.md](slo-monitoring.md), [tag-area-filter.md](tag-area-filter.md), [topic-intake.md](topic-intake.md), [stalled-topics.md](stalled-topics.md), [peak-activity.md](peak-activity.md), and [response-time-distribution.md](response-time-distribution.md). Those files define *what* the user sees and why; this file defines *how* each component behaves to fulfill those requirements.
 
 ---
 
@@ -299,6 +299,50 @@ CSS class prefix: `peak-` for all elements specific to this component.
 
 ---
 
+## ResponseTimeDistribution
+
+Accepts two props:
+
+| Prop | Type | Purpose |
+|------|------|---------|
+| `topics` | `Topic[]` | Filtered resolved topics (period + tag filters already applied) |
+| `ceilingsHours` | `number[]` | Bucket ceilings from `config/distributionBuckets.json` |
+
+Calls `firstReplyDurations` and `resolutionDurations` to extract duration arrays, then `bucketDurations` for each, and renders:
+
+- Two histogram sections, each with a heading ("First reply distribution", "Resolution time distribution").
+- A `DistributionChart` for each non-empty result.
+- An empty-state paragraph ("No data") when the duration array is empty.
+
+`ResponseTimeDistribution` is a pure function component. It holds no state — all filtering is handled by `App` before passing props. See [response-time-distribution.md](response-time-distribution.md) for the requirements.
+
+CSS class prefix: `rd-` for all elements specific to this component.
+
+---
+
+## DistributionChart
+
+Accepts three props:
+
+| Prop | Type | Purpose |
+|------|------|---------|
+| `data` | `DistributionBucket[]` | Bucketed data to display |
+| `color` | `string` | Bar fill color |
+| `name` | `string` | Series name for tooltip |
+
+Renders a Recharts `BarChart` inside a `ResponsiveContainer` (width 100%, height 300px).
+
+- `XAxis` with `dataKey="label"` showing bucket labels.
+- `YAxis` with `allowDecimals={false}` for whole numbers.
+- `Tooltip` showing bucket label and count.
+- No legend (single series per chart).
+
+CSS class prefix: `rd-chart-` for chart-specific elements.
+
+`DistributionChart` uses Recharts' `ResponsiveContainer`, which requires a parent with defined dimensions. The chart wrapper div provides this via CSS.
+
+---
+
 ## Navigation
 
 The `App` component renders six navigation links in the header: "Queue", "Response metrics", "Distribution", "SLO", "Volume", and "Activity". Clicking a link switches the visible page content. The active link is visually distinguished using a CSS class (`nav-link-active`).
@@ -329,7 +373,7 @@ All time displays — both topic age and response time metrics — use a single 
 ### Styling
 
 - No inline styles. All styling uses CSS classes.
-- Class name prefixes: `summary-` for SummaryCards, `unreplied-` for UnrepliedTable, `untagged-` for UntaggedTable, `response-` for ResponseMetricsCards, `nav-` for navigation, `period-` for PeriodSelector, `tag-` for TagSelector, `trends-` for ResponseTimeTrends, `trends-chart-` for ResponseTimeTrendChart, `slo-` for SloMonitor, `intake-` for TopicIntake, `intake-chart-` for IntakeChart, `stalled-` for StalledTopics, `peak-` for PeakActivity.
+- Class name prefixes: `summary-` for SummaryCards, `unreplied-` for UnrepliedTable, `untagged-` for UntaggedTable, `response-` for ResponseMetricsCards, `nav-` for navigation, `period-` for PeriodSelector, `tag-` for TagSelector, `trends-` for ResponseTimeTrends, `trends-chart-` for ResponseTimeTrendChart, `slo-` for SloMonitor, `intake-` for TopicIntake, `intake-chart-` for IntakeChart, `stalled-` for StalledTopics, `peak-` for PeakActivity, `rd-` for ResponseTimeDistribution, `rd-chart-` for DistributionChart.
 
 ### Implementation constraints
 
