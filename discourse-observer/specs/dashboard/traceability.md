@@ -109,6 +109,15 @@ This matrix shows how use cases decompose into specifications, requirements, and
 
 ---
 
+## Response time distribution
+
+| Use case | Spec | Requirements | Verification |
+|----------|------|-------------|--------------|
+| UC-20: Understand response time spread | [response-time-distribution.md](response-time-distribution.md) | RD-1 – RD-10 | [response-time-distribution.unit.test.ts](../../tests/dashboard/response-time-distribution.unit.test.ts) (RD-2 – RD-6); manual (RD-1, RD-7, RD-8, RD-9, RD-10) |
+| (cross-cutting: placement, filters, empty, config) | [response-time-distribution.md](response-time-distribution.md) | RD-11 – RD-14 | [response-time-distribution.unit.test.ts](../../tests/dashboard/response-time-distribution.unit.test.ts) (RD-14); manual (RD-11, RD-12, RD-13) |
+
+---
+
 ## Gaps
 
 - UC-3 partial: untagged share as percentage of all topics (deferred until total topic count is available from backend).

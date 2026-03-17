@@ -166,3 +166,4 @@ This document describes what users need from discourse-observer. Each use case i
 
 **Goal:** See not just the median response time but how response times are distributed, to identify whether the median hides a long tail of slow responses.
 **Expected result:** A distribution of time-to-first-reply and time-to-resolution values, showing how many topics fall into each time bracket for a selected period.
+**Status:** Implemented — see [specs/dashboard/response-time-distribution.md](dashboard/response-time-distribution.md).

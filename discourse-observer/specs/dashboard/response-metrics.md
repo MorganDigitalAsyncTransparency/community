@@ -94,11 +94,17 @@ The application header includes two navigation links: "Queue" and "Response metr
 
 All components receive data from the same `DashboardData` object, using the `resolvedTopics` array. The computation functions operate on `Topic[]` and return formatted strings suitable for display.
 
-### What is not covered
+### Page composition
 
-Per-tag breakdown of metrics (UC-9, UC-10) is implemented in [tag-distribution.md](tag-distribution.md) on the Distribution page.
+The Response Metrics page is built from three specs that each cover a distinct perspective on the same data:
 
-Time period filtering (UC-12) is implemented in [time-period-filter.md](time-period-filter.md). The period selector applies to the resolved topics collection, so all metrics on this page reflect the selected window of topics by creation date.
+1. **This file** — summary cards: median first reply, median resolution, outcomes, answer rate (UC-4, UC-5, UC-6, UC-7).
+2. **[response-time-trends.md](response-time-trends.md)** — weekly trend chart showing how median response times change over time (UC-8).
+3. **[response-time-distribution.md](response-time-distribution.md)** — histogram showing how response times are spread across time brackets (UC-20).
+
+All three consume `resolvedTopics` and share the period filter (UC-12) and tag filter (UC-15).
+
+Per-tag breakdown of metrics (UC-9, UC-10) is on the Distribution page — see [tag-distribution.md](tag-distribution.md).
 
 ---
 

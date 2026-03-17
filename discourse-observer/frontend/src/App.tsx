@@ -2,12 +2,14 @@
 //       specs/dashboard/time-period-filter.md, specs/dashboard/response-time-trends.md,
 //       specs/dashboard/tag-distribution.md, specs/dashboard/slo-monitoring.md,
 //       specs/dashboard/tag-area-filter.md, specs/dashboard/topic-intake.md,
-//       specs/dashboard/stalled-topics.md, specs/dashboard/peak-activity.md
+//       specs/dashboard/stalled-topics.md, specs/dashboard/peak-activity.md,
+//       specs/dashboard/response-time-distribution.md
 // Tests: tests/dashboard/queue-visibility.unit.test.ts, tests/dashboard/response-metrics.unit.test.ts,
 //        tests/dashboard/time-period-filter.unit.test.ts, tests/dashboard/response-time-trends.unit.test.ts,
 //        tests/dashboard/tag-distribution.unit.test.ts, tests/dashboard/slo-monitoring.unit.test.ts,
 //        tests/dashboard/tag-area-filter.unit.test.ts, tests/dashboard/topic-intake.unit.test.ts,
-//        tests/dashboard/stalled-topics.unit.test.ts, tests/dashboard/peak-activity.unit.test.ts
+//        tests/dashboard/stalled-topics.unit.test.ts, tests/dashboard/peak-activity.unit.test.ts,
+//        tests/dashboard/response-time-distribution.unit.test.ts
 
 import { useState } from "react";
 import "./App.css";
@@ -22,10 +24,12 @@ import { SloMonitor } from "./components/SloMonitor";
 import { TopicIntake } from "./components/TopicIntake";
 import { StalledTopics } from "./components/StalledTopics";
 import { PeakActivity } from "./components/PeakActivity";
+import { ResponseTimeDistribution } from "./components/ResponseTimeDistribution";
 import { PeriodSelector } from "./components/PeriodSelector";
 import { TagSelector } from "./components/TagSelector";
 import sloConfig from "../../config/sloThresholds.json";
 import tagConfig from "../../config/tagConfig.json";
+import distributionConfig from "../../config/distributionBuckets.json";
 import {
   type ActivePeriod,
   type CustomRange,
@@ -200,6 +204,11 @@ export function App() {
             {/* RT-8: trends span full history (no period filter).
                 TA-7: tag filter applies to trends — scope is a tag decision. */}
             <ResponseTimeTrends topics={applyTagFilter(MOCK_DATA.resolvedTopics)} />
+            {/* RD-12: period filter applies; RD-13: tag filter applies */}
+            <ResponseTimeDistribution
+              topics={filteredData.resolvedTopics}
+              ceilingsHours={distributionConfig.bucketCeilingsHours}
+            />
           </>
         )}
 
