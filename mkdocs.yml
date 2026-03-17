@@ -37,6 +37,7 @@ nav:
           - Tag and Area Filter: specs/dashboard/tag-area-filter.md
           - Topic Intake: specs/dashboard/topic-intake.md
           - Stalled Topics: specs/dashboard/stalled-topics.md
+          - Peak Activity: specs/dashboard/peak-activity.md
           - Components: specs/dashboard/dashboard-components.md
           - Traceability: specs/dashboard/traceability.md
       - Observer:

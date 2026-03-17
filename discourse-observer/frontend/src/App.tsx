@@ -2,12 +2,12 @@
 //       specs/dashboard/time-period-filter.md, specs/dashboard/response-time-trends.md,
 //       specs/dashboard/tag-distribution.md, specs/dashboard/slo-monitoring.md,
 //       specs/dashboard/tag-area-filter.md, specs/dashboard/topic-intake.md,
-//       specs/dashboard/stalled-topics.md
+//       specs/dashboard/stalled-topics.md, specs/dashboard/peak-activity.md
 // Tests: tests/dashboard/queue-visibility.unit.test.ts, tests/dashboard/response-metrics.unit.test.ts,
 //        tests/dashboard/time-period-filter.unit.test.ts, tests/dashboard/response-time-trends.unit.test.ts,
 //        tests/dashboard/tag-distribution.unit.test.ts, tests/dashboard/slo-monitoring.unit.test.ts,
 //        tests/dashboard/tag-area-filter.unit.test.ts, tests/dashboard/topic-intake.unit.test.ts,
-//        tests/dashboard/stalled-topics.unit.test.ts
+//        tests/dashboard/stalled-topics.unit.test.ts, tests/dashboard/peak-activity.unit.test.ts
 
 import { useState } from "react";
 import "./App.css";
@@ -21,6 +21,7 @@ import { TagDistribution } from "./components/TagDistribution";
 import { SloMonitor } from "./components/SloMonitor";
 import { TopicIntake } from "./components/TopicIntake";
 import { StalledTopics } from "./components/StalledTopics";
+import { PeakActivity } from "./components/PeakActivity";
 import { PeriodSelector } from "./components/PeriodSelector";
 import { TagSelector } from "./components/TagSelector";
 import sloConfig from "../../config/sloThresholds.json";
@@ -232,13 +233,19 @@ export function App() {
         )}
 
         {page === "activity" && (
-          // ST-8: period filter applies; ST-9: tag filter applies
-          <StalledTopics
-            topics={filteredData.repliedOpenTopics}
-            stalledDays={typedTagConfig.stalledDays}
-            closedTag={typedTagConfig.closedTag}
-            monitoredTags={monitored}
-          />
+          <>
+            {/* ST-8: period filter applies; ST-9: tag filter applies */}
+            <StalledTopics
+              topics={filteredData.repliedOpenTopics}
+              stalledDays={typedTagConfig.stalledDays}
+              closedTag={typedTagConfig.closedTag}
+              monitoredTags={monitored}
+            />
+            {/* PA-8: all topics (unreplied + resolved); PA-11: period filter; PA-12: tag filter */}
+            <PeakActivity
+              topics={[...filteredData.unrepliedTopics, ...filteredData.resolvedTopics]}
+            />
+          </>
         )}
       </main>
     </div>

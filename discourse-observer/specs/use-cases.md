@@ -156,6 +156,7 @@ This document describes what users need from discourse-observer. Each use case i
 
 **Goal:** Know when support topics typically arrive and when activity is highest, to inform staffing decisions and understand whether SLO misses cluster at specific times.
 **Expected result:** A breakdown of topic creation by day of week and hour of day, showing where demand is concentrated.
+**Status:** Implemented — see [specs/dashboard/peak-activity.md](dashboard/peak-activity.md).
 
 ---
 
