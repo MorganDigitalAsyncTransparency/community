@@ -171,7 +171,7 @@ CSS class prefix: `rd-chart-` for chart-specific elements.
 | `bucketDurations` — empty input returns all-zero buckets | RD-2, RD-14 | Empty state produces full bucket structure. |
 | `bucketDurations` — durations land in correct buckets | RD-2, RD-3 | Core bucketing correctness. |
 | `bucketDurations` — duration exceeding all ceilings lands in last bucket | RD-2 | Overflow bucket. |
-| `bucketDurations` — duration exactly on a ceiling boundary lands in the lower bucket | RD-2 | Boundary precision. |
+| `bucketDurations` — duration exactly equal to a ceiling lands in the next bucket (not the one below the ceiling) | RD-2 | Boundary precision — buckets use strict less-than for upper bounds. |
 | `bucketDurations` — bucket labels match expected format | RD-4 | Label generation correctness. |
 | `bucketDurations` — single ceiling produces two buckets | RD-2 | Minimum configuration. |
 | `firstReplyDurations` — excludes topics without firstReplyAt | RD-5 | Exclusion correctness. |
