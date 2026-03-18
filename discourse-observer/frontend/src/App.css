@@ -26,8 +26,7 @@ body {
 
 .shell {
   display: grid;
-  grid-template-columns: var(--sidebar-width) 1fr;
-  grid-template-rows: auto 1fr auto;
+  grid-template: auto 1fr auto / var(--sidebar-width) 1fr;
   grid-template-areas:
     "sidebar  filter-bar"
     "sidebar  content"
@@ -44,8 +43,7 @@ body {
   background: var(--color-bg-sidebar);
   color: var(--color-text-sidebar);
   width: var(--sidebar-width);
-  overflow-y: auto;
-  overflow-x: hidden;
+  overflow: hidden auto;
   transition: width 200ms ease;
   z-index: var(--z-sidebar);
 }
@@ -86,13 +84,13 @@ body {
 }
 
 .sidebar-link:hover {
-  background: rgba(255, 255, 255, 0.08);
+  background: rgb(255 255 255 / 8%);
 }
 
 .sidebar-link-active {
   color: var(--color-text-sidebar-active);
   font-weight: var(--font-weight-medium);
-  background: rgba(255, 255, 255, 0.12);
+  background: rgb(255 255 255 / 12%);
 }
 
 .sidebar-icon {
@@ -113,7 +111,7 @@ body {
   gap: var(--spacing-sm);
   background: none;
   border: none;
-  border-top: 1px solid rgba(255, 255, 255, 0.1);
+  border-top: 1px solid rgb(255 255 255 / 10%);
   padding: var(--spacing-md) var(--spacing-sm);
   font-size: var(--font-size-sm);
   font-family: inherit;
@@ -777,8 +775,8 @@ body {
   border-radius: 3px;
   background: linear-gradient(
     to right,
-    rgba(var(--color-heatmap-base), 0),
-    rgba(var(--color-heatmap-base), 1)
+    rgb(var(--color-heatmap-base) / 0%),
+    rgb(var(--color-heatmap-base) / 100%)
   );
   border: 1px solid var(--color-border-default);
 }
@@ -1122,7 +1120,7 @@ body {
 
 /* ── Responsive breakpoints ── */
 
-@media (max-width: 1023px) {
+@media (width <= 1023px) {
   .shell {
     --sidebar-width: var(--sidebar-width-collapsed);
   }
@@ -1138,7 +1136,7 @@ body {
   }
 }
 
-@media (max-width: 767px) {
+@media (width <= 767px) {
   .shell {
     grid-template-columns: 1fr;
     grid-template-areas:
@@ -1149,9 +1147,5 @@ body {
 
   .sidebar {
     display: none;
-  }
-
-  .hamburger {
-    display: flex;
   }
 }
