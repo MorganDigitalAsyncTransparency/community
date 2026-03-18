@@ -39,7 +39,7 @@ This file defines *what* the user sees and why. [dashboard-components.md](dashbo
 
 ### Placement
 
-**PA-10.** The peak activity heatmap appears on the existing Activity page, below the stalled topics section. Both UC-18 (stalled topics) and UC-19 (peak activity) relate to activity patterns, so grouping them on the same page is coherent.
+**PA-10.** The peak activity heatmap appears on the Activity page. It is the sole component on that page.
 
 ### Filters
 
@@ -266,7 +266,7 @@ Test locations: `tests/dashboard/peak-activity.unit.test.ts`, `tests/dashboard/t
 
 | What | Requirements | Rationale |
 |------|-------------|-----------|
-| Heatmap renders on the Activity page below stalled topics | PA-10 | Layout concern. |
+| Heatmap renders on the Activity page | PA-10 | Layout concern. |
 | Cell colors intensify with higher counts | PA-3, PA-4 | Visual rendering concern. |
 | Color scale legend is visible below the heatmap | PA-9 | Visual rendering concern. |
 | Switching period filter updates the heatmap | PA-11 | Cross-component interaction. |
