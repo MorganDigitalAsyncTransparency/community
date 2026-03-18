@@ -52,7 +52,7 @@ This file defines *what* the user sees and why. [dashboard-components.md](dashbo
 
 ### Placement
 
-**ST-12.** The stalled topics list appears on the Queue page, below the existing sections (summary cards, awaiting reply, untagged topics).
+**ST-12.** The stalled topics list appears on the Queue page, after summary cards and before the awaiting reply and untagged topics sections.
 
 ### Empty state
 
