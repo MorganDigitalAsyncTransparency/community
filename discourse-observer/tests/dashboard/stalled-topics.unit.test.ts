@@ -17,7 +17,7 @@ function makeTopic(overrides: Partial<Topic> & { id: number }): Topic {
     title: "Test topic",
     createdAt: "2025-01-01T12:00:00Z",
     tags: ["api"],
-    category: "Support",
+    categoryName: "Support",
     replyCount: 2,
     ...overrides,
   };
