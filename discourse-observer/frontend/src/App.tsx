@@ -1,13 +1,13 @@
 // Spec: specs/dashboard/queue-visibility.md, specs/dashboard/response-metrics.md,
 //       specs/dashboard/time-period-filter.md,
 //       specs/dashboard/tag-distribution.md, specs/dashboard/slo-monitoring.md,
-//       specs/dashboard/tag-area-filter.md,
+//       specs/dashboard/tag-area-filter.md, specs/dashboard/url-state.md,
 //       specs/dashboard/stalled-topics.md, specs/dashboard/peak-activity.md,
 //       specs/dashboard/response-time-distribution.md
 // Tests: tests/dashboard/queue-visibility.unit.test.ts, tests/dashboard/response-metrics.unit.test.ts,
 //        tests/dashboard/time-period-filter.unit.test.ts,
 //        tests/dashboard/tag-distribution.unit.test.ts, tests/dashboard/slo-monitoring.unit.test.ts,
-//        tests/dashboard/tag-area-filter.unit.test.ts,
+//        tests/dashboard/tag-area-filter.unit.test.ts, tests/dashboard/url-state.unit.test.ts,
 //        tests/dashboard/stalled-topics.unit.test.ts, tests/dashboard/peak-activity.unit.test.ts,
 //        tests/dashboard/response-time-distribution.unit.test.ts
 
@@ -32,7 +32,6 @@ import { Footer } from "./components/Footer";
 import tagConfigJson from "../../config/tagConfig.json";
 import distributionConfig from "../../config/distributionBuckets.json";
 import {
-  type ActivePeriod,
   type CustomRange,
   type PeriodPreset,
   filterByPeriod,
@@ -54,20 +53,21 @@ import {
   computeMedianResolutionBuckets,
 } from "./components/medianTrendMetrics";
 import { CHART_COLOR_1, CHART_COLOR_2 } from "./components/themeColors";
-import type { Page } from "./types";
+import { useUrlState } from "./components/useUrlState";
 
 export function App() {
-  const [page, setPage] = useState<Page>("queue");
-  const [activePeriod, setActivePeriod] = useState<ActivePeriod>({
-    kind: "preset",
-    preset: "allTime",
-  });
+  const {
+    page, period: activePeriod, tag: activeTag, area: activeArea,
+    setPage, setPeriod, setTag: setActiveTag, setArea: setActiveArea, clearAll,
+  } = useUrlState();
+
   // customDraft holds the in-progress custom range inputs.
   // null means the custom tab is not visible. An object (possibly with empty strings)
   // means the custom tab is open. The filter is applied only when both dates are set.
-  const [customDraft, setCustomDraft] = useState<CustomRange | null>(null);
-  const [activeTag, setActiveTag] = useState<string | null>(null);
-  const [activeArea, setActiveArea] = useState<string | null>(null);
+  // US-12: draft is not persisted in the URL.
+  const [customDraft, setCustomDraft] = useState<CustomRange | null>(
+    activePeriod.kind === "custom" ? activePeriod.range : null,
+  );
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
   const typedTagConfig = tagConfigJson as TagConfig;
@@ -77,7 +77,7 @@ export function App() {
   const resolvedTags = resolveAllTags(typedTagConfig);
 
   function handlePresetSelect(preset: PeriodPreset) {
-    setActivePeriod({ kind: "preset", preset });
+    setPeriod({ kind: "preset", preset });
     setCustomDraft(null);
   }
 
@@ -91,7 +91,7 @@ export function App() {
   function handleCustomDraftChange(from: string, to: string) {
     setCustomDraft({ from, to });
     if (from && to) {
-      setActivePeriod({ kind: "custom", range: { from, to } });
+      setPeriod({ kind: "custom", range: { from, to } });
     }
   }
 
@@ -223,10 +223,8 @@ export function App() {
           <button
             className="clear-filters-btn"
             onClick={() => {
-              setActivePeriod({ kind: "preset", preset: "allTime" });
+              clearAll();
               setCustomDraft(null);
-              setActiveTag(null);
-              setActiveArea(null);
             }}
           >
             Clear all filters
