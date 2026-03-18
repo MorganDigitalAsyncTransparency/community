@@ -2,30 +2,84 @@
 // Tests: tests/dashboard/queue-visibility.unit.test.ts
 
 import type { Topic } from "../mock/data";
-import { formatAge, sortedByOldest } from "./topicFormatting";
+import { formatAge, topicUrl } from "./topicFormatting";
+import { useTableSort, type SortDirection } from "./useTableSort";
+
+type SortColumn = "topic" | "category" | "age";
+
+const DEFAULT_DIRECTIONS: Record<SortColumn, SortDirection> = {
+  topic: "asc",
+  category: "asc",
+  age: "desc",
+};
+
+function sortTopics(
+  topics: Topic[],
+  column: SortColumn,
+  direction: SortDirection,
+): Topic[] {
+  const sorted = [...topics];
+  const dir = direction === "asc" ? 1 : -1;
+
+  if (column === "topic") {
+    sorted.sort((a, b) => dir * a.title.localeCompare(b.title));
+  } else if (column === "category") {
+    sorted.sort((a, b) => dir * a.category.localeCompare(b.category));
+  } else {
+    sorted.sort((a, b) => {
+      const aTime = new Date(a.createdAt).getTime();
+      const bTime = new Date(b.createdAt).getTime();
+      return dir === -1 ? aTime - bTime : bTime - aTime;
+    });
+  }
+
+  return sorted;
+}
 
 interface UntaggedTableProps {
   topics: Topic[];
 }
 
 export function UntaggedTable({ topics }: UntaggedTableProps) {
-  const sorted = sortedByOldest(topics);
+  const { sortColumn, sortDirection, handleSort, arrow } =
+    useTableSort<SortColumn>("age", DEFAULT_DIRECTIONS);
+
+  const sorted = sortTopics(topics, sortColumn, sortDirection);
 
   return (
     <table className="untagged-table">
       <thead>
         <tr>
-          <th className="untagged-header-age">Age</th>
-          <th className="untagged-header-title">Title</th>
-          <th className="untagged-header-category">Category</th>
+          <th
+            className="untagged-header-topic sortable-header"
+            onClick={() => handleSort("topic")}
+          >
+            Topic{arrow("topic")}
+          </th>
+          <th
+            className="untagged-header-category sortable-header"
+            onClick={() => handleSort("category")}
+          >
+            Category{arrow("category")}
+          </th>
+          <th
+            className="untagged-header-age sortable-header"
+            onClick={() => handleSort("age")}
+          >
+            Age{arrow("age")}
+          </th>
         </tr>
       </thead>
       <tbody>
         {sorted.map((topic) => (
           <tr key={topic.id} className="untagged-row">
-            <td className="untagged-cell-age">{formatAge(topic.createdAt)}</td>
-            <td className="untagged-cell-title">{topic.title}</td>
+            <td className="untagged-cell-topic">
+              <a href={topicUrl(topic.id)} className="topic-link" target="_blank" rel="noreferrer">
+                {topic.title}
+              </a>
+            </td>
             <td className="untagged-cell-category">{topic.category}</td>
+            <td className="untagged-cell-age">{formatAge(topic.createdAt)}</td>
           </tr>
         ))}
       </tbody>

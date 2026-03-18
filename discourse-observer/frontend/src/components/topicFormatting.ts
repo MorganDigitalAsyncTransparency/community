@@ -46,6 +46,13 @@ export function formatTags(tags: string[]): string {
   return tags.length > 0 ? tags.join(", ") : "–";
 }
 
+// Placeholder base URL — will be provided by the backend in production.
+const FORUM_BASE_URL = "https://forum.example.com";
+
+export function topicUrl(topicId: number): string {
+  return `${FORUM_BASE_URL}/t/${topicId}`;
+}
+
 // Formats a YYYY-MM-DD week-start date (UTC Monday) as a locale-aware short date.
 // Used by TagDistribution and volume/median trend charts to label weekly buckets.
 export function formatWeekLabel(isoDate: string): string {

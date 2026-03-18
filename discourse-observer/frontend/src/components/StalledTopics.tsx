@@ -1,9 +1,10 @@
 // Spec: specs/dashboard/stalled-topics.md
 // Tests: tests/dashboard/stalled-topics.unit.test.ts
 
-import { useState } from "react";
 import type { Topic } from "../mock/data";
 import type { ResolvedTag } from "./tagFilter";
+import { topicUrl } from "./topicFormatting";
+import { useTableSort, type SortDirection } from "./useTableSort";
 import {
   filterStalledTopics,
   daysSinceLastActivity,
@@ -11,8 +12,7 @@ import {
   stalledThresholdForTopic,
 } from "./stalledMetrics";
 
-type SortColumn = "tag" | "days";
-type SortDirection = "asc" | "desc";
+type SortColumn = "topic" | "tag" | "threshold" | "days";
 
 interface StalledTopicsProps {
   topics: Topic[];
@@ -21,7 +21,9 @@ interface StalledTopicsProps {
 }
 
 const DEFAULT_DIRECTIONS: Record<SortColumn, SortDirection> = {
+  topic: "asc",
   tag: "asc",
+  threshold: "asc",
   days: "desc",
 };
 
@@ -30,15 +32,26 @@ function sortTopics(
   column: SortColumn,
   direction: SortDirection,
   monitored: Set<string>,
+  resolvedTags: Record<string, ResolvedTag>,
 ): Topic[] {
   const sorted = [...topics];
   const dir = direction === "asc" ? 1 : -1;
 
-  if (column === "tag") {
+  if (column === "topic") {
+    sorted.sort((a, b) => dir * a.title.localeCompare(b.title));
+  } else if (column === "tag") {
     sorted.sort((a, b) => {
       const aTag = formatStalledTag(a, monitored);
       const bTag = formatStalledTag(b, monitored);
       return dir * aTag.localeCompare(bTag);
+    });
+  } else if (column === "threshold") {
+    sorted.sort((a, b) => {
+      const aThreshold = stalledThresholdForTopic(a, resolvedTags);
+      const bThreshold = stalledThresholdForTopic(b, resolvedTags);
+      const aDays = aThreshold ? aThreshold.days : 0;
+      const bDays = bThreshold ? bThreshold.days : 0;
+      return dir * (aDays - bDays);
     });
   } else {
     sorted.sort((a, b) => {
@@ -60,26 +73,12 @@ export function StalledTopics({
   resolvedTags,
   monitoredTags,
 }: StalledTopicsProps) {
-  const [sortColumn, setSortColumn] = useState<SortColumn>("days");
-  const [sortDirection, setSortDirection] = useState<SortDirection>("desc");
+  const { sortColumn, sortDirection, handleSort, arrow } =
+    useTableSort<SortColumn>("days", DEFAULT_DIRECTIONS);
 
   const stalled = filterStalledTopics(topics, resolvedTags);
   const monitored = new Set(monitoredTags);
-  const sorted = sortTopics(stalled, sortColumn, sortDirection, monitored);
-
-  function handleSort(column: SortColumn) {
-    if (column === sortColumn) {
-      setSortDirection((d) => (d === "asc" ? "desc" : "asc"));
-    } else {
-      setSortColumn(column);
-      setSortDirection(DEFAULT_DIRECTIONS[column]);
-    }
-  }
-
-  function arrow(column: SortColumn): string {
-    if (column !== sortColumn) return "";
-    return sortDirection === "asc" ? " ▲" : " ▼";
-  }
+  const sorted = sortTopics(stalled, sortColumn, sortDirection, monitored, resolvedTags);
 
   return (
     <section className="stalled-section">
@@ -90,16 +89,26 @@ export function StalledTopics({
         <table className="stalled-table">
           <thead>
             <tr>
-              <th className="stalled-header-title">Title</th>
               <th
-                className="stalled-header-tag stalled-header-sortable"
+                className="stalled-header-topic sortable-header"
+                onClick={() => handleSort("topic")}
+              >
+                Topic{arrow("topic")}
+              </th>
+              <th
+                className="stalled-header-tag sortable-header"
                 onClick={() => handleSort("tag")}
               >
                 Tag{arrow("tag")}
               </th>
-              <th className="stalled-header-threshold">Threshold</th>
               <th
-                className="stalled-header-days stalled-header-sortable"
+                className="stalled-header-threshold sortable-header"
+                onClick={() => handleSort("threshold")}
+              >
+                Threshold{arrow("threshold")}
+              </th>
+              <th
+                className="stalled-header-days sortable-header"
                 onClick={() => handleSort("days")}
               >
                 Days inactive{arrow("days")}
@@ -112,7 +121,11 @@ export function StalledTopics({
               const threshold = stalledThresholdForTopic(topic, resolvedTags);
               return (
                 <tr key={topic.id} className="stalled-row">
-                  <td className="stalled-cell-title">{topic.title}</td>
+                  <td className="stalled-cell-topic">
+                    <a href={topicUrl(topic.id)} className="topic-link" target="_blank" rel="noreferrer">
+                      {topic.title}
+                    </a>
+                  </td>
                   <td className="stalled-cell-tag">{tagName}</td>
                   <td className="stalled-cell-threshold">
                     {threshold ? threshold.days : "–"}

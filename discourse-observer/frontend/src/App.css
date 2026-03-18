@@ -368,6 +368,27 @@ body {
   margin-top: var(--spacing-xs);
 }
 
+/* ── Shared table utilities ── */
+
+.sortable-header {
+  cursor: pointer;
+  user-select: none;
+}
+
+.sortable-header:hover {
+  color: var(--color-text-primary);
+}
+
+.topic-link {
+  color: inherit;
+  text-decoration: none;
+}
+
+.topic-link:hover {
+  text-decoration: underline;
+  color: var(--color-text-link);
+}
+
 /* ── Tables (shared) ── */
 
 .unreplied-table,
@@ -970,7 +991,7 @@ body {
   background: var(--color-table-header-bg);
 }
 
-.stalled-header-title,
+.stalled-header-topic,
 .stalled-header-tag,
 .stalled-header-threshold,
 .stalled-header-days {
@@ -983,16 +1004,7 @@ body {
   color: var(--color-text-secondary);
 }
 
-.stalled-header-sortable {
-  cursor: pointer;
-  user-select: none;
-}
-
-.stalled-header-sortable:hover {
-  color: var(--color-text-primary);
-}
-
-.stalled-cell-title,
+.stalled-cell-topic,
 .stalled-cell-tag,
 .stalled-cell-threshold,
 .stalled-cell-days {
