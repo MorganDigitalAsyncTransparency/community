@@ -5,7 +5,7 @@ import {
   filterStalledTopics,
   daysSinceLastActivity,
   formatStalledTag,
-  minimumStalledDays,
+  stalledThresholdForTopic,
 } from "../../frontend/src/components/stalledMetrics";
 import type { ResolvedTag } from "../../frontend/src/components/tagFilter";
 import type { Topic } from "../../frontend/src/mock/data";
@@ -263,19 +263,36 @@ describe("formatStalledTag", () => {
 });
 
 // ---------------------------------------------------------------------------
-// minimumStalledDays
+// stalledThresholdForTopic (ST-4, ST-7)
 // ---------------------------------------------------------------------------
 
-describe("minimumStalledDays", () => {
-  it("returns the minimum stalledDays across all resolved tags", () => {
+describe("stalledThresholdForTopic", () => {
+  it("returns strictest threshold and isDefault flag", () => {
     const tags: Record<string, ResolvedTag> = {
-      api: makeResolved({ stalledDays: 7 }),
-      webhooks: makeResolved({ stalledDays: 14 }),
+      api: makeResolved({ stalledDays: 7, stalledDaysIsDefault: false }),
+      webhooks: makeResolved({ stalledDays: 14, stalledDaysIsDefault: true }),
     };
-    expect(minimumStalledDays(tags)).toBe(7);
+    const topic = makeTopic({ id: 1, tags: ["api", "webhooks"] });
+    const result = stalledThresholdForTopic(topic, tags);
+    expect(result).toEqual({ days: 7, isDefault: false });
   });
 
-  it("returns 0 for empty resolved tags", () => {
-    expect(minimumStalledDays({})).toBe(0);
+  it("returns isDefault true when strictest tag uses default", () => {
+    const tags: Record<string, ResolvedTag> = {
+      api: makeResolved({ stalledDays: 14, stalledDaysIsDefault: true }),
+    };
+    const topic = makeTopic({ id: 1, tags: ["api"] });
+    const result = stalledThresholdForTopic(topic, tags);
+    expect(result).toEqual({ days: 14, isDefault: true });
+  });
+
+  it("returns null for topic with no configured tags", () => {
+    const topic = makeTopic({ id: 1, tags: ["unknown"] });
+    expect(stalledThresholdForTopic(topic, RESOLVED_TAGS)).toBeNull();
+  });
+
+  it("returns null for topic with empty tags", () => {
+    const topic = makeTopic({ id: 1, tags: [] });
+    expect(stalledThresholdForTopic(topic, RESOLVED_TAGS)).toBeNull();
   });
 });

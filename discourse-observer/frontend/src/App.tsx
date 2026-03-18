@@ -240,6 +240,13 @@ export function App() {
             <>
               <SummaryCards data={filteredData} />
 
+              {/* ST-8: period filter applies; ST-9: tag filter applies; ST-12: queue page */}
+              <StalledTopics
+                topics={filteredData.repliedOpenTopics}
+                resolvedTags={resolvedTags}
+                monitoredTags={monitored}
+              />
+
               <section>
                 <h2 className="app-section-title">Awaiting reply</h2>
                 <UnrepliedTable topics={filteredData.unrepliedTopics} />
@@ -322,12 +329,6 @@ export function App() {
 
           {page === "activity" && (
             <>
-              {/* ST-8: period filter applies; ST-9: tag filter applies */}
-              <StalledTopics
-                topics={filteredData.repliedOpenTopics}
-                resolvedTags={resolvedTags}
-                monitoredTags={monitored}
-              />
               {/* PA-8: all topics (unreplied + resolved + repliedOpen); PA-11: period filter; PA-12: tag filter */}
               <PeakActivity
                 topics={allFilteredTopics}

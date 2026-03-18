@@ -221,18 +221,21 @@ Accepts three props:
 
 Calls `filterStalledTopics(topics, resolvedTags)` and renders:
 
-- A section heading showing the threshold — "Stalled topics (inactive > N days)" where N is `stalledDays`.
-- A table with three columns:
+- A section heading: "Stalled topics" (no threshold number — thresholds vary per topic).
+- A table with four columns:
 
 | Column | Content |
 |--------|---------|
 | Title | The topic title |
-| Tag | First monitored tag on the topic, or "–" if none |
-| Days inactive | Whole days since `lastActivityAt` (truncated), falling back to `createdAt` |
+| Tag | First monitored tag on the topic, or "–" if none. Header is clickable to sort. |
+| Threshold | Per-topic stalled-days value via `stalledThresholdForTopic`, with "(default)" indicator when inherited from defaults |
+| Days inactive | Whole days since `lastActivityAt` (truncated), falling back to `createdAt`. Header is clickable to sort. |
 
+- Default sort: Days inactive descending (highest first). Clicking a column header toggles direction; clicking a different column switches to that column's default direction (Tag: ascending, Days inactive: descending).
+- The active sort column header shows an arrow indicator (▲ ascending, ▼ descending).
 - If no topics pass the stalled filter, renders an empty-state paragraph ("No stalled topics") instead of the table.
 
-`StalledTopics` is a pure function component. It holds no state — all filtering is handled by `App` before passing props. See [stalled-topics.md](stalled-topics.md) for the requirements.
+`StalledTopics` holds sort state (column and direction) via `useState`. All topic filtering is handled by `App` before passing props. See [stalled-topics.md](stalled-topics.md) for the requirements.
 
 CSS class prefix: `stalled-` for all elements specific to this component.
 
@@ -424,6 +427,6 @@ All time displays — both topic age and response time metrics — use a single 
 
 ### Implementation constraints
 
-- Pure function components. No React hooks. Exceptions: `App` uses `useState` for page navigation, active period, custom range draft, active tag, active area, and mobile sidebar visibility state, as it is the application shell — not a display component. `Sidebar` uses `useState` for collapsed state — this state is local to the sidebar and does not affect other components. `PeakActivity` uses `useState` for timezone selections, picker visibility, and cookie consent state — this state is local to the heatmap and does not affect other components. `TimezonePicker` uses `useState` for the search input — this is local input state that does not affect other components.
+- Pure function components. No React hooks. Exceptions: `App` uses `useState` for page navigation, active period, custom range draft, active tag, active area, and mobile sidebar visibility state, as it is the application shell — not a display component. `Sidebar` uses `useState` for collapsed state — this state is local to the sidebar and does not affect other components. `StalledTopics` uses `useState` for sort column and direction — this state is local to the table and does not affect other components. `PeakActivity` uses `useState` for timezone selections, picker visibility, and cookie consent state — this state is local to the heatmap and does not affect other components. `TimezonePicker` uses `useState` for the search input — this is local input state that does not affect other components.
 - Each component file stays under 200 lines.
 - Types are imported from the mock data module.

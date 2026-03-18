@@ -72,9 +72,19 @@ export function formatStalledTag(topic: Topic, monitored: Set<string>): string {
   return found ?? "–";
 }
 
-// Returns the minimum stalledDays across all resolved tags, for display in headings.
-export function minimumStalledDays(resolved: Record<string, ResolvedTag>): number {
-  const values = Object.values(resolved).map((r) => r.stalledDays);
-  if (values.length === 0) return 0;
-  return Math.min(...values);
+// Returns the strictest (lowest) stalledDays for a topic and whether it's a default.
+// Returns null when the topic has no configured tags.
+export function stalledThresholdForTopic(
+  topic: Topic,
+  resolved: Record<string, ResolvedTag>,
+): { days: number; isDefault: boolean } | null {
+  let best: { days: number; isDefault: boolean } | null = null;
+  for (const tag of topic.tags) {
+    const r = resolved[tag];
+    if (!r) continue;
+    if (best === null || r.stalledDays < best.days) {
+      best = { days: r.stalledDays, isDefault: r.stalledDaysIsDefault };
+    }
+  }
+  return best;
 }

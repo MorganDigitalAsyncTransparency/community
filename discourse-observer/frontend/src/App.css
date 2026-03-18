@@ -972,6 +972,7 @@ body {
 
 .stalled-header-title,
 .stalled-header-tag,
+.stalled-header-threshold,
 .stalled-header-days {
   text-align: left;
   padding: 0.6rem 0.75rem;
@@ -982,8 +983,18 @@ body {
   color: var(--color-text-secondary);
 }
 
+.stalled-header-sortable {
+  cursor: pointer;
+  user-select: none;
+}
+
+.stalled-header-sortable:hover {
+  color: var(--color-text-primary);
+}
+
 .stalled-cell-title,
 .stalled-cell-tag,
+.stalled-cell-threshold,
 .stalled-cell-days {
   padding: 0.6rem 0.75rem;
   font-size: var(--font-size-md);
@@ -1001,6 +1012,11 @@ body {
 .stalled-header-tag,
 .stalled-cell-tag {
   width: 8rem;
+}
+
+.stalled-header-threshold,
+.stalled-cell-threshold {
+  width: 7rem;
 }
 
 .stalled-default-indicator {
