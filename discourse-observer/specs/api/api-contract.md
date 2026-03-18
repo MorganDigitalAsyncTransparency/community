@@ -87,7 +87,7 @@ Response: array of objects, each with:
 - `id` (integer)
 - `title` (string)
 - `createdAt` (timestamp)
-- `category` (string)
+- `categoryName` (string)
 - `topicUrl` (string)
 
 Default sort: oldest first (ascending `createdAt`).

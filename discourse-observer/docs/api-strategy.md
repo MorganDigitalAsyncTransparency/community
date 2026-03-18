@@ -35,6 +35,10 @@ The API returns values in precise, unambiguous units:
 
 Consumers format these for their medium — the dashboard shows "2d 3h", an MCP tool says "51 hours", a CSV export writes raw numbers. The API never returns pre-formatted display strings.
 
+### Field naming
+
+Response fields use **camelCase** (JSON/JavaScript convention). Where a field corresponds to a Discourse API field, the name is aligned with Discourse's naming — converted from snake_case to camelCase (e.g., Discourse `created_at` → `createdAt`). Where a field name would be ambiguous, a qualifier is added (e.g., `categoryName` rather than `category`, since Discourse uses both `category_id` and category name).
+
 ### Consistent filtering
 
 All data-serving endpoints share the same filter vocabulary:
