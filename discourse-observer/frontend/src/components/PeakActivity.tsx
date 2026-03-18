@@ -18,6 +18,7 @@ import {
 } from "./timezoneCookies";
 import { TimezonePicker } from "./TimezonePicker";
 import { CookieConsentModal } from "./CookieConsentModal";
+import { getThemeColor } from "./useThemeColors";
 
 const HOUR_LABELS = Array.from({ length: 24 }, (_, i) => String(i));
 const MAX_TZ_ROWS = 3;
@@ -164,8 +165,9 @@ export function PeakActivity({ topics }: PeakActivityProps) {
                 <td className="peak-cell-day">{DAY_LABELS[dayIndex]}</td>
                 {row.map((cell) => {
                   const alpha = maxCount > 0 ? cell.count / maxCount : 0;
+                  const heatmapBase = getThemeColor("--color-heatmap-base");
                   const style: React.CSSProperties = {
-                    backgroundColor: alpha > 0 ? `rgba(59, 130, 246, ${alpha})` : undefined,
+                    backgroundColor: alpha > 0 ? `rgba(${heatmapBase}, ${alpha})` : undefined,
                     color: alpha > 0.5 ? "#fff" : undefined,
                   };
                   return (
