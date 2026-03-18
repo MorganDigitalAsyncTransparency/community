@@ -87,13 +87,13 @@ body {
 }
 
 .sidebar-link:hover {
-  background: rgb(255 255 255 / 8%);
+  background: var(--color-bg-sidebar-hover);
 }
 
 .sidebar-link-active {
   color: var(--color-text-sidebar-active);
   font-weight: var(--font-weight-medium);
-  background: rgb(255 255 255 / 12%);
+  background: var(--color-bg-sidebar-active);
 }
 
 .sidebar-icon {
@@ -114,7 +114,7 @@ body {
   gap: var(--spacing-sm);
   background: none;
   border: none;
-  border-top: 1px solid rgb(255 255 255 / 10%);
+  border-top: 1px solid var(--color-border-sidebar);
   padding: var(--spacing-md) var(--spacing-sm);
   font-size: var(--font-size-sm);
   font-family: inherit;
@@ -152,7 +152,7 @@ body {
 .filter-bar {
   grid-area: filter-bar;
   padding: var(--spacing-lg) var(--spacing-xl) 0;
-  max-width: 1400px;
+  max-width: var(--content-max-width);
 }
 
 /* ── Content ── */
@@ -160,7 +160,7 @@ body {
 .content {
   grid-area: content;
   padding: 0 var(--spacing-xl) var(--spacing-xl);
-  max-width: 1400px;
+  max-width: var(--content-max-width);
   overflow-y: auto;
 }
 
@@ -172,7 +172,7 @@ body {
   font-size: var(--font-size-sm);
   color: var(--color-text-muted);
   border-top: 1px solid var(--color-border-subtle);
-  max-width: 1400px;
+  max-width: var(--content-max-width);
 }
 
 .footer-inner {

@@ -15,6 +15,9 @@
   --color-bg-sidebar: #1e1f26;
   --color-bg-hover: #eef0f4;
   --color-bg-active: #e2e4ea;
+  --color-bg-sidebar-hover: rgb(255 255 255 / 8%);
+  --color-bg-sidebar-active: rgb(255 255 255 / 12%);
+  --color-border-sidebar: rgb(255 255 255 / 10%);
 
   /* ── Text ── */
   --color-text-primary: #1a1a1a;
@@ -84,6 +87,9 @@
   --z-sidebar: 100;
   --z-dropdown: 200;
   --z-dialog-backdrop: 1000;
+
+  /* ── Layout ── */
+  --content-max-width: 1400px;
 
   /* ── Sidebar dimensions ── */
   --sidebar-width-expanded: 200px;

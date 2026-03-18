@@ -30,7 +30,7 @@ export function ResponseTimeDistribution({
 
   return (
     <div className="rd-section">
-      <section className="rd-histogram">
+      <section>
         <h2 className="rd-heading">First reply distribution</h2>
         {replyDurations.length === 0 ? (
           <p className="rd-empty">No data</p>
@@ -43,7 +43,7 @@ export function ResponseTimeDistribution({
         )}
       </section>
 
-      <section className="rd-histogram">
+      <section>
         <h2 className="rd-heading">Resolution time distribution</h2>
         {resolDurations.length === 0 ? (
           <p className="rd-empty">No data</p>

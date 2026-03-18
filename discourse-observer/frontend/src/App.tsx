@@ -178,12 +178,12 @@ export function App() {
             <>
               <SummaryCards data={filteredData} />
 
-              <section className="app-section">
+              <section>
                 <h2 className="app-section-title">Awaiting reply</h2>
                 <UnrepliedTable topics={filteredData.unrepliedTopics} />
               </section>
 
-              <section className="app-section">
+              <section>
                 <h2 className="app-section-title">Untagged topics</h2>
                 <UntaggedTable topics={filteredData.untaggedTopics} />
               </section>
