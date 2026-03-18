@@ -40,7 +40,7 @@ These query parameters are shared across endpoints that support filtering.
 
 **AC-8.** `period` — one of `7d`, `30d`, `1y`, `all`. Scopes data to topics created within the specified rolling window. Default: `all`. Applies to `createdAt`.
 
-**AC-9.** `from` and `to` — ISO 8601 date strings (`YYYY-MM-DD`). Define a custom date range. When present, `period` is ignored. Both are inclusive (UTC day boundaries: `from` at 00:00:00Z, `to` at 23:59:59.999Z).
+**AC-9.** `from` and `to` — ISO 8601 date strings (`YYYY-MM-DD`). Define a custom date range. Both must be provided together; providing only one produces a 400 error. When both are present, `period` is ignored. Both are inclusive (UTC day boundaries: `from` at 00:00:00Z, `to` at 23:59:59.999Z). If `from` is after `to`, the endpoint returns a 400 error.
 
 **AC-10.** `tag` — a single tag name. Scopes data to topics carrying this tag. When absent, all monitored topics are included.
 
@@ -103,7 +103,7 @@ Response: array of objects, each with:
 - `createdAt` (timestamp)
 - `tags` (string array)
 - `topicUrl` (string)
-- `tag` (string): the monitored tag with the strictest threshold, or null if unmonitored
+- `strictestTag` (string or null): the monitored tag with the strictest stalled-days threshold; null if no monitored tags
 - `thresholdDays` (integer): the stalled-days threshold applied
 - `thresholdIsDefault` (boolean): whether the threshold comes from config defaults
 - `daysSinceLastActivity` (integer): days since the topic's last activity
@@ -322,7 +322,7 @@ This endpoint is not filtered.
 
 **AC-29.** All list endpoints (AC-13, AC-14, AC-15, AC-24) include a `topicUrl` field that is a full, clickable URL to the topic on the Discourse forum.
 
-**AC-30.** The `tag` filter (AC-10) applies to all endpoints except AC-14 (untagged topics have no tags), AC-23 (uses tag filter but not period filter), AC-27 (configuration), and AC-28 (status).
+**AC-30.** The `tag` filter (AC-10) applies to all endpoints except AC-14 (untagged topics have no tags), AC-27 (configuration), and AC-28 (status).
 
 **AC-31.** The `period`/`from`/`to` filters (AC-8, AC-9) apply to all endpoints except AC-23 (full history), AC-27 (configuration), and AC-28 (status).
 
