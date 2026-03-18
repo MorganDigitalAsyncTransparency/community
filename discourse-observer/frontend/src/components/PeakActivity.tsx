@@ -18,7 +18,7 @@ import {
 } from "./timezoneCookies";
 import { TimezonePicker } from "./TimezonePicker";
 import { CookieConsentModal } from "./CookieConsentModal";
-import { getThemeColor } from "./themeColors";
+import { HEATMAP_BASE, TEXT_ON_ACCENT } from "./themeColors";
 
 const HOUR_LABELS = Array.from({ length: 24 }, (_, i) => String(i));
 const MAX_TZ_ROWS = 3;
@@ -45,8 +45,8 @@ export function PeakActivity({ topics }: PeakActivityProps) {
   const [pendingTz, setPendingTz] = useState<string | null>(null);
 
   const { cells, maxCount } = computeHeatmapData(topics);
-  const heatmapBase = getThemeColor("--color-heatmap-base");
-  const heatmapText = getThemeColor("--color-text-on-accent");
+  const heatmapBase = HEATMAP_BASE;
+  const heatmapText = TEXT_ON_ACCENT;
 
   function addTimezone(tz: string) {
     if (timezones.includes(tz) || timezones.length >= MAX_TZ_ROWS) return;

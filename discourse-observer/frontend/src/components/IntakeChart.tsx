@@ -10,15 +10,13 @@ import {
   YAxis,
 } from "recharts";
 import type { IntakeBucket } from "./intakeMetrics";
-import { getThemeColor } from "./themeColors";
+import { CHART_COLOR_3 } from "./themeColors";
 
 interface IntakeChartProps {
   data: IntakeBucket[];
 }
 
 export function IntakeChart({ data }: IntakeChartProps) {
-  const lineColor = getThemeColor("--color-chart-3");
-
   return (
     <div className="intake-chart-wrapper">
       <ResponsiveContainer width="100%" height={300}>
@@ -30,7 +28,7 @@ export function IntakeChart({ data }: IntakeChartProps) {
             type="monotone"
             dataKey="count"
             name="Topics"
-            stroke={lineColor}
+            stroke={CHART_COLOR_3}
             dot={{ r: 3 }}
           />
         </LineChart>

@@ -12,7 +12,7 @@ import {
 } from "recharts";
 import type { TrendChartPoint } from "./trendMetrics";
 import { formatDuration } from "./topicFormatting";
-import { getThemeColor } from "./themeColors";
+import { CHART_COLOR_1, CHART_COLOR_2 } from "./themeColors";
 
 const MILLISECONDS_PER_HOUR = 3_600_000;
 
@@ -34,9 +34,6 @@ interface ResponseTimeTrendChartProps {
 }
 
 export function ResponseTimeTrendChart({ data }: ResponseTimeTrendChartProps) {
-  const firstReplyColor = getThemeColor("--color-chart-1");
-  const resolutionColor = getThemeColor("--color-chart-2");
-
   return (
     <div className="trends-chart-wrapper">
       <ResponsiveContainer width="100%" height={300}>
@@ -49,7 +46,7 @@ export function ResponseTimeTrendChart({ data }: ResponseTimeTrendChartProps) {
             type="monotone"
             dataKey="medianFirstReplyHours"
             name="Median first reply"
-            stroke={firstReplyColor}
+            stroke={CHART_COLOR_1}
             connectNulls={false}
             dot={{ r: 3 }}
             activeDot={{ r: 5 }}
@@ -58,7 +55,7 @@ export function ResponseTimeTrendChart({ data }: ResponseTimeTrendChartProps) {
             type="monotone"
             dataKey="medianResolutionHours"
             name="Median resolution"
-            stroke={resolutionColor}
+            stroke={CHART_COLOR_2}
             connectNulls={false}
             dot={{ r: 3 }}
             activeDot={{ r: 5 }}
