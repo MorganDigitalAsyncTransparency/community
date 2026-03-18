@@ -42,7 +42,7 @@ body {
   flex-direction: column;
   background: var(--color-bg-sidebar);
   color: var(--color-text-sidebar);
-  width: var(--sidebar-width);
+  width: var(--sidebar-width-expanded);
   overflow: hidden auto;
   transition: width 200ms ease;
   z-index: var(--z-sidebar);

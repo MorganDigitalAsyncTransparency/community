@@ -27,8 +27,7 @@ Grid definition:
 ```css
 .shell {
   display: grid;
-  grid-template-columns: var(--sidebar-width) 1fr;
-  grid-template-rows: auto 1fr auto;
+  grid-template: auto 1fr auto / auto 1fr;
   grid-template-areas:
     "sidebar  filter-bar"
     "sidebar  content"
@@ -50,7 +49,7 @@ The sidebar holds the logo, navigation links, and a collapse toggle. It spans th
 | Expanded | `var(--sidebar-width-expanded)` · 200px | Icon + text label per page |
 | Collapsed | `var(--sidebar-width-collapsed)` · 48px | Icon only, tooltip on hover |
 
-The `--sidebar-width` variable is toggled between expanded and collapsed values. The grid column follows automatically. Transition between states is animated (`width` transition, ~200ms ease) to provide visual continuity.
+The sidebar's CSS class toggles between expanded and collapsed widths. The grid column uses `auto` sizing so it follows the sidebar's actual width automatically. Transition between states is animated (`width` transition, ~200ms ease) to provide visual continuity.
 
 If navigation items exceed the sidebar height, the sidebar scrolls independently (`overflow-y: auto`).
 
@@ -252,7 +251,6 @@ Sidebar dimension values are defined in the document (not just the stylesheet) b
 |----------|-----------------|-------|
 | `--sidebar-width-expanded` | Sidebar width when showing icon + text | 200px |
 | `--sidebar-width-collapsed` | Sidebar width when showing icon only | 48px |
-| `--sidebar-width` | Active sidebar width — toggled between expanded and collapsed by JavaScript | — |
 
 ---
 

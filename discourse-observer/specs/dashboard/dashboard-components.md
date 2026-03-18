@@ -406,11 +406,11 @@ Renders a vertical sidebar spanning the full viewport height with:
 - **Expanded** (200px): icon + text label per page.
 - **Collapsed** (48px): icon only, with `title` tooltip showing the page name.
 
-The toggle persists the user's preference in `localStorage` under `sidebar-collapsed`. On mount, the component reads this value to restore the previous state. The sidebar sets `--sidebar-width` on `:root` via JavaScript to keep the CSS Grid in sync.
+The toggle persists the user's preference in `localStorage` under `sidebar-collapsed`. On mount, the component reads this value to restore the previous state. The CSS Grid uses `auto 1fr` columns so it follows the sidebar's actual width — no JavaScript-to-CSS bridge is needed.
 
 Width transition is ~200ms ease for visual continuity.
 
-`Sidebar` uses `useState` for collapsed state and `useEffect` for localStorage persistence and CSS variable synchronization. Navigation uses component state — no client-side router.
+`Sidebar` uses `useState` for collapsed state. localStorage persistence is synchronous in the toggle handler — no `useEffect`. Navigation uses component state — no client-side router.
 
 CSS class prefix: `sidebar-` for all elements specific to this component.
 
@@ -459,6 +459,6 @@ All time displays — both topic age and response time metrics — use a single 
 
 ### Implementation constraints
 
-- Pure function components. No React hooks. Exceptions: `App` uses `useState` for page navigation, active period, custom range draft, active tag, and active area state, as it is the application shell — not a display component. `Sidebar` uses `useState` for collapsed state and `useEffect` for localStorage persistence and CSS variable synchronization — this state is local to the sidebar and does not affect other components. `PeakActivity` uses `useState` for timezone selections, picker visibility, and cookie consent state — this state is local to the heatmap and does not affect other components. `TimezonePicker` uses `useState` for the search input — this is local input state that does not affect other components. `ResponseTimeTrendChart` uses Recharts components that manage internal state for interactivity (tooltips, legend toggle); the component itself does not call hooks directly.
+- Pure function components. No React hooks. Exceptions: `App` uses `useState` for page navigation, active period, custom range draft, active tag, and active area state, as it is the application shell — not a display component. `Sidebar` uses `useState` for collapsed state — this state is local to the sidebar and does not affect other components. `PeakActivity` uses `useState` for timezone selections, picker visibility, and cookie consent state — this state is local to the heatmap and does not affect other components. `TimezonePicker` uses `useState` for the search input — this is local input state that does not affect other components. `ResponseTimeTrendChart` uses Recharts components that manage internal state for interactivity (tooltips, legend toggle); the component itself does not call hooks directly.
 - Each component file stays under 200 lines.
 - Types are imported from the mock data module.
