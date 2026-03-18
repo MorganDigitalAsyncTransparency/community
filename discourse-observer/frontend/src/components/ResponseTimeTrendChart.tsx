@@ -12,7 +12,7 @@ import {
 } from "recharts";
 import type { TrendChartPoint } from "./trendMetrics";
 import { formatDuration } from "./topicFormatting";
-import { getThemeColor } from "./useThemeColors";
+import { getThemeColor } from "./themeColors";
 
 const MILLISECONDS_PER_HOUR = 3_600_000;
 

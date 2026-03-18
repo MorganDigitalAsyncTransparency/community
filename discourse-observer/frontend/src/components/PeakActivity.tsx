@@ -18,7 +18,7 @@ import {
 } from "./timezoneCookies";
 import { TimezonePicker } from "./TimezonePicker";
 import { CookieConsentModal } from "./CookieConsentModal";
-import { getThemeColor } from "./useThemeColors";
+import { getThemeColor } from "./themeColors";
 
 const HOUR_LABELS = Array.from({ length: 24 }, (_, i) => String(i));
 const MAX_TZ_ROWS = 3;

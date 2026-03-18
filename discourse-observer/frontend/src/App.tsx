@@ -48,8 +48,7 @@ import {
   resolveAllTags,
 } from "./components/tagFilter";
 import { intakeGranularity, computeTimeRange } from "./components/intakeMetrics";
-
-type Page = "queue" | "response-metrics" | "distribution" | "slo" | "volume" | "activity";
+import type { Page } from "./types";
 
 export function App() {
   const [page, setPage] = useState<Page>("queue");

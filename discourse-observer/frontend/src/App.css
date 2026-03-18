@@ -26,7 +26,7 @@ body {
 
 .shell {
   display: grid;
-  grid-template: auto 1fr auto / var(--sidebar-width) 1fr;
+  grid-template: auto 1fr auto / auto 1fr;
   grid-template-areas:
     "sidebar  filter-bar"
     "sidebar  content"
@@ -1121,10 +1121,6 @@ body {
 /* ── Responsive breakpoints ── */
 
 @media (width <= 1023px) {
-  .shell {
-    --sidebar-width: var(--sidebar-width-collapsed);
-  }
-
   .sidebar {
     width: var(--sidebar-width-collapsed);
   }

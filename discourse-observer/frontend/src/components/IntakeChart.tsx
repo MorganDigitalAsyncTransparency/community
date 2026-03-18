@@ -10,7 +10,7 @@ import {
   YAxis,
 } from "recharts";
 import type { IntakeBucket } from "./intakeMetrics";
-import { getThemeColor } from "./useThemeColors";
+import { getThemeColor } from "./themeColors";
 
 interface IntakeChartProps {
   data: IntakeBucket[];

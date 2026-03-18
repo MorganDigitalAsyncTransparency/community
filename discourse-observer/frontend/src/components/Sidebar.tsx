@@ -2,9 +2,8 @@
 // ADR: docs/decisions/0011-dashboard-layout-and-theme.md
 // Tests: manual (sidebar interaction)
 
-import { useEffect, useState } from "react";
-
-type Page = "queue" | "response-metrics" | "distribution" | "slo" | "volume" | "activity";
+import { useState } from "react";
+import type { Page } from "../types";
 
 interface NavItem {
   page: Page;
@@ -37,22 +36,17 @@ export function Sidebar({ activePage, onNavigate }: SidebarProps) {
     }
   });
 
-  useEffect(() => {
-    try {
-      localStorage.setItem(STORAGE_KEY, String(collapsed));
-    } catch {
-      // localStorage unavailable — ignore
-    }
-  }, [collapsed]);
-
-  useEffect(() => {
-    document.documentElement.style.setProperty(
-      "--sidebar-width",
-      collapsed
-        ? "var(--sidebar-width-collapsed)"
-        : "var(--sidebar-width-expanded)",
-    );
-  }, [collapsed]);
+  function toggleCollapsed() {
+    setCollapsed((prev) => {
+      const next = !prev;
+      try {
+        localStorage.setItem(STORAGE_KEY, String(next));
+      } catch {
+        // localStorage unavailable — ignore
+      }
+      return next;
+    });
+  }
 
   return (
     <aside className={`sidebar${collapsed ? " sidebar-collapsed" : ""}`}>
@@ -76,7 +70,7 @@ export function Sidebar({ activePage, onNavigate }: SidebarProps) {
 
       <button
         className="sidebar-toggle"
-        onClick={() => setCollapsed((c) => !c)}
+        onClick={toggleCollapsed}
         title={collapsed ? "Expand sidebar" : "Collapse sidebar"}
       >
         <span className="sidebar-toggle-icon">{collapsed ? "\u00BB" : "\u00AB"}</span>

@@ -8,7 +8,7 @@ import {
   firstReplyDurations,
   resolutionDurations,
 } from "./distributionMetrics";
-import { getThemeColor } from "./useThemeColors";
+import { getThemeColor } from "./themeColors";
 
 interface ResponseTimeDistributionProps {
   topics: Topic[];
