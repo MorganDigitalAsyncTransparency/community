@@ -250,7 +250,35 @@ Content area uses `max-width` that increases at defined breakpoints, or individu
 
 Sass/Less (Alternative II) would add a build-time dependency to solve the same problem. CSS-in-JS (Alternative III) would require rewriting 1000 lines of plain CSS into a different paradigm and add a runtime dependency. Neither is justified when the branding model is fork-based with no runtime theme switching.
 
-**Layout and content width** — pending. These decisions have not been made.
+**Layout — Sidebar navigation (Alternative B), collapsible to icons.** The sidebar provides persistent orientation ("where am I") and scales naturally as pages are added. It is the dominant pattern in monitoring tools (Grafana, GitHub, most admin dashboards) and matches users' expectations for this kind of application.
+
+The sidebar has two states:
+
+- **Expanded** (~200px): icon + text label for each page, logo, and any navigation grouping.
+- **Collapsed** (~48px): icon only, with tooltip on hover showing the page name. The user toggles between states via a collapse/expand control in the sidebar.
+
+On small screens (below ~768px), the sidebar collapses entirely behind a hamburger toggle or overlays as a temporary drawer.
+
+```text
+  Expanded (~200px)          Collapsed (~48px)
+
+┌──────────┬──────────┐   ┌────┬───────────────┐
+│  Logo    │  filters │   │ ≡  │  filters      │
+│          ├──────────┤   │    ├───────────────┤
+│ ▦ Queue  │          │   │ ▦  │               │
+│ ◷ Resp.  │ content  │   │ ◷  │   content     │
+│ ◔ Dist   │          │   │ ◔  │               │
+│ ◉ SLO    │          │   │ ◉  │               │
+│ ▤ Vol.   │          │   │ ▤  │               │
+│ ⚡ Activ. │          │   │ ⚡  │               │
+│          ├──────────┤   │    ├───────────────┤
+│  « Hide  │  footer  │   │ »  │  footer       │
+└──────────┴──────────┘   └────┴───────────────┘
+```
+
+Alternative A (topbar) was rejected because horizontal tab navigation does not provide persistent "where am I" context and does not scale to grouped navigation. Alternative C (compact header) is essentially the current layout tightened — it does not solve the navigation clarity problem.
+
+**Content width** — pending. This decision has not been made.
 
 ## Consequences
 
