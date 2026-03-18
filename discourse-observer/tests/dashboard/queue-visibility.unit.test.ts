@@ -3,7 +3,7 @@ import {
   formatAge,
   formatTags,
   oldestUnrepliedDays,
-  sortedByOldest,
+  topicUrl,
 } from "../../frontend/src/components/topicFormatting";
 import type { Topic } from "../../frontend/src/mock/data";
 
@@ -80,40 +80,16 @@ describe("formatAge", () => {
 });
 
 // ---------------------------------------------------------------------------
-// sortedByOldest (QV-1, QV-11)
+// topicUrl (QV-2, QV-12)
 // ---------------------------------------------------------------------------
-describe("sortedByOldest", () => {
-  it("returns topics sorted ascending by createdAt", () => {
-    const topics: Topic[] = [
-      makeTopic({ id: 1, createdAt: "2026-03-10T00:00:00Z" }),
-      makeTopic({ id: 2, createdAt: "2026-03-01T00:00:00Z" }),
-      makeTopic({ id: 3, createdAt: "2026-03-05T00:00:00Z" }),
-    ];
-
-    const sorted = sortedByOldest(topics);
-    expect(sorted.map((t) => t.id)).toEqual([2, 3, 1]);
+describe("topicUrl", () => {
+  it("returns a Discourse topic URL for a given ID", () => {
+    const url = topicUrl(1041);
+    expect(url).toMatch(/\/t\/1041$/);
   });
 
-  it("does not mutate the original array", () => {
-    const topics: Topic[] = [
-      makeTopic({ id: 1, createdAt: "2026-03-10T00:00:00Z" }),
-      makeTopic({ id: 2, createdAt: "2026-03-01T00:00:00Z" }),
-    ];
-
-    const original = [...topics];
-    sortedByOldest(topics);
-    expect(topics.map((t) => t.id)).toEqual(original.map((t) => t.id));
-  });
-
-  it("returns empty array for empty input", () => {
-    expect(sortedByOldest([])).toEqual([]);
-  });
-
-  it("handles single-element array", () => {
-    const topics = [makeTopic({ id: 1, createdAt: "2026-03-10T00:00:00Z" })];
-    const sorted = sortedByOldest(topics);
-    expect(sorted).toHaveLength(1);
-    expect(sorted[0].id).toBe(1);
+  it("returns different URLs for different IDs", () => {
+    expect(topicUrl(100)).not.toBe(topicUrl(200));
   });
 });
 

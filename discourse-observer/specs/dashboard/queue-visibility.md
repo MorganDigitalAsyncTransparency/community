@@ -21,9 +21,9 @@ This file defines *what* the user sees and why. [dashboard-components.md](dashbo
 
 ### Unreplied topics — identifying the most neglected (UC-1)
 
-**QV-1.** The user sees a list of support topics that have received no reply, sorted oldest first, so that the most neglected topics appear at the top.
+**QV-1.** The user sees a list of support topics that have received no reply, sorted oldest first by default, so that the most neglected topics appear at the top. The user can click any column header to sort ascending or descending.
 
-**QV-2.** Each entry in the unreplied list shows the topic title, the topic's age, and the associated tag(s).
+**QV-2.** Each entry in the unreplied list shows the topic title (linked to the Discourse forum topic), the associated tag(s), and the topic's age — in that column order.
 
 **QV-3.** Topic age is displayed as a relative duration: whole days (e.g. "14d") when the topic is 24 hours or older, whole hours (e.g. "8h") when younger than 24 hours. The minimum displayed value is 1h.
 
@@ -45,9 +45,9 @@ This file defines *what* the user sees and why. [dashboard-components.md](dashbo
 
 **QV-10.** The user sees a count of topics that have no tag at all, so that the scale of untagged topics is immediately visible.
 
-**QV-11.** The user sees a list of individual untagged topics, sorted oldest first, so that long-standing tagging gaps are surfaced first.
+**QV-11.** The user sees a list of individual untagged topics, sorted oldest first by default, so that long-standing tagging gaps are surfaced first. The user can click any column header to sort ascending or descending.
 
-**QV-12.** Each entry in the untagged list shows the topic title, the topic's age, and the topic's category.
+**QV-12.** Each entry in the untagged list shows the topic title (linked to the Discourse forum topic), the topic's category, and the topic's age — in that column order.
 
 **QV-13.** Topic age in the untagged list uses the same relative duration format as the unreplied list (QV-3).
 
@@ -83,9 +83,10 @@ The dashboard view ([App.tsx](../../frontend/src/App.tsx)) composes three areas:
 |-----------|------|-------------|
 | `App` | [App.tsx](../../frontend/src/App.tsx) | QV-17, QV-18 — renders sync timestamp in the header |
 | `SummaryCards` | [SummaryCards.tsx](../../frontend/src/components/SummaryCards.tsx) | QV-5 — unreplied count; QV-6, QV-7 — oldest unreplied age; QV-8 — above-the-fold placement; QV-10, QV-14 — untagged count |
-| `UnrepliedTable` | [UnrepliedTable.tsx](../../frontend/src/components/UnrepliedTable.tsx) | QV-1 — oldest-first sort; QV-2 — title, age, tags per row; QV-3 — relative age format; QV-4 — tag display; QV-9 — complete list; QV-15 — empty state |
-| `UntaggedTable` | [UntaggedTable.tsx](../../frontend/src/components/UntaggedTable.tsx) | QV-11 — oldest-first sort; QV-12 — title, age, category per row; QV-13 — shared age format; QV-16 — empty state |
-| `topicFormatting` | [topicFormatting.ts](../../frontend/src/components/topicFormatting.ts) | QV-3, QV-13 — age formatting; QV-4 — tag display; QV-6, QV-7 — oldest unreplied age |
+| `UnrepliedTable` | [UnrepliedTable.tsx](../../frontend/src/components/UnrepliedTable.tsx) | QV-1 — default oldest-first sort with sortable columns; QV-2 — linked topic, tags, age per row; QV-3 — relative age format; QV-4 — tag display; QV-9 — complete list; QV-15 — empty state |
+| `UntaggedTable` | [UntaggedTable.tsx](../../frontend/src/components/UntaggedTable.tsx) | QV-11 — default oldest-first sort with sortable columns; QV-12 — linked topic, category, age per row; QV-13 — shared age format; QV-16 — empty state |
+| `topicFormatting` | [topicFormatting.ts](../../frontend/src/components/topicFormatting.ts) | QV-3, QV-13 — age formatting; QV-4 — tag display; QV-6, QV-7 — oldest unreplied age; QV-2, QV-12 — topic URL generation |
+| `useTableSort` | [useTableSort.ts](../../frontend/src/components/useTableSort.ts) | QV-1, QV-11 — interactive sort state management |
 
 ### Data flow
 
@@ -96,8 +97,6 @@ All components receive data from a single `DashboardData` object. In the current
 This specification covers queue visibility requirements only. The following are explicitly out of scope:
 
 - Untagged share as a percentage of all topics (UC-3 mentions "the share they represent" — deferred until total topic count is available from the backend).
-- Linking topic titles to the Discourse forum.
-- Sorting controls or column reordering.
 
 Time period filtering (UC-12) is implemented in [time-period-filter.md](time-period-filter.md). The period selector applies to the unreplied and untagged lists, narrowing the topic set passed to this view's components.
 
@@ -114,7 +113,7 @@ Pure logic that produces deterministic, observable output — these are the high
 | What | Requirements | Rationale |
 |------|-------------|-----------|
 | `formatAge` — returns `"Xd"` for ≥ 24 h, `"Xh"` for < 24 h, minimum 1 h | QV-3, QV-13 | Pure function with well-defined boundary conditions. A formatting error would mislead users about topic urgency. |
-| `sortedByOldest` — returns topics in ascending `createdAt` order | QV-1, QV-11 | Pure function. Incorrect sort order would hide the most neglected topics. |
+| `topicUrl` — returns a Discourse forum URL for a given topic ID | QV-2, QV-12 | Pure function. Incorrect URL would send users to the wrong page. |
 | `oldestUnrepliedDays` — returns `"Xd"` for non-empty lists, `"–"` for empty lists | QV-6, QV-7 | Pure function with an edge case (empty list). A wrong value in the summary card would give a false sense of queue health. |
 | `formatTags` — joins tags with comma, returns `"–"` for empty array | QV-4 | Pure function. Incorrect output would hide tag information or display confusing placeholder text. |
 
@@ -127,7 +126,9 @@ Visual and layout concerns that depend on CSS rendering and browser behavior —
 | What | Requirements | Rationale |
 |------|-------------|-----------|
 | Summary cards are visible without scrolling | QV-8, QV-14 | Depends on viewport size, CSS layout, and surrounding content height. No unit-testable assertion captures "above the fold". |
-| Table columns show correct headers and alignment | QV-2, QV-12 | Column order and header text are in JSX, but visual alignment and readability depend on CSS. |
+| Table columns show correct headers (Topic, Tags/Category, Age), alignment, and column order | QV-2, QV-12 | Column order and header text are in JSX, but visual alignment and readability depend on CSS. |
+| Topic titles are clickable links opening the correct Discourse forum topic | QV-2, QV-12 | Link target depends on the configured forum base URL. |
+| Clicking column headers sorts the table ascending/descending with arrow indicators | QV-1, QV-11 | Interactive sort behavior. |
 | Sync timestamp appears in the header area | QV-17, QV-18 | Placement is a layout concern. The timestamp formatting itself uses `toLocaleString`, which varies by browser locale. |
 | Empty table shows no rows and no error state | QV-15, QV-16 | The absence of visual artifacts (no placeholder, no broken layout) is best confirmed visually. |
 

@@ -22,12 +22,6 @@ export function formatAge(isoDate: string): string {
   return formatDuration(Date.now() - new Date(isoDate).getTime());
 }
 
-export function sortedByOldest(topics: Topic[]): Topic[] {
-  return [...topics].sort(
-    (a, b) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime()
-  );
-}
-
 export function oldestUnrepliedDays(topics: Topic[]): string {
   if (topics.length === 0) {
     return "–";
