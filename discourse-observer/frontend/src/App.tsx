@@ -249,6 +249,13 @@ export function App() {
                 <h2 className="app-section-title">Untagged topics</h2>
                 <UntaggedTable topics={filteredData.untaggedTopics} />
               </section>
+
+              {/* ST-8: period filter applies; ST-9: tag filter applies; ST-12: queue page */}
+              <StalledTopics
+                topics={filteredData.repliedOpenTopics}
+                resolvedTags={resolvedTags}
+                monitoredTags={monitored}
+              />
             </>
           )}
 
@@ -322,12 +329,6 @@ export function App() {
 
           {page === "activity" && (
             <>
-              {/* ST-8: period filter applies; ST-9: tag filter applies */}
-              <StalledTopics
-                topics={filteredData.repliedOpenTopics}
-                resolvedTags={resolvedTags}
-                monitoredTags={monitored}
-              />
               {/* PA-8: all topics (unreplied + resolved + repliedOpen); PA-11: period filter; PA-12: tag filter */}
               <PeakActivity
                 topics={allFilteredTopics}
