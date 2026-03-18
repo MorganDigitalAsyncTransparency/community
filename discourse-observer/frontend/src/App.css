@@ -1160,6 +1160,11 @@ body {
     display: none;
   }
 
+  /* Push filter bar below the fixed hamburger button */
+  .filter-bar {
+    padding-top: 3.5rem;
+  }
+
   /* Show hamburger button */
   .hamburger {
     display: flex;
