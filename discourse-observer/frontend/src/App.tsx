@@ -125,7 +125,14 @@ export function App() {
     repliedOpenTopics: applyTagFilter(periodFiltered.repliedOpenTopics),
   };
 
+  // Used by Distribution and PeakActivity (original scope: unreplied + resolved).
   const allFilteredTopics = [
+    ...filteredData.unrepliedTopics,
+    ...filteredData.resolvedTopics,
+  ];
+
+  // Used by volume charts — includes repliedOpen for complete topic counts.
+  const allFilteredTopicsWithOpen = [
     ...filteredData.unrepliedTopics,
     ...filteredData.resolvedTopics,
     ...filteredData.repliedOpenTopics,
@@ -158,7 +165,7 @@ export function App() {
 
   const volumeBuckets = computeVolumeBuckets(
     {
-      allTopics: allFilteredTopics,
+      allTopics: allFilteredTopicsWithOpen,
       solvedTopics,
       selfClosedTopics,
       openTopics,
