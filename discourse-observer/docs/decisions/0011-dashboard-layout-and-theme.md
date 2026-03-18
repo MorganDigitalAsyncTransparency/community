@@ -48,7 +48,7 @@ Properties: single-column, `max-width: 960px`, centered. No footer. Navigation i
 - Six pages today, potentially more as the system grows.
 - Two global filters (period, tag/area) apply across all pages.
 - Primary audience uses desktop screens (often large monitors), but the layout should degrade gracefully on smaller screens.
-- The dashboard will be branded differently per deployment — colors, fonts, and logos change, but structure does not.
+- The dashboard will be branded differently per deployment — colors, fonts, and logos change, but structure does not. The branding model is fork-based: a deployment forks the repository and replaces visual tokens. There is no runtime theme switcher in the application itself.
 - The project uses plain CSS (no preprocessor, no CSS-in-JS). ADR 0002 favors minimal tooling.
 
 ## Alternatives Considered
