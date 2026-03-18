@@ -47,7 +47,7 @@ export function formatTags(tags: string[]): string {
 }
 
 // Formats a YYYY-MM-DD week-start date (UTC Monday) as a locale-aware short date.
-// Used by both ResponseTimeTrends and TagDistribution to label weekly rows.
+// Used by TagDistribution and volume/median trend charts to label weekly buckets.
 export function formatWeekLabel(isoDate: string): string {
   return new Date(isoDate + "T00:00:00Z").toLocaleDateString(undefined, {
     year: "numeric",

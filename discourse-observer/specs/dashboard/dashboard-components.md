@@ -176,7 +176,7 @@ Renders three sections in order:
 **3. "Open backlogs by tag" (UC-11):** Two parts:
 
 - Calls `tagBacklogRanking(openTopics)` and renders a table with columns Tag and Open topics, sorted highest count first. Shows an empty-state paragraph when empty.
-- Calls `computeWeeklyBacklog(allTopicsHistory, openTopicsHistory)` and renders a weekly trend table with columns Week, Created, Resolved, and Still open, ordered newest first. Shows an empty-state paragraph when empty. Week labels are formatted the same way as `ResponseTimeTrends` (UTC short date via `toLocaleDateString`).
+- Calls `computeWeeklyBacklog(allTopicsHistory, openTopicsHistory)` and renders a weekly trend table with columns Week, Created, Resolved, and Still open, ordered newest first. Shows an empty-state paragraph when empty. Week labels are formatted as UTC short dates via `toLocaleDateString`.
 
 `TagDistribution` is a pure function component. It holds no state — all filtering and history scoping is handled by `App` before passing props. See [tag-distribution.md](tag-distribution.md) for the requirements.
 

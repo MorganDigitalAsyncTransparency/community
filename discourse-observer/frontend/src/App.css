@@ -432,83 +432,6 @@ body {
   width: 8rem;
 }
 
-/* ── Weekly trends chart ── */
-
-.trends-chart-wrapper {
-  width: 100%;
-  height: 300px;
-  margin-bottom: var(--spacing-lg);
-}
-
-/* ── Weekly trends table ── */
-
-.trends {
-  margin-top: var(--spacing-xl);
-}
-
-.trends-title {
-  font-size: var(--font-size-lg);
-  font-weight: var(--font-weight-medium);
-  margin-bottom: 0.75rem;
-}
-
-.trends-empty {
-  font-size: var(--font-size-md);
-  color: var(--color-text-muted);
-  padding: var(--spacing-md) 0;
-}
-
-.trends-table {
-  width: 100%;
-  border-collapse: collapse;
-  background: var(--color-bg-surface);
-  border: 1px solid var(--color-border-default);
-  border-radius: var(--radius-md);
-}
-
-.trends-table thead {
-  background: var(--color-table-header-bg);
-}
-
-.trends-th {
-  text-align: left;
-  padding: 0.6rem 0.75rem;
-  font-size: 0.8rem;
-  font-weight: var(--font-weight-medium);
-  text-transform: uppercase;
-  letter-spacing: 0.03em;
-  color: var(--color-text-secondary);
-}
-
-.trends-td {
-  padding: 0.6rem 0.75rem;
-  font-size: var(--font-size-md);
-  border-top: 1px solid var(--color-border-subtle);
-}
-
-.trends-row:nth-child(even) {
-  background: var(--color-table-row-alt);
-}
-
-.trends-row:hover {
-  background: var(--color-table-row-hover);
-}
-
-.trends-th-week,
-.trends-td-week {
-  width: 10rem;
-}
-
-.trends-th-count,
-.trends-td-count {
-  width: 5rem;
-}
-
-.trends-th-metric,
-.trends-td-metric {
-  min-width: 8rem;
-}
-
 /* ── Distribution tables (UC-9, UC-10, UC-11) ── */
 
 .dist-empty {
@@ -607,29 +530,6 @@ body {
   font-size: var(--font-size-sm);
   color: var(--color-text-muted);
   margin-top: var(--spacing-xs);
-}
-
-/* ── Topic intake chart (UC-17) ── */
-
-.intake {
-  margin-top: 0;
-}
-
-.intake-title {
-  font-size: var(--font-size-lg);
-  font-weight: var(--font-weight-medium);
-  margin-bottom: 0.75rem;
-}
-
-.intake-empty {
-  font-size: var(--font-size-md);
-  color: var(--color-text-muted);
-  padding: var(--spacing-md) 0;
-}
-
-.intake-chart-wrapper {
-  width: 100%;
-  height: 300px;
 }
 
 /* ── Volume and median trend charts ── */
