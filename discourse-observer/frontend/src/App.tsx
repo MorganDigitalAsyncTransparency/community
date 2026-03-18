@@ -27,6 +27,8 @@ import { PeakActivity } from "./components/PeakActivity";
 import { ResponseTimeDistribution } from "./components/ResponseTimeDistribution";
 import { PeriodSelector } from "./components/PeriodSelector";
 import { TagSelector } from "./components/TagSelector";
+import { Sidebar } from "./components/Sidebar";
+import { Footer } from "./components/Footer";
 import tagConfigJson from "../../config/tagConfig.json";
 import distributionConfig from "../../config/distributionBuckets.json";
 import {
@@ -48,13 +50,6 @@ import {
 import { intakeGranularity, computeTimeRange } from "./components/intakeMetrics";
 
 type Page = "queue" | "response-metrics" | "distribution" | "slo" | "volume" | "activity";
-
-function formatSyncTime(isoString: string): string {
-  return new Date(isoString).toLocaleString(undefined, {
-    dateStyle: "short",
-    timeStyle: "short",
-  });
-}
 
 export function App() {
   const [page, setPage] = useState<Page>("queue");
@@ -143,159 +138,122 @@ export function App() {
   );
 
   return (
-    <div className="app">
-      <header className="app-header">
-        <h1 className="app-title">discourse-observer</h1>
-        <nav className="nav">
-          <button
-            className={`nav-link ${page === "queue" ? "nav-link-active" : ""}`}
-            onClick={() => setPage("queue")}
-          >
-            Queue
-          </button>
-          <button
-            className={`nav-link ${page === "response-metrics" ? "nav-link-active" : ""}`}
-            onClick={() => setPage("response-metrics")}
-          >
-            Response metrics
-          </button>
-          <button
-            className={`nav-link ${page === "distribution" ? "nav-link-active" : ""}`}
-            onClick={() => setPage("distribution")}
-          >
-            Distribution
-          </button>
-          <button
-            className={`nav-link ${page === "slo" ? "nav-link-active" : ""}`}
-            onClick={() => setPage("slo")}
-          >
-            SLO
-          </button>
-          <button
-            className={`nav-link ${page === "volume" ? "nav-link-active" : ""}`}
-            onClick={() => setPage("volume")}
-          >
-            Volume
-          </button>
-          <button
-            className={`nav-link ${page === "activity" ? "nav-link-active" : ""}`}
-            onClick={() => setPage("activity")}
-          >
-            Activity
-          </button>
-        </nav>
-        <span className="app-sync-status">
-          Last synced: {formatSyncTime(MOCK_DATA.lastSyncedAt)}
-        </span>
-      </header>
+    <div className="shell">
+      <Sidebar activePage={page} onNavigate={setPage} />
 
-      <PeriodSelector
-        period={activePeriod}
-        customDraft={customDraft}
-        onPresetSelect={handlePresetSelect}
-        onCustomOpen={handleCustomOpen}
-        onCustomDraftChange={handleCustomDraftChange}
-      />
+      <div className="filter-bar">
+        <PeriodSelector
+          period={activePeriod}
+          customDraft={customDraft}
+          onPresetSelect={handlePresetSelect}
+          onCustomOpen={handleCustomOpen}
+          onCustomDraftChange={handleCustomDraftChange}
+        />
 
-      <TagSelector
-        config={typedTagConfig}
-        activeTag={activeTag}
-        activeArea={activeArea}
-        onTagSelect={setActiveTag}
-        onAreaSelect={setActiveArea}
-      />
+        <TagSelector
+          config={typedTagConfig}
+          activeTag={activeTag}
+          activeArea={activeArea}
+          onTagSelect={setActiveTag}
+          onAreaSelect={setActiveArea}
+        />
 
-      {hasActiveFilters && (
-        <button
-          className="clear-filters-btn"
-          onClick={() => {
-            setActivePeriod({ kind: "preset", preset: "allTime" });
-            setCustomDraft(null);
-            setActiveTag(null);
-            setActiveArea(null);
-          }}
-        >
-          Clear all filters
-        </button>
-      )}
-
-      <main className="app-content">
-        {page === "queue" && (
-          <>
-            <SummaryCards data={filteredData} />
-
-            <section className="app-section">
-              <h2 className="app-section-title">Awaiting reply</h2>
-              <UnrepliedTable topics={filteredData.unrepliedTopics} />
-            </section>
-
-            <section className="app-section">
-              <h2 className="app-section-title">Untagged topics</h2>
-              <UntaggedTable topics={filteredData.untaggedTopics} />
-            </section>
-          </>
+        {hasActiveFilters && (
+          <button
+            className="clear-filters-btn"
+            onClick={() => {
+              setActivePeriod({ kind: "preset", preset: "allTime" });
+              setCustomDraft(null);
+              setActiveTag(null);
+              setActiveArea(null);
+            }}
+          >
+            Clear all filters
+          </button>
         )}
+      </div>
 
-        {page === "response-metrics" && (
-          <>
-            <ResponseMetricsCards topics={filteredData.resolvedTopics} />
-            {/* RT-8: trends span full history (no period filter).
-                TA-7: tag filter applies to trends — scope is a tag decision. */}
-            <ResponseTimeTrends topics={applyTagFilter(MOCK_DATA.resolvedTopics)} />
-            {/* RD-12: period filter applies; RD-13: tag filter applies */}
-            <ResponseTimeDistribution
-              topics={filteredData.resolvedTopics}
-              ceilingsHours={distributionConfig.bucketCeilingsHours}
+      <main className="content">
+        <div className="app-content">
+          {page === "queue" && (
+            <>
+              <SummaryCards data={filteredData} />
+
+              <section className="app-section">
+                <h2 className="app-section-title">Awaiting reply</h2>
+                <UnrepliedTable topics={filteredData.unrepliedTopics} />
+              </section>
+
+              <section className="app-section">
+                <h2 className="app-section-title">Untagged topics</h2>
+                <UntaggedTable topics={filteredData.untaggedTopics} />
+              </section>
+            </>
+          )}
+
+          {page === "response-metrics" && (
+            <>
+              <ResponseMetricsCards topics={filteredData.resolvedTopics} />
+              {/* RT-8: trends span full history (no period filter).
+                  TA-7: tag filter applies to trends — scope is a tag decision. */}
+              <ResponseTimeTrends topics={applyTagFilter(MOCK_DATA.resolvedTopics)} />
+              {/* RD-12: period filter applies; RD-13: tag filter applies */}
+              <ResponseTimeDistribution
+                topics={filteredData.resolvedTopics}
+                ceilingsHours={distributionConfig.bucketCeilingsHours}
+              />
+            </>
+          )}
+
+          {page === "distribution" && (
+            // TD-23: allTopicsHistory and openTopicsHistory skip period filter.
+            // TA-7: tag filter applies to history — scope is a tag decision.
+            <TagDistribution
+              allTopics={allFilteredTopics}
+              resolvedTopics={filteredData.resolvedTopics}
+              openTopics={filteredData.unrepliedTopics}
+              allTopicsHistory={applyTagFilter(allTopicsUnfiltered)}
+              openTopicsHistory={applyTagFilter(MOCK_DATA.unrepliedTopics)}
             />
-          </>
-        )}
+          )}
 
-        {page === "distribution" && (
-          // TD-23: allTopicsHistory and openTopicsHistory skip period filter.
-          // TA-7: tag filter applies to history — scope is a tag decision.
-          <TagDistribution
-            allTopics={allFilteredTopics}
-            resolvedTopics={filteredData.resolvedTopics}
-            openTopics={filteredData.unrepliedTopics}
-            allTopicsHistory={applyTagFilter(allTopicsUnfiltered)}
-            openTopicsHistory={applyTagFilter(MOCK_DATA.unrepliedTopics)}
-          />
-        )}
-
-        {page === "slo" && (
-          // SL-9, SL-18: violations and compliance use the filtered topic sets
-          <SloMonitor
-            resolvedTopics={filteredData.resolvedTopics}
-            unrepliedTopics={filteredData.unrepliedTopics}
-            sloConfig={scopeSloConfig(sloConfig, visibleTags)}
-            defaultSloTags={defaultSloTags}
-          />
-        )}
-
-        {page === "volume" && (
-          // TI-5: period filter applies; TI-6: tag filter applies; TI-7: all topics (unreplied + resolved)
-          <TopicIntake
-            topics={allFilteredTopics}
-            granularity={granularity}
-            timeRange={intakeTimeRange}
-          />
-        )}
-
-        {page === "activity" && (
-          <>
-            {/* ST-8: period filter applies; ST-9: tag filter applies */}
-            <StalledTopics
-              topics={filteredData.repliedOpenTopics}
-              resolvedTags={resolvedTags}
-              monitoredTags={monitored}
+          {page === "slo" && (
+            // SL-9, SL-18: violations and compliance use the filtered topic sets
+            <SloMonitor
+              resolvedTopics={filteredData.resolvedTopics}
+              unrepliedTopics={filteredData.unrepliedTopics}
+              sloConfig={scopeSloConfig(sloConfig, visibleTags)}
+              defaultSloTags={defaultSloTags}
             />
-            {/* PA-8: all topics (unreplied + resolved); PA-11: period filter; PA-12: tag filter */}
-            <PeakActivity
+          )}
+
+          {page === "volume" && (
+            // TI-5: period filter applies; TI-6: tag filter applies; TI-7: all topics (unreplied + resolved)
+            <TopicIntake
               topics={allFilteredTopics}
+              granularity={granularity}
+              timeRange={intakeTimeRange}
             />
-          </>
-        )}
+          )}
+
+          {page === "activity" && (
+            <>
+              {/* ST-8: period filter applies; ST-9: tag filter applies */}
+              <StalledTopics
+                topics={filteredData.repliedOpenTopics}
+                resolvedTags={resolvedTags}
+                monitoredTags={monitored}
+              />
+              {/* PA-8: all topics (unreplied + resolved); PA-11: period filter; PA-12: tag filter */}
+              <PeakActivity
+                topics={allFilteredTopics}
+              />
+            </>
+          )}
+        </div>
       </main>
+
+      <Footer version="v0.1.0" lastSyncedAt={MOCK_DATA.lastSyncedAt} />
     </div>
   );
 }
