@@ -85,7 +85,9 @@ Content example: `v0.1.0 · Last synced 2026-03-18 14:32 UTC · GitHub ↗`
 |------------|---------|--------|
 | ≥ 1024px | Expanded or collapsed (user choice) | Two-column grid |
 | 768–1023px | Collapsed (icon only) | Two-column grid |
-| < 768px | Hidden, hamburger toggle | Single column, filter bar below hamburger |
+| < 768px | Hidden by default; hamburger button (fixed, top-left) opens sidebar as a full-height overlay with backdrop | Single column, filter bar below hamburger |
+
+At the mobile breakpoint, a fixed hamburger button (`☰`) appears at the top-left corner. Tapping it opens the sidebar as a fixed overlay above a semi-transparent backdrop. Tapping the backdrop or any navigation link closes the overlay. The hamburger button and overlay styles are scoped to the `<= 767px` media query — they have no effect at wider viewports.
 
 Mobile is not a priority. The layout should degrade gracefully rather than break.
 
