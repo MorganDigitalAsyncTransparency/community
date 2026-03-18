@@ -121,6 +121,14 @@ This matrix shows how use cases decompose into specifications, requirements, and
 
 ---
 
+## URL state synchronization
+
+| Use case | Spec | Requirements | Verification |
+|----------|------|-------------|--------------|
+| UC-24: Persist filter state in URL | [url-state.md](url-state.md) | US-1 – US-12 | [url-state.unit.test.ts](../../tests/dashboard/url-state.unit.test.ts) (US-2 – US-8); manual (US-1, US-9, US-10, US-11, US-12) |
+
+---
+
 ## Gaps
 
 - UC-3 partial: untagged share as percentage of all topics (deferred until total topic count is available from backend).

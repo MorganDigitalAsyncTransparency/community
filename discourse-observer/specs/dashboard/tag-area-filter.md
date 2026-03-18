@@ -44,7 +44,7 @@ This file defines *what* the user can do and how filtering behaves. Component de
 
 **TA-7.** Response time trends (RT-8) and weekly backlog trends (TD-23) are intentionally unfiltered by time period. However, the tag filter applies to these trend views — when a tag is selected, trends show only data for that tag. This asymmetry exists because tag selection is a scope decision (the user wants to examine one area), while time period is a window decision (trends need full history to show trajectory).
 
-**TA-8.** The selected tag persists when the user navigates between pages. It does not reset on page switch.
+**TA-8.** The selected tag persists when the user navigates between pages. It does not reset on page switch. The tag and area selections are also persisted in the URL query parameters (see [url-state.md](url-state.md)), so filtered views can be bookmarked and shared.
 
 ### Area navigation (UC-16)
 
@@ -64,7 +64,7 @@ This file defines *what* the user can do and how filtering behaves. Component de
 
 **TA-18.** The tag and area selectors are rendered in the toolbar area alongside the period selector, visible on all pages.
 
-**TA-19.** The default state on application load is: no area selected, no tag selected (showing all monitored tags aggregated).
+**TA-19.** The default state on application load is: no area selected, no tag selected (showing all monitored tags aggregated), unless valid tag or area parameters are specified in the URL query parameters (see [url-state.md](url-state.md)).
 
 **TA-20.** When the active tag or area filter yields no topics for a given list or metric, each list and metric shows its existing empty state. No additional empty-filter message is required.
 

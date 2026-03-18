@@ -42,11 +42,11 @@ This file defines *what* the user can do and how filtering behaves. Component de
 
 **TF-10.** The filter applies to all three topic collections: unreplied topics, untagged topics, and resolved topics.
 
-**TF-11.** The selected period persists when the user navigates between pages. It does not reset on page switch.
+**TF-11.** The selected period persists when the user navigates between pages. It does not reset on page switch. The period is also persisted in the URL query parameters (see [url-state.md](url-state.md)), so filtered views can be bookmarked and shared.
 
 ### Defaults and empty states (TF-12 – TF-14)
 
-**TF-12.** The default period on application load is "All time".
+**TF-12.** The default period on application load is "All time", unless a valid period is specified in the URL query parameters (see [url-state.md](url-state.md)).
 
 **TF-13.** When the active period yields no topics for a given list or metric, each list and metric shows its existing empty state: zero counts, dash for age or median time, no rows in tables. No additional empty-filter message is required.
 

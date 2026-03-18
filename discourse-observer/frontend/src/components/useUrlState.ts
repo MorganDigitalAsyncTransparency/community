@@ -50,15 +50,17 @@ export function useUrlState() {
   }, []);
 
   const clearAll = useCallback(() => {
-    const next: UrlState = {
-      page: state.page,
-      period: { kind: "preset", preset: "allTime" },
-      tag: null,
-      area: null,
-    };
-    syncUrl(next);
-    setStateRaw(next);
-  }, [state.page]);
+    setStateRaw((prev) => {
+      const next: UrlState = {
+        page: prev.page,
+        period: { kind: "preset", preset: "allTime" },
+        tag: null,
+        area: null,
+      };
+      syncUrl(next);
+      return next;
+    });
+  }, []);
 
   return {
     page: state.page,

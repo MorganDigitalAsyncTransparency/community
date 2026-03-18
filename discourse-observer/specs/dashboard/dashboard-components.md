@@ -2,7 +2,7 @@
 
 This document specifies the behavior of the dashboard view components rendered in the frontend.
 
-These components implement the visual layer for the requirements defined in [queue-visibility.md](queue-visibility.md), [response-metrics.md](response-metrics.md), [time-period-filter.md](time-period-filter.md), [response-time-trends.md](response-time-trends.md), [tag-distribution.md](tag-distribution.md), [slo-monitoring.md](slo-monitoring.md), [tag-area-filter.md](tag-area-filter.md), [topic-intake.md](topic-intake.md), [stalled-topics.md](stalled-topics.md), [peak-activity.md](peak-activity.md), and [response-time-distribution.md](response-time-distribution.md). Those files define *what* the user sees and why; this file defines *how* each component behaves to fulfill those requirements.
+These components implement the visual layer for the requirements defined in [queue-visibility.md](queue-visibility.md), [response-metrics.md](response-metrics.md), [time-period-filter.md](time-period-filter.md), [response-time-trends.md](response-time-trends.md), [tag-distribution.md](tag-distribution.md), [slo-monitoring.md](slo-monitoring.md), [tag-area-filter.md](tag-area-filter.md), [topic-intake.md](topic-intake.md), [stalled-topics.md](stalled-topics.md), [peak-activity.md](peak-activity.md), [response-time-distribution.md](response-time-distribution.md), and [url-state.md](url-state.md). Those files define *what* the user sees and why; this file defines *how* each component behaves to fulfill those requirements.
 
 ---
 
@@ -376,7 +376,7 @@ The toggle persists the user's preference in `localStorage` under `sidebar-colla
 
 Width transition is ~200ms ease for visual continuity.
 
-`Sidebar` uses `useState` for collapsed state. localStorage persistence is synchronous in the toggle handler — no `useEffect`. Navigation uses component state — no client-side router.
+`Sidebar` uses `useState` for collapsed state. localStorage persistence is synchronous in the toggle handler — no `useEffect`. Navigation state is managed by `App` via `useUrlState` — page changes are reflected in the URL (see [url-state.md](url-state.md)).
 
 **Mobile overlay (< 768px):** When `mobileOpen` is `true`, the sidebar renders as a fixed overlay (`sidebar-mobile-open`) above a semi-transparent backdrop (`sidebar-backdrop`). Clicking the backdrop or any navigation link calls `onMobileClose`. The backdrop and mobile-open class are only styled in the `<= 767px` media query — at wider viewports they have no visual effect.
 
@@ -427,6 +427,6 @@ All time displays — both topic age and response time metrics — use a single 
 
 ### Implementation constraints
 
-- Pure function components. No React hooks. Exceptions: `App` uses `useState` for page navigation, active period, custom range draft, active tag, active area, and mobile sidebar visibility state, as it is the application shell — not a display component. `Sidebar` uses `useState` for collapsed state — this state is local to the sidebar and does not affect other components. `UnrepliedTable`, `UntaggedTable`, `StalledTopics`, and `SloMonitor` (via its `ViolationTable` and `ComplianceTable` sub-components) use the shared `useTableSort` hook for sort column and direction — this state is local to each table and does not affect other components. `PeakActivity` uses `useState` for timezone selections, picker visibility, and cookie consent state — this state is local to the heatmap and does not affect other components. `TimezonePicker` uses `useState` for the search input — this is local input state that does not affect other components.
+- Pure function components. No React hooks. Exceptions: `App` uses `useUrlState` for page, active period, active tag, and active area (persisted in URL query parameters — see [url-state.md](url-state.md)) and `useState` for custom range draft and mobile sidebar visibility state, as it is the application shell — not a display component. `Sidebar` uses `useState` for collapsed state — this state is local to the sidebar and does not affect other components. `UnrepliedTable`, `UntaggedTable`, `StalledTopics`, and `SloMonitor` (via its `ViolationTable` and `ComplianceTable` sub-components) use the shared `useTableSort` hook for sort column and direction — this state is local to each table and does not affect other components. `PeakActivity` uses `useState` for timezone selections, picker visibility, and cookie consent state — this state is local to the heatmap and does not affect other components. `TimezonePicker` uses `useState` for the search input — this is local input state that does not affect other components.
 - Each component file stays under 200 lines.
 - Types are imported from the mock data module.

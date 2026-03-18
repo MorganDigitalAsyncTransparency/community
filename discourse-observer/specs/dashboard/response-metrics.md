@@ -79,7 +79,7 @@ The response metrics page shares the application shell (header, sync timestamp, 
 
 ### Navigation
 
-The application header includes two navigation links: "Queue" and "Response metrics". The active page is indicated visually. Navigation switches the page content without a full page reload (RM-10). No client-side router is used — a simple state toggle is sufficient at this stage.
+The application header includes two navigation links: "Queue" and "Response metrics". The active page is indicated visually. Navigation switches the page content without a full page reload (RM-10). Page state is persisted in the URL via query parameters (see [url-state.md](url-state.md)), so views can be bookmarked and shared.
 
 ### Component–requirement mapping
 
