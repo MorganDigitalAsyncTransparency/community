@@ -257,7 +257,7 @@ The sidebar has two states:
 - **Expanded** (~200px): icon + text label for each page, logo, and any navigation grouping.
 - **Collapsed** (~48px): icon only, with tooltip on hover showing the page name. The user toggles between states via a collapse/expand control in the sidebar.
 
-On small screens (below ~768px), the sidebar collapses entirely behind a hamburger toggle or overlays as a temporary drawer.
+On small screens (below ~768px), the sidebar collapses behind a hamburger toggle. Mobile support is not a priority — the primary audience uses desktop monitors — but the layout should degrade gracefully rather than break.
 
 ```text
   Expanded (~200px)          Collapsed (~48px)
