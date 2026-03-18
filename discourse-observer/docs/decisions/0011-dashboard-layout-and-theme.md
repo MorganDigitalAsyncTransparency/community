@@ -26,7 +26,7 @@ The layout evaluation draws inspiration from Grafana dashboards: dense but reada
 
 The existing structure, as rendered from [App.tsx](../../frontend/src/App.tsx):
 
-```
+```text
 ┌──────────────────────────────────────────────────┐
 │  Title            Nav tabs          Sync status   │  header (flex row)
 ├──────────────────────────────────────────────────┤
@@ -59,7 +59,7 @@ Properties: single-column, `max-width: 960px`, centered. No footer. Navigation i
 
 The header occupies the full width at the top, containing logo, navigation tabs, theme toggle, and sync status in one or two rows. Below it, a sticky filter bar holds period and tag selectors. Content fills the remaining viewport height.
 
-```
+```text
 ┌──────────────────────────────────────────────────┐
 │  Logo              Nav tabs        [☀/☾]   Sync  │  topbar
 ├──────────────────────────────────────────────────┤
@@ -91,7 +91,7 @@ The header occupies the full width at the top, containing logo, navigation tabs,
 
 A fixed-width sidebar on the left holds the logo, navigation links, and theme toggle. The main area has a header strip with filters and a content region below. The sidebar provides persistent context about the current page.
 
-```
+```text
 ┌──────────┬───────────────────────────────────────┐
 │  Logo    │  Period: [7d] [30d]  Tags: [..]  Clear│  filter bar
 │          ├───────────────────────────────────────┤
@@ -124,7 +124,7 @@ A fixed-width sidebar on the left holds the logo, navigation links, and theme to
 
 Everything — logo, navigation, filters, status — compressed into one or two narrow rows at the top. No sidebar. Content gets maximum vertical and horizontal space.
 
-```
+```text
 ┌──────────────────────────────────────────────────┐
 │ Logo Queue│Resp│Dist│SLO│Vol│Act [☀/☾] Sync:14:32│  single header row
 ├──────────────────────────────────────────────────┤
