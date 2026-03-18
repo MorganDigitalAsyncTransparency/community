@@ -167,3 +167,9 @@ This document describes what users need from discourse-observer. Each use case i
 **Goal:** See not just the median response time but how response times are distributed, to identify whether the median hides a long tail of slow responses.
 **Expected result:** A distribution of time-to-first-reply and time-to-resolution values, showing how many topics fall into each time bracket for a selected period.
 **Status:** Implemented — see [specs/dashboard/response-time-distribution.md](dashboard/response-time-distribution.md).
+
+### UC-24: Persist filter state in URL
+
+**Goal:** Allow dashboard filter state (page, period, tag, area) to be bookmarked and shared via URL query parameters, so users can return to a specific view or send it to colleagues.
+**Expected result:** Changing any filter updates the URL without page reload. Opening a URL with query parameters restores the corresponding filter state. Invalid parameters fall back to defaults.
+**Status:** Implemented — see [specs/dashboard/url-state.md](dashboard/url-state.md).
