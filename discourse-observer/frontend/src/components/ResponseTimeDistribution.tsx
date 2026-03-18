@@ -8,9 +8,7 @@ import {
   firstReplyDurations,
   resolutionDurations,
 } from "./distributionMetrics";
-
-const FIRST_REPLY_COLOR = "#8884d8";
-const RESOLUTION_COLOR = "#82ca9d";
+import { getThemeColor } from "./themeColors";
 
 interface ResponseTimeDistributionProps {
   topics: Topic[];
@@ -21,6 +19,9 @@ export function ResponseTimeDistribution({
   topics,
   ceilingsHours,
 }: ResponseTimeDistributionProps) {
+  const firstReplyColor = getThemeColor("--color-chart-1");
+  const resolutionColor = getThemeColor("--color-chart-2");
+
   const replyDurations = firstReplyDurations(topics);
   const resolDurations = resolutionDurations(topics);
 
@@ -29,27 +30,27 @@ export function ResponseTimeDistribution({
 
   return (
     <div className="rd-section">
-      <section className="rd-histogram">
+      <section>
         <h2 className="rd-heading">First reply distribution</h2>
         {replyDurations.length === 0 ? (
           <p className="rd-empty">No data</p>
         ) : (
           <DistributionChart
             data={replyBuckets}
-            color={FIRST_REPLY_COLOR}
+            color={firstReplyColor}
             name="Topics"
           />
         )}
       </section>
 
-      <section className="rd-histogram">
+      <section>
         <h2 className="rd-heading">Resolution time distribution</h2>
         {resolDurations.length === 0 ? (
           <p className="rd-empty">No data</p>
         ) : (
           <DistributionChart
             data={resolBuckets}
-            color={RESOLUTION_COLOR}
+            color={resolutionColor}
             name="Topics"
           />
         )}

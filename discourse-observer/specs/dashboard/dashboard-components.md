@@ -92,8 +92,8 @@ Accepts `data: TrendChartPoint[]` (chart-ready data with numeric durations). Ren
 
 Two `Line` series:
 
-- "Median first reply" (`medianFirstReplyHours`) — colored `#8884d8`.
-- "Median resolution" (`medianResolutionHours`) — colored `#82ca9d`.
+- "Median first reply" (`medianFirstReplyHours`) — colored via `--color-chart-1`.
+- "Median resolution" (`medianResolutionHours`) — colored via `--color-chart-2`.
 
 Both lines use `connectNulls={false}` so that weeks with `undefined` values (no qualifying topics) appear as gaps.
 
@@ -233,7 +233,7 @@ Accepts `data: IntakeBucket[]` (chart-ready data with labels and counts). Render
 
 One `Line` series:
 
-- "Topics" (`count`) — colored `#5b8ff9`, monotone interpolation, small dots (radius 3) for point visibility.
+- "Topics" (`count`) — colored via `--color-chart-3`, monotone interpolation, small dots (radius 3) for point visibility.
 
 Chart features:
 
@@ -290,7 +290,7 @@ Calls `computeHeatmapData(topics)` and renders:
 - A section heading "Peak activity".
 - An HTML `<table>` heatmap with timezone header rows (see below), a UTC hour header row, 7 data rows (Mon–Sun), and 24 columns (hours 0–23).
 - Each data cell displays the topic count and has a background color whose intensity reflects the count relative to the grid maximum (`count / maxCount`).
-- Cell background uses `rgba(59, 130, 246, α)`. Text color switches to white when α > 0.5.
+- Cell background uses `rgba(var(--color-heatmap-base), α)`. Text color switches to white when α > 0.5. The heatmap base color is read from the CSS custom property via `getThemeColor()`.
 - Zero-count cells show "0" with no background color (transparent).
 - A color scale legend below the table showing the range from 0 to the maximum count.
 - An "Add timezone" button above the table (after the heading). Disabled when 3 timezone rows are present.
@@ -386,11 +386,50 @@ CSS class prefix: `rd-chart-` for chart-specific elements.
 
 ---
 
-## Navigation
+## Sidebar
 
-The `App` component renders six navigation links in the header: "Queue", "Response metrics", "Distribution", "SLO", "Volume", and "Activity". Clicking a link switches the visible page content. The active link is visually distinguished using a CSS class (`nav-link-active`).
+Accepts two props:
 
-Navigation uses component state — no client-side router.
+| Prop | Type | Purpose |
+|------|------|---------|
+| `activePage` | `Page` | Currently visible page |
+| `onNavigate` | `(page: Page) => void` | Called when a navigation link is clicked |
+
+Renders a vertical sidebar spanning the full viewport height with:
+
+- A logo section showing "discourse-observer" (expanded) or "d-o" (collapsed).
+- Six navigation links — Queue, Response metrics, Distribution, SLO, Volume, Activity — each with an icon and text label. The active page is visually distinguished (`sidebar-link-active`).
+- A collapse/expand toggle at the bottom.
+
+**States:**
+
+- **Expanded** (200px): icon + text label per page.
+- **Collapsed** (48px): icon only, with `title` tooltip showing the page name.
+
+The toggle persists the user's preference in `localStorage` under `sidebar-collapsed`. On mount, the component reads this value to restore the previous state. The CSS Grid uses `auto 1fr` columns so it follows the sidebar's actual width — no JavaScript-to-CSS bridge is needed.
+
+Width transition is ~200ms ease for visual continuity.
+
+`Sidebar` uses `useState` for collapsed state. localStorage persistence is synchronous in the toggle handler — no `useEffect`. Navigation uses component state — no client-side router.
+
+CSS class prefix: `sidebar-` for all elements specific to this component.
+
+---
+
+## Footer
+
+Accepts two props:
+
+| Prop | Type | Purpose |
+|------|------|---------|
+| `version` | `string` | Application version string (e.g. "v0.1.0") |
+| `lastSyncedAt` | `string` | ISO 8601 timestamp of the last data sync |
+
+Renders a footer bar at the bottom of the main area containing version, formatted last sync time, and a GitHub repository link.
+
+`Footer` is a pure function component — no hooks, no state.
+
+CSS class prefix: `footer-` for all elements specific to this component.
 
 ---
 
@@ -416,10 +455,10 @@ All time displays — both topic age and response time metrics — use a single 
 ### Styling
 
 - No inline styles. All styling uses CSS classes.
-- Class name prefixes: `summary-` for SummaryCards, `unreplied-` for UnrepliedTable, `untagged-` for UntaggedTable, `response-` for ResponseMetricsCards, `nav-` for navigation, `period-` for PeriodSelector, `tag-` for TagSelector, `trends-` for ResponseTimeTrends, `trends-chart-` for ResponseTimeTrendChart, `slo-` for SloMonitor, `intake-` for TopicIntake, `intake-chart-` for IntakeChart, `stalled-` for StalledTopics, `peak-` for PeakActivity, `peak-tz-picker-` for TimezonePicker, `peak-consent-` for CookieConsentModal, `rd-` for ResponseTimeDistribution, `rd-chart-` for DistributionChart.
+- Class name prefixes: `summary-` for SummaryCards, `unreplied-` for UnrepliedTable, `untagged-` for UntaggedTable, `response-` for ResponseMetricsCards, `sidebar-` for Sidebar, `footer-` for Footer, `period-` for PeriodSelector, `tag-` for TagSelector, `trends-` for ResponseTimeTrends, `trends-chart-` for ResponseTimeTrendChart, `slo-` for SloMonitor, `intake-` for TopicIntake, `intake-chart-` for IntakeChart, `stalled-` for StalledTopics, `peak-` for PeakActivity, `peak-tz-picker-` for TimezonePicker, `peak-consent-` for CookieConsentModal, `rd-` for ResponseTimeDistribution, `rd-chart-` for DistributionChart.
 
 ### Implementation constraints
 
-- Pure function components. No React hooks. Exceptions: `App` uses `useState` for page navigation, active period, custom range draft, active tag, and active area state, as it is the application shell — not a display component. `PeakActivity` uses `useState` for timezone selections, picker visibility, and cookie consent state — this state is local to the heatmap and does not affect other components. `TimezonePicker` uses `useState` for the search input — this is local input state that does not affect other components. `ResponseTimeTrendChart` uses Recharts components that manage internal state for interactivity (tooltips, legend toggle); the component itself does not call hooks directly.
+- Pure function components. No React hooks. Exceptions: `App` uses `useState` for page navigation, active period, custom range draft, active tag, and active area state, as it is the application shell — not a display component. `Sidebar` uses `useState` for collapsed state — this state is local to the sidebar and does not affect other components. `PeakActivity` uses `useState` for timezone selections, picker visibility, and cookie consent state — this state is local to the heatmap and does not affect other components. `TimezonePicker` uses `useState` for the search input — this is local input state that does not affect other components. `ResponseTimeTrendChart` uses Recharts components that manage internal state for interactivity (tooltips, legend toggle); the component itself does not call hooks directly.
 - Each component file stays under 200 lines.
 - Types are imported from the mock data module.

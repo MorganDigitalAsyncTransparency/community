@@ -27,8 +27,7 @@ Grid definition:
 ```css
 .shell {
   display: grid;
-  grid-template-columns: var(--sidebar-width) 1fr;
-  grid-template-rows: auto 1fr auto;
+  grid-template: auto 1fr auto / auto 1fr;
   grid-template-areas:
     "sidebar  filter-bar"
     "sidebar  content"
@@ -50,7 +49,7 @@ The sidebar holds the logo, navigation links, and a collapse toggle. It spans th
 | Expanded | `var(--sidebar-width-expanded)` · 200px | Icon + text label per page |
 | Collapsed | `var(--sidebar-width-collapsed)` · 48px | Icon only, tooltip on hover |
 
-The `--sidebar-width` variable is toggled between expanded and collapsed values. The grid column follows automatically. Transition between states is animated (`width` transition, ~200ms ease) to provide visual continuity.
+The sidebar's CSS class toggles between expanded and collapsed widths. The grid column uses `auto` sizing so it follows the sidebar's actual width automatically. Transition between states is animated (`width` transition, ~200ms ease) to provide visual continuity.
 
 If navigation items exceed the sidebar height, the sidebar scrolls independently (`overflow-y: auto`).
 
@@ -70,7 +69,7 @@ Note: `position: sticky` is not needed. The grid layout keeps the filter bar fix
 
 ### Content
 
-The scrollable area for page-specific components (tables, charts, cards). Content scrolls independently within its grid cell and constrains width to `max-width: 1400px`, centered with auto-margins.
+The scrollable area for page-specific components (tables, charts, cards). Content scrolls independently within its grid cell and constrains width to `var(--content-max-width)` (1400px), applied to the filter bar, content, and footer regions.
 
 ### Footer
 
@@ -118,6 +117,8 @@ Layout dimensions like `--sidebar-width-expanded` use the component name as cate
 | `--color-bg-surface` | Card/table background — raised above the canvas |
 | `--color-bg-raised` | Slightly elevated surface (picker panels, consent dialogs) |
 | `--color-bg-sidebar` | Sidebar background — typically darker than the page |
+| `--color-bg-sidebar-hover` | Sidebar interactive element on hover (semi-transparent overlay) |
+| `--color-bg-sidebar-active` | Sidebar active/selected item background (semi-transparent overlay) |
 | `--color-bg-hover` | Interactive element on hover |
 | `--color-bg-active` | Interactive element while pressed or selected |
 
@@ -142,6 +143,7 @@ Layout dimensions like `--sidebar-width-expanded` use the component name as cate
 | `--color-border-strong` | Emphasized separator (section boundaries, UTC header row) |
 | `--color-border-active` | Border for active/selected state (active filter buttons) |
 | `--color-border-disabled` | Border for disabled controls |
+| `--color-border-sidebar` | Sidebar internal border (collapse toggle separator) |
 
 #### Accent and semantic
 
@@ -183,7 +185,8 @@ When rebranding, these pairs must maintain sufficient contrast. Changing one wit
 | `--color-text-muted` | `--color-bg-surface` | Empty state messages in cards |
 | `--color-text-disabled` | `--color-bg-surface` | Disabled controls in cards |
 | `--color-text-sidebar` | `--color-bg-sidebar` | Sidebar navigation text |
-| `--color-text-sidebar-active` | `--color-bg-sidebar` | Active sidebar item |
+| `--color-text-sidebar` | `--color-bg-sidebar-hover` | Sidebar text on hovered item |
+| `--color-text-sidebar-active` | `--color-bg-sidebar-active` | Active sidebar item |
 | `--color-text-on-accent` | `--color-accent-primary` | Text on accent buttons |
 | `--color-status-warning` | `--color-bg-surface` | SLO warning indicators in tables |
 | `--color-status-error` | `--color-bg-surface` | Error markers and remove buttons |
@@ -252,7 +255,6 @@ Sidebar dimension values are defined in the document (not just the stylesheet) b
 |----------|-----------------|-------|
 | `--sidebar-width-expanded` | Sidebar width when showing icon + text | 200px |
 | `--sidebar-width-collapsed` | Sidebar width when showing icon only | 48px |
-| `--sidebar-width` | Active sidebar width — toggled between expanded and collapsed by JavaScript | — |
 
 ---
 

@@ -12,9 +12,8 @@ import {
 } from "recharts";
 import type { TrendChartPoint } from "./trendMetrics";
 import { formatDuration } from "./topicFormatting";
+import { getThemeColor } from "./themeColors";
 
-const FIRST_REPLY_COLOR = "#8884d8";
-const RESOLUTION_COLOR = "#82ca9d";
 const MILLISECONDS_PER_HOUR = 3_600_000;
 
 function formatYAxisTick(hours: number): string {
@@ -25,7 +24,7 @@ function formatTooltipValue(
   value: number | string | readonly (number | string)[] | undefined,
 ): string {
   if (typeof value !== "number") {
-    return "–";
+    return "\u2013";
   }
   return formatDuration(value * MILLISECONDS_PER_HOUR);
 }
@@ -35,6 +34,9 @@ interface ResponseTimeTrendChartProps {
 }
 
 export function ResponseTimeTrendChart({ data }: ResponseTimeTrendChartProps) {
+  const firstReplyColor = getThemeColor("--color-chart-1");
+  const resolutionColor = getThemeColor("--color-chart-2");
+
   return (
     <div className="trends-chart-wrapper">
       <ResponsiveContainer width="100%" height={300}>
@@ -47,7 +49,7 @@ export function ResponseTimeTrendChart({ data }: ResponseTimeTrendChartProps) {
             type="monotone"
             dataKey="medianFirstReplyHours"
             name="Median first reply"
-            stroke={FIRST_REPLY_COLOR}
+            stroke={firstReplyColor}
             connectNulls={false}
             dot={{ r: 3 }}
             activeDot={{ r: 5 }}
@@ -56,7 +58,7 @@ export function ResponseTimeTrendChart({ data }: ResponseTimeTrendChartProps) {
             type="monotone"
             dataKey="medianResolutionHours"
             name="Median resolution"
-            stroke={RESOLUTION_COLOR}
+            stroke={resolutionColor}
             connectNulls={false}
             dot={{ r: 3 }}
             activeDot={{ r: 5 }}

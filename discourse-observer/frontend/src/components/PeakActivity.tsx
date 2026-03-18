@@ -18,6 +18,7 @@ import {
 } from "./timezoneCookies";
 import { TimezonePicker } from "./TimezonePicker";
 import { CookieConsentModal } from "./CookieConsentModal";
+import { getThemeColor } from "./themeColors";
 
 const HOUR_LABELS = Array.from({ length: 24 }, (_, i) => String(i));
 const MAX_TZ_ROWS = 3;
@@ -44,6 +45,8 @@ export function PeakActivity({ topics }: PeakActivityProps) {
   const [pendingTz, setPendingTz] = useState<string | null>(null);
 
   const { cells, maxCount } = computeHeatmapData(topics);
+  const heatmapBase = getThemeColor("--color-heatmap-base");
+  const heatmapText = getThemeColor("--color-text-on-accent");
 
   function addTimezone(tz: string) {
     if (timezones.includes(tz) || timezones.length >= MAX_TZ_ROWS) return;
@@ -160,13 +163,13 @@ export function PeakActivity({ topics }: PeakActivityProps) {
           </thead>
           <tbody>
             {cells.map((row, dayIndex) => (
-              <tr key={dayIndex} className="peak-row">
+              <tr key={dayIndex}>
                 <td className="peak-cell-day">{DAY_LABELS[dayIndex]}</td>
                 {row.map((cell) => {
                   const alpha = maxCount > 0 ? cell.count / maxCount : 0;
                   const style: React.CSSProperties = {
-                    backgroundColor: alpha > 0 ? `rgba(59, 130, 246, ${alpha})` : undefined,
-                    color: alpha > 0.5 ? "#fff" : undefined,
+                    backgroundColor: alpha > 0 ? `rgb(${heatmapBase} / ${alpha})` : undefined,
+                    color: alpha > 0.5 ? heatmapText : undefined,
                   };
                   return (
                     <td key={cell.hour} className="peak-cell" style={style}>

@@ -25,7 +25,7 @@ This file defines *what* the user sees and why. [dashboard-components.md](dashbo
 
 **PA-3.** Cell background color intensity reflects the count relative to the maximum count in the grid. Higher counts produce darker cells. Zero-count cells have no background color. This makes peak periods visually obvious without requiring the viewer to read every number.
 
-**PA-4.** The color scale is a single-hue gradient from white (zero) to a dark shade (maximum count). The exact color is an implementation detail, but it must provide sufficient contrast for the count text to remain readable at all intensity levels.
+**PA-4.** The color scale is a single-hue gradient from white (zero) to a dark shade (maximum count). The hue is defined by `--color-heatmap-base` in the CSS theme — forks rebrand it by changing the variable value. The color must provide sufficient contrast for the count text to remain readable at all intensity levels.
 
 **PA-5.** Topics are assigned to (day, hour) slots based on their `createdAt` timestamp interpreted in UTC. This is consistent with all other time-based displays in the dashboard.
 
