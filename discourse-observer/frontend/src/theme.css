@@ -1,0 +1,92 @@
+/*
+ * Spec: docs/design-strategy.md
+ * ADR: docs/decisions/0011-dashboard-layout-and-theme.md
+ *
+ * CSS custom properties for the dashboard theme.
+ * To rebrand a fork, replace the values below — variable names are the contract.
+ * See design-strategy.md § Contrast pairs before changing colors.
+ */
+
+:root {
+  /* ── Backgrounds ── */
+  --color-bg-primary: #f5f6f8;
+  --color-bg-surface: #fff;
+  --color-bg-raised: #f8f9fb;
+  --color-bg-sidebar: #1e1f26;
+  --color-bg-hover: #eef0f4;
+  --color-bg-active: #e2e4ea;
+
+  /* ── Text ── */
+  --color-text-primary: #1a1a1a;
+  --color-text-secondary: #555;
+  --color-text-muted: #888;
+  --color-text-disabled: #bbb;
+  --color-text-sidebar: #a1a3ab;
+  --color-text-sidebar-active: #fff;
+  --color-text-on-accent: #fff;
+
+  /* ── Borders ── */
+  --color-border-default: #ddd;
+  --color-border-subtle: #eee;
+  --color-border-strong: #ccc;
+  --color-border-active: #999;
+  --color-border-disabled: #e8e8e8;
+
+  /* ── Accent and semantic ── */
+  --color-accent-primary: #3b82f6;
+  --color-accent-primary-hover: #2563eb;
+  --color-status-warning: #b08000;
+  --color-status-error: #e55;
+
+  /* ── Data visualization ── */
+  --color-heatmap-base: 59, 130, 246;
+  --color-chart-1: #8884d8;
+  --color-chart-2: #82ca9d;
+  --color-chart-3: #5b8ff9;
+
+  /* ── Table ── */
+  --color-table-header-bg: #f0f1f3;
+  --color-table-row-alt: #fafbfc;
+  --color-table-row-hover: #f0f4ff;
+
+  /* ── Typography ── */
+  --font-family-base: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+    Helvetica, Arial, sans-serif;
+  --font-size-xs: 0.65rem;
+  --font-size-sm: 0.85rem;
+  --font-size-md: 0.9rem;
+  --font-size-lg: 1.15rem;
+  --font-size-xl: 1.5rem;
+  --font-size-display: 2rem;
+  --font-weight-normal: 400;
+  --font-weight-medium: 600;
+  --font-weight-bold: 700;
+  --line-height-base: 1.5;
+  --line-height-tight: 1.2;
+
+  /* ── Spacing (4px scale: 4, 8, 16, 24, 32) ── */
+  --spacing-xs: 0.25rem;
+  --spacing-sm: 0.5rem;
+  --spacing-md: 1rem;
+  --spacing-lg: 1.5rem;
+  --spacing-xl: 2rem;
+
+  /* ── Borders and radii ── */
+  --radius-sm: 4px;
+  --radius-md: 6px;
+  --radius-lg: 8px;
+
+  /* ── Shadows ── */
+  --shadow-dialog: 0 4px 24px rgb(0 0 0 / 15%);
+
+  /* ── Z-index ── */
+  --z-filter-bar: 50;
+  --z-sidebar: 100;
+  --z-dropdown: 200;
+  --z-dialog-backdrop: 1000;
+
+  /* ── Sidebar dimensions ── */
+  --sidebar-width-expanded: 200px;
+  --sidebar-width-collapsed: 48px;
+  --sidebar-width: var(--sidebar-width-expanded);
+}
