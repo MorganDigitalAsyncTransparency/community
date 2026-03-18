@@ -1,6 +1,6 @@
 # 12. API Responsibility Model
 
-**Status:** Proposed
+**Status:** Accepted
 **Date:** 2026-03-18
 
 ## Context
@@ -101,11 +101,11 @@ Combine options C and D. Fixed domain endpoints serve the known, stable aggregat
 
 ## Decision
 
-*Pending review — this ADR is proposed, not yet accepted.*
+Use a **domain aggregate API** (option C). The backend computes domain-meaningful aggregates — medians, rankings, compliance rates, distributions, heatmaps — and exposes them as independent endpoints organized around data concepts, not UI views. Each endpoint returns machine-readable values (milliseconds, integers, percentages). Consumers format for their display medium.
 
-**Recommended: Option C — Domain aggregate API.**
+This is a middle ground between serving raw topic data (option A, too much duplication for consumers) and building a general-purpose query engine (option D, disproportionate complexity for the data volume). The endpoints are stable across frontend changes, naturally wrappable by an MCP server, and individually testable. Adding a new metric means adding one endpoint — bounded, predictable work.
 
-Reasoning:
+Detailed reasoning:
 
 1. **ADR 0006 already commits to backend computation.** The SQLite analytical store exists specifically to serve pre-computed derived data. Option A would waste this infrastructure. Option C is the natural API surface over that store.
 

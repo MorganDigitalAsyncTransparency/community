@@ -98,4 +98,4 @@ ADRs are numbered sequentially using lowercase with hyphens. The number prefix e
 | [0009](0009-chart-library.md)              | Chart Library           | Accepted |
 | [0010](0010-timezone-strategy.md)          | Timezone Strategy       | Accepted |
 | [0011](0011-dashboard-layout-and-theme.md) | Dashboard Layout and Theme | Accepted |
-| [0012](0012-api-responsibility-model.md) | API Responsibility Model | Proposed |
+| [0012](0012-api-responsibility-model.md) | API Responsibility Model | Accepted |
