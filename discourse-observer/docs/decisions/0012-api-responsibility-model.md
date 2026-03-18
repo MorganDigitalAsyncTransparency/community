@@ -31,6 +31,7 @@ The backend serves normalized topic lists. Consumers perform all calculations.
 **Endpoints:** A single `/topics` endpoint (or a small number of list endpoints) returning `Topic[]` with filtering. Consumers compute medians, rankings, heatmaps, SLO checks, and bucketing themselves.
 
 **Trade-offs:**
+
 - Simplest backend — essentially a filtered data dump.
 - Frontend keeps its existing calculation logic unchanged.
 - Every new consumer must reimplement or import the full calculation library. An MCP server, a CLI tool, or a replacement frontend would each need to duplicate this logic.
@@ -45,6 +46,7 @@ The backend computes and returns exactly what each dashboard view renders. One e
 **Endpoints:** `/queue/summary`, `/metrics/cards`, `/metrics/volume-chart`, `/metrics/first-reply-trend`, `/slo/violations`, `/activity/heatmap`, etc. Each returns view-ready data including formatted strings.
 
 **Trade-offs:**
+
 - Frontend becomes a pure rendering layer — easy to replace.
 - Backend knows what every view needs, so payloads are minimal.
 - Tight coupling: every new view, layout change, or metric tweak requires a backend change. The API becomes a mirror of the UI.
@@ -58,6 +60,7 @@ The backend computes domain-meaningful aggregates (medians, rankings, compliance
 **Endpoints:** `/queue/summary`, `/queue/unreplied`, `/metrics/summary`, `/metrics/volume`, `/distribution/volume`, `/slo/compliance`, `/activity/heatmap`, etc. Each returns computed data in domain terms (milliseconds, counts, percentages) rather than formatted display strings.
 
 **Trade-offs:**
+
 - Frontend is a thin rendering layer — easy to replace.
 - MCP server can consume the same endpoints and compose answers.
 - Endpoints are stable across UI changes — a layout rework does not change the API.
@@ -74,6 +77,7 @@ The backend exposes a flexible query layer where consumers specify dimensions, a
 **Example:** `GET /api/v1/query?group_by=tag&aggregate=median_resolution&period=30d` returns median resolution grouped by tag. `GET /api/v1/query?group_by=day_of_week,hour&aggregate=count&period=7d` returns the heatmap.
 
 **Trade-offs:**
+
 - Maximum flexibility — consumers can ask questions not anticipated at design time.
 - A single endpoint (or very few) covers all current and future needs.
 - Truly consumer-agnostic — MCP, dashboards, scripts all use the same query language.
@@ -88,6 +92,7 @@ The backend exposes a flexible query layer where consumers specify dimensions, a
 Combine options C and D. Fixed domain endpoints serve the known, stable aggregates. A parametric endpoint (or a small number of them) handles ad-hoc queries for MCP and future needs.
 
 **Trade-offs:**
+
 - Known views are fast and well-tested through fixed endpoints.
 - Parametric endpoint provides flexibility for MCP and unforeseen needs.
 - Two API styles to maintain, document, and test.

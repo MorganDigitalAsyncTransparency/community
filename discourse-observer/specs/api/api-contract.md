@@ -51,6 +51,7 @@ These query parameters are shared across endpoints that support filtering.
 **AC-12.** `GET /api/v1/queue/summary` — Returns summary counts for the queue page.
 
 Response fields:
+
 - `unrepliedCount` (integer): number of unreplied monitored topics
 - `untaggedCount` (integer): number of topics with no tags at all
 - `oldestUnrepliedAgeDays` (integer or null): days since the oldest unreplied topic was created; null if no unreplied topics exist
@@ -64,6 +65,7 @@ Serves: UC-1, UC-2, UC-3.
 **AC-13.** `GET /api/v1/queue/unreplied` — Returns the list of unreplied monitored topics.
 
 Response: array of objects, each with:
+
 - `id` (integer)
 - `title` (string)
 - `createdAt` (timestamp)
@@ -81,6 +83,7 @@ Serves: UC-1, UC-2.
 **AC-14.** `GET /api/v1/queue/untagged` — Returns topics with no tags.
 
 Response: array of objects, each with:
+
 - `id` (integer)
 - `title` (string)
 - `createdAt` (timestamp)
@@ -98,6 +101,7 @@ Serves: UC-3.
 **AC-15.** `GET /api/v1/queue/stalled` — Returns topics that have at least one reply but have gone quiet beyond their configured stalled threshold, without being resolved.
 
 Response: array of objects, each with:
+
 - `id` (integer)
 - `title` (string)
 - `createdAt` (timestamp)
@@ -119,6 +123,7 @@ Serves: UC-18.
 **AC-16.** `GET /api/v1/metrics/summary` — Returns aggregate response metrics for the selected period.
 
 Response fields:
+
 - `medianFirstReplyMs` (integer or null): median time to first reply in milliseconds
 - `medianResolutionMs` (integer or null): median time to resolution in milliseconds
 - `solvedCount` (integer): topics with outcome "solved"
@@ -134,6 +139,7 @@ Serves: UC-4, UC-5, UC-6, UC-7.
 **AC-17.** `GET /api/v1/metrics/volume` — Returns topic volume bucketed over time.
 
 Response: array of objects (one per time bucket, ordered chronologically), each with:
+
 - `label` (string): human-readable bucket label (e.g., "Mar 10" or "Week of Mar 10")
 - `bucketKey` (string): machine-sortable key (ISO date of bucket start)
 - `created` (integer): topics created in this bucket
@@ -152,10 +158,12 @@ Serves: UC-17.
 **AC-18.** `GET /api/v1/metrics/median-trends` — Returns median first-reply and resolution times bucketed over time.
 
 Response fields:
+
 - `firstReply` (array of bucket objects)
 - `resolution` (array of bucket objects)
 
 Each bucket object:
+
 - `label` (string)
 - `bucketKey` (string)
 - `medianMs` (integer or null): median duration in milliseconds; null if no data in bucket
@@ -171,10 +179,12 @@ Serves: UC-8.
 **AC-19.** `GET /api/v1/metrics/distribution` — Returns response time distribution histograms.
 
 Response fields:
+
 - `firstReply` (array of bucket objects)
 - `resolution` (array of bucket objects)
 
 Each bucket object:
+
 - `label` (string): human-readable range label (e.g., "< 1h", "1–4h", "> 7d")
 - `count` (integer): number of topics in this bucket
 
@@ -189,6 +199,7 @@ Serves: UC-20.
 **AC-20.** `GET /api/v1/distribution/volume` — Returns tags ranked by topic count.
 
 Response: array of objects (sorted by count descending, then tag ascending), each with:
+
 - `tag` (string)
 - `topicCount` (integer)
 
@@ -201,6 +212,7 @@ Serves: UC-9.
 **AC-21.** `GET /api/v1/distribution/resolution` — Returns tags ranked by median resolution time.
 
 Response: array of objects (sorted by median descending, tags with no data last), each with:
+
 - `tag` (string)
 - `resolvedCount` (integer)
 - `medianResolutionMs` (integer or null)
@@ -214,6 +226,7 @@ Serves: UC-10.
 **AC-22.** `GET /api/v1/distribution/backlog` — Returns tags ranked by open (unreplied) topic count.
 
 Response: array of objects (sorted by count descending, then tag ascending), each with:
+
 - `tag` (string)
 - `openCount` (integer)
 
@@ -226,6 +239,7 @@ Serves: UC-11.
 **AC-23.** `GET /api/v1/distribution/backlog-trend` — Returns weekly backlog trend data. This endpoint always uses full history regardless of period filter, but tag filter applies.
 
 Response: array of objects (one per calendar week, sorted newest first), each with:
+
 - `weekStart` (string): Monday of the week, `YYYY-MM-DD`
 - `created` (integer): topics created that week
 - `resolved` (integer): topics resolved that week
@@ -240,11 +254,13 @@ Serves: UC-11.
 **AC-24.** `GET /api/v1/slo/violations` — Returns topics that exceed SLO thresholds, grouped by violation type.
 
 Response fields:
+
 - `firstReply` (array of violation objects)
 - `resolution` (array of violation objects)
 - `inactivity` (array of violation objects)
 
 Each violation object:
+
 - `topicId` (integer)
 - `topicTitle` (string)
 - `topicUrl` (string)
@@ -265,6 +281,7 @@ Serves: UC-13.
 **AC-25.** `GET /api/v1/slo/compliance` — Returns per-tag SLO compliance rates.
 
 Response: array of objects (sorted by tag ascending), each with:
+
 - `tag` (string)
 - `firstReplyPercent` (integer or null): percentage of topics meeting first-reply SLO; null if no eligible topics
 - `resolutionPercent` (integer or null)
@@ -280,6 +297,7 @@ Serves: UC-14.
 **AC-26.** `GET /api/v1/activity/heatmap` — Returns topic creation counts by day of week and hour of day (UTC).
 
 Response fields:
+
 - `cells` (7×24 nested array): `cells[day][hour]` where day 0 = Monday, each cell is `{ "day": N, "hour": N, "count": N }`
 - `maxCount` (integer): highest count across all cells
 
@@ -292,6 +310,7 @@ Serves: UC-19.
 **AC-27.** `GET /api/v1/config` — Returns the resolved tag configuration needed for UI rendering (area navigation, tag labels, SLO threshold display).
 
 Response fields:
+
 - `areas` (array): `[{ "name": string, "primaryTag": string }]`
 - `tags` (object): keyed by tag name, each value:
   - `area` (string)
@@ -313,6 +332,7 @@ Serves: UC-15, UC-16 (area navigation, tag display).
 **AC-28.** `GET /api/v1/status` — Returns system status information.
 
 Response fields:
+
 - `lastSyncedAt` (timestamp or null): when the last successful sync completed; null if no sync has run
 - `version` (string): application version
 
