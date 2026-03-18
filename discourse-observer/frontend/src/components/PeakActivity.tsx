@@ -167,7 +167,7 @@ export function PeakActivity({ topics }: PeakActivityProps) {
                 {row.map((cell) => {
                   const alpha = maxCount > 0 ? cell.count / maxCount : 0;
                   const style: React.CSSProperties = {
-                    backgroundColor: alpha > 0 ? `rgba(${heatmapBase}, ${alpha})` : undefined,
+                    backgroundColor: alpha > 0 ? `rgb(${heatmapBase} / ${alpha})` : undefined,
                     color: alpha > 0.5 ? "#fff" : undefined,
                   };
                   return (
