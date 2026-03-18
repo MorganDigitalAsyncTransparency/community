@@ -3,8 +3,11 @@
 
 import type { Topic } from "../mock/data";
 import type { IntakeGranularity, TimeRange } from "./intakeMetrics";
-import { mondayOf } from "./trendMetrics";
-import { formatWeekLabel } from "./topicFormatting";
+import {
+  advanceBucket,
+  bucketKeyFor,
+  formatBucketLabel,
+} from "./bucketHelpers";
 
 export interface VolumeBucket {
   label: string;
@@ -13,35 +16,6 @@ export interface VolumeBucket {
   accepted: number;
   closed: number;
   open: number;
-}
-
-function dayOf(date: Date): string {
-  return date.toISOString().slice(0, 10);
-}
-
-function formatDayLabel(isoDate: string): string {
-  return new Date(isoDate + "T00:00:00Z").toLocaleDateString(undefined, {
-    year: "numeric",
-    month: "short",
-    day: "numeric",
-    timeZone: "UTC",
-  });
-}
-
-function bucketKeyFor(date: Date, granularity: IntakeGranularity): string {
-  return granularity === "daily" ? dayOf(date) : mondayOf(date);
-}
-
-function nextDay(isoDate: string): string {
-  const d = new Date(isoDate + "T00:00:00Z");
-  d.setUTCDate(d.getUTCDate() + 1);
-  return dayOf(d);
-}
-
-function nextMonday(isoDate: string): string {
-  const d = new Date(isoDate + "T00:00:00Z");
-  d.setUTCDate(d.getUTCDate() + 7);
-  return dayOf(d);
 }
 
 interface TopicSets {
@@ -75,8 +49,8 @@ export function computeVolumeBuckets(
   const closedCounts = countByBucket(sets.selfClosedTopics, granularity);
   const openCounts = countByBucket(sets.openTopics, granularity);
 
-  const advance = granularity === "daily" ? nextDay : nextMonday;
-  const formatLabel = granularity === "daily" ? formatDayLabel : formatWeekLabel;
+  const advance = advanceBucket(granularity);
+  const formatLabel = formatBucketLabel(granularity);
 
   const buckets: VolumeBucket[] = [];
   let current = range.first;
