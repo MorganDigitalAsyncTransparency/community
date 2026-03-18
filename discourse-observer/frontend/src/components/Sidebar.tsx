@@ -25,9 +25,11 @@ const STORAGE_KEY = "sidebar-collapsed";
 interface SidebarProps {
   activePage: Page;
   onNavigate: (page: Page) => void;
+  mobileOpen?: boolean;
+  onMobileClose?: () => void;
 }
 
-export function Sidebar({ activePage, onNavigate }: SidebarProps) {
+export function Sidebar({ activePage, onNavigate, mobileOpen, onMobileClose }: SidebarProps) {
   const [collapsed, setCollapsed] = useState(() => {
     try {
       return localStorage.getItem(STORAGE_KEY) === "true";
@@ -48,36 +50,48 @@ export function Sidebar({ activePage, onNavigate }: SidebarProps) {
     });
   }
 
+  const mobileClass = mobileOpen ? " sidebar-mobile-open" : "";
+
+  function handleNavClick(page: Page) {
+    onNavigate(page);
+    onMobileClose?.();
+  }
+
   return (
-    <aside className={`sidebar${collapsed ? " sidebar-collapsed" : ""}`}>
-      <div className="sidebar-logo">
-        {collapsed ? "d-o" : "discourse-observer"}
-      </div>
+    <>
+      {mobileOpen && (
+        <div className="sidebar-backdrop" onClick={onMobileClose} />
+      )}
+      <aside className={`sidebar${collapsed ? " sidebar-collapsed" : ""}${mobileClass}`}>
+        <div className="sidebar-logo">
+          {collapsed ? "d-o" : "discourse-observer"}
+        </div>
 
-      <nav className="sidebar-nav">
-        {NAV_ITEMS.map(({ page, label, icon }) => (
-          <button
-            key={page}
-            className={`sidebar-link${page === activePage ? " sidebar-link-active" : ""}`}
-            onClick={() => onNavigate(page)}
-            title={collapsed ? label : undefined}
-          >
-            <span className="sidebar-icon">{icon}</span>
-            <span className="sidebar-label">{label}</span>
-          </button>
-        ))}
-      </nav>
+        <nav className="sidebar-nav">
+          {NAV_ITEMS.map(({ page, label, icon }) => (
+            <button
+              key={page}
+              className={`sidebar-link${page === activePage ? " sidebar-link-active" : ""}`}
+              onClick={() => handleNavClick(page)}
+              title={collapsed ? label : undefined}
+            >
+              <span className="sidebar-icon">{icon}</span>
+              <span className="sidebar-label">{label}</span>
+            </button>
+          ))}
+        </nav>
 
-      <button
-        className="sidebar-toggle"
-        onClick={toggleCollapsed}
-        title={collapsed ? "Expand sidebar" : "Collapse sidebar"}
-      >
-        <span className="sidebar-toggle-icon">{collapsed ? "\u00BB" : "\u00AB"}</span>
-        <span className="sidebar-toggle-label">
-          {collapsed ? "Expand" : "Collapse"}
-        </span>
-      </button>
-    </aside>
+        <button
+          className="sidebar-toggle"
+          onClick={toggleCollapsed}
+          title={collapsed ? "Expand sidebar" : "Collapse sidebar"}
+        >
+          <span className="sidebar-toggle-icon">{collapsed ? "\u00BB" : "\u00AB"}</span>
+          <span className="sidebar-toggle-label">
+            {collapsed ? "Expand" : "Collapse"}
+          </span>
+        </button>
+      </aside>
+    </>
   );
 }

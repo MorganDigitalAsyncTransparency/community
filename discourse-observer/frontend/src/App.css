@@ -1121,6 +1121,18 @@ body {
   height: 300px;
 }
 
+/* ── Hamburger toggle (mobile only) ── */
+
+.hamburger {
+  display: none;
+}
+
+/* ── Sidebar backdrop (mobile overlay) ── */
+
+.sidebar-backdrop {
+  display: none;
+}
+
 /* ── Responsive breakpoints ── */
 
 @media (width <= 1023px) {
@@ -1146,5 +1158,59 @@ body {
 
   .sidebar {
     display: none;
+  }
+
+  /* Push filter bar below the fixed hamburger button */
+  .filter-bar {
+    padding-top: 3.5rem;
+  }
+
+  /* Show hamburger button */
+  .hamburger {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: fixed;
+    top: var(--spacing-sm);
+    left: var(--spacing-sm);
+    width: 2.5rem;
+    height: 2.5rem;
+    background: var(--color-bg-surface);
+    border: 1px solid var(--color-border-default);
+    border-radius: var(--radius-sm);
+    font-size: var(--font-size-lg);
+    color: var(--color-text-primary);
+    cursor: pointer;
+    z-index: var(--z-sidebar);
+  }
+
+  .hamburger:hover {
+    background: var(--color-bg-hover);
+  }
+
+  /* Mobile sidebar overlay */
+  .sidebar-backdrop {
+    display: block;
+    position: fixed;
+    inset: 0;
+    background: rgb(0 0 0 / 40%);
+    z-index: var(--z-sidebar);
+  }
+
+  .sidebar-mobile-open {
+    display: flex;
+    position: fixed;
+    top: 0;
+    left: 0;
+    height: 100vh;
+    width: var(--sidebar-width-expanded);
+    z-index: calc(var(--z-sidebar) + 1);
+  }
+
+  /* Override collapsed styles — mobile overlay always shows labels */
+  .sidebar-mobile-open .sidebar-label,
+  .sidebar-mobile-open .sidebar-toggle-label {
+    opacity: 1;
+    width: auto;
   }
 }

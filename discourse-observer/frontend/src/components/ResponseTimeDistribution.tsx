@@ -8,7 +8,7 @@ import {
   firstReplyDurations,
   resolutionDurations,
 } from "./distributionMetrics";
-import { getThemeColor } from "./themeColors";
+import { CHART_COLOR_1, CHART_COLOR_2 } from "./themeColors";
 
 interface ResponseTimeDistributionProps {
   topics: Topic[];
@@ -19,8 +19,8 @@ export function ResponseTimeDistribution({
   topics,
   ceilingsHours,
 }: ResponseTimeDistributionProps) {
-  const firstReplyColor = getThemeColor("--color-chart-1");
-  const resolutionColor = getThemeColor("--color-chart-2");
+  const firstReplyColor = CHART_COLOR_1;
+  const resolutionColor = CHART_COLOR_2;
 
   const replyDurations = firstReplyDurations(topics);
   const resolDurations = resolutionDurations(topics);

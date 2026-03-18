@@ -290,7 +290,7 @@ Calls `computeHeatmapData(topics)` and renders:
 - A section heading "Peak activity".
 - An HTML `<table>` heatmap with timezone header rows (see below), a UTC hour header row, 7 data rows (Mon–Sun), and 24 columns (hours 0–23).
 - Each data cell displays the topic count and has a background color whose intensity reflects the count relative to the grid maximum (`count / maxCount`).
-- Cell background uses `rgba(var(--color-heatmap-base), α)`. Text color switches to white when α > 0.5. The heatmap base color is read from the CSS custom property via `getThemeColor()`.
+- Cell background uses `rgba(var(--color-heatmap-base), α)`. Text color switches to white when α > 0.5. The heatmap base color is read from the CSS custom property via the `HEATMAP_BASE` constant exported by `themeColors.ts`.
 - Zero-count cells show "0" with no background color (transparent).
 - A color scale legend below the table showing the range from 0 to the maximum count.
 - An "Add timezone" button above the table (after the heading). Disabled when 3 timezone rows are present.
@@ -388,12 +388,14 @@ CSS class prefix: `rd-chart-` for chart-specific elements.
 
 ## Sidebar
 
-Accepts two props:
+Accepts four props:
 
 | Prop | Type | Purpose |
 |------|------|---------|
 | `activePage` | `Page` | Currently visible page |
 | `onNavigate` | `(page: Page) => void` | Called when a navigation link is clicked |
+| `mobileOpen` | `boolean \| undefined` | When `true`, sidebar renders as a fixed overlay (mobile breakpoint) |
+| `onMobileClose` | `(() => void) \| undefined` | Called to close the mobile overlay — triggered by backdrop click or navigation |
 
 Renders a vertical sidebar spanning the full viewport height with:
 
@@ -411,6 +413,8 @@ The toggle persists the user's preference in `localStorage` under `sidebar-colla
 Width transition is ~200ms ease for visual continuity.
 
 `Sidebar` uses `useState` for collapsed state. localStorage persistence is synchronous in the toggle handler — no `useEffect`. Navigation uses component state — no client-side router.
+
+**Mobile overlay (< 768px):** When `mobileOpen` is `true`, the sidebar renders as a fixed overlay (`sidebar-mobile-open`) above a semi-transparent backdrop (`sidebar-backdrop`). Clicking the backdrop or any navigation link calls `onMobileClose`. The backdrop and mobile-open class are only styled in the `<= 767px` media query — at wider viewports they have no visual effect.
 
 CSS class prefix: `sidebar-` for all elements specific to this component.
 
@@ -455,10 +459,10 @@ All time displays — both topic age and response time metrics — use a single 
 ### Styling
 
 - No inline styles. All styling uses CSS classes.
-- Class name prefixes: `summary-` for SummaryCards, `unreplied-` for UnrepliedTable, `untagged-` for UntaggedTable, `response-` for ResponseMetricsCards, `sidebar-` for Sidebar, `footer-` for Footer, `period-` for PeriodSelector, `tag-` for TagSelector, `trends-` for ResponseTimeTrends, `trends-chart-` for ResponseTimeTrendChart, `slo-` for SloMonitor, `intake-` for TopicIntake, `intake-chart-` for IntakeChart, `stalled-` for StalledTopics, `peak-` for PeakActivity, `peak-tz-picker-` for TimezonePicker, `peak-consent-` for CookieConsentModal, `rd-` for ResponseTimeDistribution, `rd-chart-` for DistributionChart.
+- Class name prefixes: `summary-` for SummaryCards, `unreplied-` for UnrepliedTable, `untagged-` for UntaggedTable, `response-` for ResponseMetricsCards, `sidebar-` for Sidebar (including `sidebar-backdrop` and `sidebar-mobile-open`), `hamburger` for the mobile menu button, `footer-` for Footer, `period-` for PeriodSelector, `tag-` for TagSelector, `trends-` for ResponseTimeTrends, `trends-chart-` for ResponseTimeTrendChart, `slo-` for SloMonitor, `intake-` for TopicIntake, `intake-chart-` for IntakeChart, `stalled-` for StalledTopics, `peak-` for PeakActivity, `peak-tz-picker-` for TimezonePicker, `peak-consent-` for CookieConsentModal, `rd-` for ResponseTimeDistribution, `rd-chart-` for DistributionChart.
 
 ### Implementation constraints
 
-- Pure function components. No React hooks. Exceptions: `App` uses `useState` for page navigation, active period, custom range draft, active tag, and active area state, as it is the application shell — not a display component. `Sidebar` uses `useState` for collapsed state — this state is local to the sidebar and does not affect other components. `PeakActivity` uses `useState` for timezone selections, picker visibility, and cookie consent state — this state is local to the heatmap and does not affect other components. `TimezonePicker` uses `useState` for the search input — this is local input state that does not affect other components. `ResponseTimeTrendChart` uses Recharts components that manage internal state for interactivity (tooltips, legend toggle); the component itself does not call hooks directly.
+- Pure function components. No React hooks. Exceptions: `App` uses `useState` for page navigation, active period, custom range draft, active tag, active area, and mobile sidebar visibility state, as it is the application shell — not a display component. `Sidebar` uses `useState` for collapsed state — this state is local to the sidebar and does not affect other components. `PeakActivity` uses `useState` for timezone selections, picker visibility, and cookie consent state — this state is local to the heatmap and does not affect other components. `TimezonePicker` uses `useState` for the search input — this is local input state that does not affect other components. `ResponseTimeTrendChart` uses Recharts components that manage internal state for interactivity (tooltips, legend toggle); the component itself does not call hooks directly.
 - Each component file stays under 200 lines.
 - Types are imported from the mock data module.
