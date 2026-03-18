@@ -62,6 +62,7 @@ export function App() {
   const [customDraft, setCustomDraft] = useState<CustomRange | null>(null);
   const [activeTag, setActiveTag] = useState<string | null>(null);
   const [activeArea, setActiveArea] = useState<string | null>(null);
+  const [sidebarOpen, setSidebarOpen] = useState(false);
 
   const typedTagConfig = tagConfigJson as TagConfig;
   const monitored = monitoredTags(typedTagConfig);
@@ -138,7 +139,19 @@ export function App() {
 
   return (
     <div className="shell">
-      <Sidebar activePage={page} onNavigate={setPage} />
+      <button
+        className="hamburger"
+        onClick={() => setSidebarOpen(true)}
+        aria-label="Open navigation"
+      >
+        &#9776;
+      </button>
+      <Sidebar
+        activePage={page}
+        onNavigate={setPage}
+        mobileOpen={sidebarOpen}
+        onMobileClose={() => setSidebarOpen(false)}
+      />
 
       <div className="filter-bar">
         <PeriodSelector
