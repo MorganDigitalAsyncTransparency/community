@@ -5,11 +5,11 @@ import type { Topic } from "../mock/data";
 import { formatAge, topicUrl } from "./topicFormatting";
 import { useTableSort, type SortDirection } from "./useTableSort";
 
-type SortColumn = "topic" | "category" | "age";
+type SortColumn = "topic" | "categoryName" | "age";
 
 const DEFAULT_DIRECTIONS: Record<SortColumn, SortDirection> = {
   topic: "asc",
-  category: "asc",
+  categoryName: "asc",
   age: "desc",
 };
 
@@ -23,8 +23,8 @@ function sortTopics(
 
   if (column === "topic") {
     sorted.sort((a, b) => dir * a.title.localeCompare(b.title));
-  } else if (column === "category") {
-    sorted.sort((a, b) => dir * a.category.localeCompare(b.category));
+  } else if (column === "categoryName") {
+    sorted.sort((a, b) => dir * a.categoryName.localeCompare(b.categoryName));
   } else {
     sorted.sort((a, b) => {
       const aTime = new Date(a.createdAt).getTime();
@@ -58,9 +58,9 @@ export function UntaggedTable({ topics }: UntaggedTableProps) {
           </th>
           <th
             className="untagged-header-category sortable-header"
-            onClick={() => handleSort("category")}
+            onClick={() => handleSort("categoryName")}
           >
-            Category{arrow("category")}
+            Category{arrow("categoryName")}
           </th>
           <th
             className="untagged-header-age sortable-header"
@@ -78,7 +78,7 @@ export function UntaggedTable({ topics }: UntaggedTableProps) {
                 {topic.title}
               </a>
             </td>
-            <td className="untagged-cell-category">{topic.category}</td>
+            <td className="untagged-cell-category">{topic.categoryName}</td>
             <td className="untagged-cell-age">{formatAge(topic.createdAt)}</td>
           </tr>
         ))}
