@@ -247,14 +247,15 @@ Stacking order from back to front:
 
 Z-index values are defined in the document (not just the stylesheet) because they express a stacking contract that CSS alone does not make obvious.
 
-### Sidebar dimensions
+### Layout dimensions
 
-Sidebar dimension values are defined in the document (not just the stylesheet) because they are structural constraints that affect the grid layout, responsive breakpoints, and icon sizing. Changing them has cascading consequences beyond visual appearance.
+Layout dimension values are defined in the document (not just the stylesheet) because they are structural constraints that affect the grid layout, responsive breakpoints, and content sizing. Changing them has cascading consequences beyond visual appearance.
 
 | Variable | Semantic meaning | Value |
 |----------|-----------------|-------|
 | `--sidebar-width-expanded` | Sidebar width when showing icon + text | 200px |
 | `--sidebar-width-collapsed` | Sidebar width when showing icon only | 48px |
+| `--content-max-width` | Maximum width of the filter bar, content area, and footer | 1400px |
 
 ---
 
