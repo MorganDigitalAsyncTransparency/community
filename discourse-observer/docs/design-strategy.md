@@ -2,7 +2,7 @@
 
 This document defines the dashboard's visual structure: layout regions, CSS variable taxonomy, sidebar behavior, and responsive breakpoints. It is the implementation reference for [ADR 0011](decisions/0011-dashboard-layout-and-theme.md).
 
-The goal is a dashboard that can be rebranded by changing variable values in one place, without modifying component code.
+The goal is a dashboard that can be rebranded by changing variable values in one place, without modifying component code. This document defines the **names and semantics** of those variables. The actual values live in the CSS file — not here — so there is exactly one source of truth.
 
 ---
 
@@ -37,26 +37,26 @@ Grid definition:
 }
 ```
 
-The content area centers its children with `max-width: 1400px` and horizontal auto-margins.
-
 ---
 
 ## Regions
 
 ### Sidebar
 
-The sidebar holds the logo, navigation links, and a collapse toggle. It spans the full viewport height and stays fixed during scroll.
+The sidebar holds the logo, navigation links, and a collapse toggle. It spans the full viewport height. Because the content area handles its own scrolling (via `overflow-y: auto`), the sidebar stays visually fixed without needing `position: fixed`.
 
 | State | Width | Content |
 |-------|-------|---------|
 | Expanded | `var(--sidebar-width-expanded)` · 200px | Icon + text label per page |
 | Collapsed | `var(--sidebar-width-collapsed)` · 48px | Icon only, tooltip on hover |
 
-The `--sidebar-width` variable is toggled between expanded and collapsed values. The grid column follows automatically.
+The `--sidebar-width` variable is toggled between expanded and collapsed values. The grid column follows automatically. Transition between states is animated (`width` transition, ~200ms ease) to provide visual continuity.
 
-**Navigation items** are vertical, one per row. The active page is visually distinguished (e.g., background highlight, left border accent). Navigation can be grouped with section dividers or headings as pages grow.
+If navigation items exceed the sidebar height, the sidebar scrolls independently (`overflow-y: auto`).
 
-**Collapse toggle** sits at the bottom of the sidebar. It switches the sidebar between expanded and collapsed states. The user's preference can be persisted in `localStorage`.
+**Navigation items** are vertical, one per row. The active page is visually distinguished (background highlight or left border accent). Navigation can be grouped with section dividers or headings as pages grow.
+
+**Collapse toggle** sits at the bottom of the sidebar. The user's preference is persisted in `localStorage`.
 
 ### Filter bar
 
@@ -66,45 +66,15 @@ The filter bar sits above the content area. It does not scroll — the grid row 
 - Tag/area selector (area dropdown + tag buttons)
 - Clear all filters button (conditional)
 
-```css
-.filter-bar {
-  grid-area: filter-bar;
-  z-index: var(--z-filter-bar);
-  background: var(--color-bg-primary);
-  border-bottom: 1px solid var(--color-border-subtle);
-  padding: var(--spacing-sm) var(--spacing-md);
-}
-```
-
-Note: `position: sticky` is not needed here. The grid layout already keeps the filter bar fixed — only the content row scrolls (via `overflow-y: auto`). The z-index ensures the filter bar renders above any content that may overlap during scroll transitions.
+Note: `position: sticky` is not needed. The grid layout keeps the filter bar fixed — only the content row scrolls.
 
 ### Content
 
-The scrollable area for page-specific components (tables, charts, cards). Content scrolls independently within its grid cell and constrains its children to `max-width: 1400px`.
-
-```css
-.content {
-  grid-area: content;
-  overflow-y: auto;
-  max-width: 1400px;
-  margin: 0 auto;
-  padding: var(--spacing-lg) var(--spacing-md);
-}
-```
+The scrollable area for page-specific components (tables, charts, cards). Content scrolls independently within its grid cell and constrains width to `max-width: 1400px`, centered with auto-margins.
 
 ### Footer
 
-The footer sits at the bottom of the main area. It contains version, last sync time, and a repository link.
-
-```css
-.footer {
-  grid-area: footer;
-  border-top: 1px solid var(--color-border-subtle);
-  padding: var(--spacing-sm) var(--spacing-md);
-  font-size: var(--font-size-sm);
-  color: var(--color-text-secondary);
-}
-```
+Sits at the bottom of the main area. Contains version, last sync time, and a repository link.
 
 Content example: `v0.1.0 · Last synced 2026-03-18 14:32 UTC · GitHub ↗`
 
@@ -124,7 +94,7 @@ Mobile is not a priority. The layout should degrade gracefully rather than break
 
 ## CSS variable taxonomy
 
-All visual tokens live on `:root`. A fork replaces this block to rebrand the dashboard.
+All visual tokens live on `:root` in the stylesheet. A fork replaces the values to rebrand the dashboard. This document defines the variable **names and semantics** — the stylesheet is the source of truth for values.
 
 ### Naming convention
 
@@ -133,116 +103,128 @@ All visual tokens live on `:root`. A fork replaces this block to rebrand the das
 ```
 
 - **category**: `color`, `font`, `spacing`, `radius`, `shadow`, `z`, `sidebar`
-- **target**: what it applies to (`bg`, `text`, `border`, `sidebar`, `filter-bar`, `width`)
-- **variant**: optional modifier (`primary`, `secondary`, `subtle`, `hover`, `active`, `expanded`, `collapsed`, `disabled`)
+- **target**: what it applies to (`bg`, `text`, `border`, `size`, `weight`, `width`)
+- **variant**: optional modifier (`primary`, `secondary`, `muted`, `hover`, `active`, `disabled`, `expanded`, `collapsed`)
 
-Layout dimensions like `--sidebar-width-expanded` use the component name as category and the dimension as target. This keeps layout tokens distinct from design tokens while following the same `--{category}-{target}-{variant}` shape.
+Layout dimensions like `--sidebar-width-expanded` use the component name as category. This keeps layout tokens distinct from design tokens while following the same naming shape.
 
 ### Colors
 
-```css
-:root {
-  /* Backgrounds */
-  --color-bg-primary: #f5f6f8;
-  --color-bg-surface: #ffffff;
-  --color-bg-raised: #f8f9fb;
-  --color-bg-sidebar: #1a1c22;
-  --color-bg-hover: #eef0f4;
-  --color-bg-active: #e2e5ea;
+#### Backgrounds
 
-  /* Text */
-  --color-text-primary: #1a1a1a;
-  --color-text-secondary: #555555;
-  --color-text-tertiary: #666666;
-  --color-text-muted: #888888;
-  --color-text-disabled: #bbbbbb;
-  --color-text-sidebar: #d8d9da;
-  --color-text-sidebar-active: #ffffff;
-  --color-text-on-accent: #ffffff;
+| Variable | Semantic meaning |
+|----------|-----------------|
+| `--color-bg-primary` | Page background — the base canvas |
+| `--color-bg-surface` | Card/table background — raised above the canvas |
+| `--color-bg-raised` | Slightly elevated surface (picker panels, consent dialogs) |
+| `--color-bg-sidebar` | Sidebar background — typically darker than the page |
+| `--color-bg-hover` | Interactive element on hover |
+| `--color-bg-active` | Interactive element while pressed or selected |
 
-  /* Borders */
-  --color-border-default: #dddddd;
-  --color-border-subtle: #eeeeee;
-  --color-border-strong: #cccccc;
-  --color-border-active: #999999;
-  --color-border-disabled: #e8e8e8;
+#### Text
 
-  /* Accent */
-  --color-accent-primary: #3b82f6;
-  --color-accent-primary-hover: #2563eb;
+| Variable | Semantic meaning |
+|----------|-----------------|
+| `--color-text-primary` | Default body text — highest contrast against bg-primary |
+| `--color-text-secondary` | De-emphasized text (labels, captions, table headers) |
+| `--color-text-muted` | Lowest-emphasis text (empty states, hints, timestamps) |
+| `--color-text-disabled` | Disabled controls — must still be legible but clearly inactive |
+| `--color-text-sidebar` | Sidebar text on the sidebar background |
+| `--color-text-sidebar-active` | Active sidebar item — highest contrast on sidebar background |
+| `--color-text-on-accent` | Text on accent-colored backgrounds (buttons, badges) |
 
-  /* Semantic */
-  --color-status-warning: #b08000;
-  --color-status-error: #ee5555;
+#### Borders
 
-  /* Data visualization */
-  --color-heatmap-base: 59, 130, 246;  /* RGB triplet for alpha variation */
-  --color-chart-1: #8884d8;
-  --color-chart-2: #82ca9d;
-  --color-chart-3: #5b8ff9;
+| Variable | Semantic meaning |
+|----------|-----------------|
+| `--color-border-default` | Standard border (cards, inputs, tables) |
+| `--color-border-subtle` | Light separator (table rows, section dividers) |
+| `--color-border-strong` | Emphasized separator (section boundaries, UTC header row) |
+| `--color-border-active` | Border for active/selected state (active filter buttons) |
+| `--color-border-disabled` | Border for disabled controls |
 
-  /* Table */
-  --color-table-header-bg: #f0f1f3;
-  --color-table-row-alt: #fafbfc;
-  --color-table-row-hover: #f0f4ff;
-}
-```
+#### Accent and semantic
+
+| Variable | Semantic meaning |
+|----------|-----------------|
+| `--color-accent-primary` | Primary action color (links, active indicators) |
+| `--color-accent-primary-hover` | Hover state of primary accent |
+| `--color-status-warning` | Warning indicators (default SLO, fallback states) |
+| `--color-status-error` | Error and destructive actions (remove buttons, violations) |
+
+#### Data visualization
+
+| Variable | Semantic meaning |
+|----------|-----------------|
+| `--color-heatmap-base` | RGB triplet (no `#`) for heatmap alpha variation: `rgba(var(--color-heatmap-base) / α)` |
+| `--color-chart-1` | First chart series (e.g., time to first reply) |
+| `--color-chart-2` | Second chart series (e.g., resolution time) |
+| `--color-chart-3` | Third chart series (e.g., intake volume) |
+
+#### Table
+
+| Variable | Semantic meaning |
+|----------|-----------------|
+| `--color-table-header-bg` | Table header row background |
+| `--color-table-row-alt` | Alternating (zebra) row background |
+| `--color-table-row-hover` | Row hover highlight |
+
+### Contrast pairs
+
+When rebranding, these pairs must maintain sufficient contrast. Changing one without checking the other will produce unreadable text or invisible borders.
+
+| Foreground | Background | Context |
+|------------|------------|---------|
+| `--color-text-primary` | `--color-bg-primary` | Body text on page |
+| `--color-text-primary` | `--color-bg-surface` | Body text on cards/tables |
+| `--color-text-secondary` | `--color-bg-primary` | Labels and captions |
+| `--color-text-sidebar` | `--color-bg-sidebar` | Sidebar navigation text |
+| `--color-text-sidebar-active` | `--color-bg-sidebar` | Active sidebar item |
+| `--color-text-on-accent` | `--color-accent-primary` | Text on accent buttons |
+| `--color-text-muted` | `--color-bg-surface` | Empty state messages in cards |
 
 ### Typography
 
-```css
-:root {
-  --font-family-base: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
-    Helvetica, Arial, sans-serif;
-
-  --font-size-xs: 0.7rem;
-  --font-size-sm: 0.85rem;
-  --font-size-base: 0.9rem;
-  --font-size-md: 1rem;
-  --font-size-lg: 1.15rem;
-  --font-size-xl: 1.5rem;
-  --font-size-display: 2rem;
-
-  --font-weight-normal: 400;
-  --font-weight-medium: 600;
-  --font-weight-bold: 700;
-
-  --line-height-base: 1.5;
-  --line-height-tight: 1.2;
-}
-```
+| Variable | Semantic meaning |
+|----------|-----------------|
+| `--font-family-base` | System font stack for all text |
+| `--font-size-xs` | Smallest text (heatmap cells, timezone labels) |
+| `--font-size-sm` | Small text (filter labels, table headers, footer) |
+| `--font-size-md` | Default body text and table cells |
+| `--font-size-lg` | Section headings |
+| `--font-size-xl` | Page title |
+| `--font-size-display` | Hero numbers (summary card values, metric cards) |
+| `--font-weight-normal` | Default weight |
+| `--font-weight-medium` | Emphasis (table headers, labels, active nav) |
+| `--font-weight-bold` | Strong emphasis (card values, page title) |
+| `--line-height-base` | Default line height |
+| `--line-height-tight` | Compact line height (card values, display numbers) |
 
 ### Spacing
 
-A 4px-based scale: 4, 8, 16, 24, 32. The first three steps double; the last two grow linearly. This gives tight control at small sizes and comfortable jumps at larger ones.
+A 4px-based scale: 4, 8, 16, 24, 32.
 
-```css
-:root {
-  --spacing-xs: 0.25rem;   /*  4px */
-  --spacing-sm: 0.5rem;    /*  8px */
-  --spacing-md: 1rem;      /* 16px */
-  --spacing-lg: 1.5rem;    /* 24px */
-  --spacing-xl: 2rem;      /* 32px */
-}
-```
+| Variable | Semantic meaning |
+|----------|-----------------|
+| `--spacing-xs` | Tight padding (heatmap cells, compact controls) |
+| `--spacing-sm` | Small padding (filter bar, footer, button padding) |
+| `--spacing-md` | Standard padding (horizontal content padding, gaps) |
+| `--spacing-lg` | Section spacing (vertical content padding) |
+| `--spacing-xl` | Large separation (between major sections) |
 
 ### Borders and radii
 
-```css
-:root {
-  --radius-sm: 4px;
-  --radius-md: 6px;
-  --radius-lg: 8px;
-}
-```
+| Variable | Semantic meaning |
+|----------|-----------------|
+| `--radius-sm` | Buttons, inputs, small controls |
+| `--radius-md` | Cards, tables, dropdowns |
+| `--radius-lg` | Dialogs, large panels |
 
 ### Shadows
 
-```css
-:root {
-  --shadow-dialog: 0 4px 24px rgb(0 0 0 / 15%);
-}
-```
+| Variable | Semantic meaning |
+|----------|-----------------|
+| `--shadow-dialog` | Modal/dialog elevation |
 
 ### Z-index
 
@@ -255,24 +237,15 @@ Stacking order from back to front:
 | Dropdowns | `--z-dropdown` | 200 | Timezone picker and similar overlays |
 | Dialog backdrop | `--z-dialog-backdrop` | 1000 | Modal overlays — above everything |
 
-```css
-:root {
-  --z-filter-bar: 50;
-  --z-sidebar: 100;
-  --z-dropdown: 200;
-  --z-dialog-backdrop: 1000;
-}
-```
+Z-index values are defined in the document (not just the stylesheet) because they express a stacking contract that CSS alone does not make obvious.
 
 ### Sidebar dimensions
 
-```css
-:root {
-  --sidebar-width-expanded: 200px;
-  --sidebar-width-collapsed: 48px;
-  --sidebar-width: var(--sidebar-width-expanded);
-}
-```
+| Variable | Semantic meaning |
+|----------|-----------------|
+| `--sidebar-width-expanded` | Sidebar width when showing icon + text (200px) |
+| `--sidebar-width-collapsed` | Sidebar width when showing icon only (48px) |
+| `--sidebar-width` | Active sidebar width — toggled between expanded and collapsed by JavaScript |
 
 ---
 
@@ -280,8 +253,9 @@ Stacking order from back to front:
 
 To rebrand a fork:
 
-1. Copy the `:root` variable block into a new file (e.g., `theme-acme.css`).
+1. Open the stylesheet and locate the `:root` block.
 2. Replace color, font, and spacing values.
-3. Import the theme file after the base stylesheet, or replace the `:root` block directly.
+3. Verify contrast pairs (see table above) — changing a background without adjusting its text color will break readability.
+4. Test chart colors for accessibility — data visualization colors must be distinguishable for color-blind users.
 
 No component code changes. No class name changes. The variable names are the contract between structure and style.
