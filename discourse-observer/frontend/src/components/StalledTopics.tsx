@@ -30,7 +30,6 @@ function sortTopics(
   column: SortColumn,
   direction: SortDirection,
   monitored: Set<string>,
-  resolved: Record<string, ResolvedTag>,
 ): Topic[] {
   const sorted = [...topics];
   const dir = direction === "asc" ? 1 : -1;
@@ -66,7 +65,7 @@ export function StalledTopics({
 
   const stalled = filterStalledTopics(topics, resolvedTags);
   const monitored = new Set(monitoredTags);
-  const sorted = sortTopics(stalled, sortColumn, sortDirection, monitored, resolvedTags);
+  const sorted = sortTopics(stalled, sortColumn, sortDirection, monitored);
 
   function handleSort(column: SortColumn) {
     if (column === sortColumn) {
