@@ -30,6 +30,7 @@ nav:
       - Engineering Strategy: docs/engineering-strategy.md
       - Design Strategy: docs/design-strategy.md
       - Documentation Strategy: docs/documentation-strategy.md
+      - API Strategy: docs/api-strategy.md
   - Specifications:
       - Use Cases: specs/use-cases.md
       - Single Forum Scope: specs/single-forum-scope.md
