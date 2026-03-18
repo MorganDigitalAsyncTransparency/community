@@ -125,4 +125,4 @@ This matrix shows how use cases decompose into specifications, requirements, and
 
 - UC-3 partial: untagged share as percentage of all topics (deferred until total topic count is available from backend).
 - UC-11 partial: per-tag weekly backlog trend deferred — current implementation shows aggregate weekly trend only. Per-tag breakdown requires a tag selector and is deferred until need is demonstrated.
-- Visual design: no spec exists for the frontend's visual language (colors, typography, spacing, layout system). CSS implementation exists without a corresponding specification. Tracked as a separate work package.
+- ~~Visual design: no spec exists for the frontend's visual language.~~ Resolved by [ADR 0011](../../docs/decisions/0011-dashboard-layout-and-theme.md) and [design-strategy.md](../../docs/design-strategy.md). CSS custom properties, layout grid, sidebar navigation, and chart-color bridge are implemented.
