@@ -28,6 +28,7 @@ nav:
   - Strategy:
       - Purpose: docs/purpose.md
       - Engineering Strategy: docs/engineering-strategy.md
+      - Design Strategy: docs/design-strategy.md
       - Documentation Strategy: docs/documentation-strategy.md
   - Specifications:
       - Use Cases: specs/use-cases.md
