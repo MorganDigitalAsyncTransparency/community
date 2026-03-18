@@ -18,6 +18,15 @@ export const CHART_COLOR_2 = readCssVar("--color-chart-2");
 /** Third chart series (e.g., intake volume) — `--color-chart-3` */
 export const CHART_COLOR_3 = readCssVar("--color-chart-3");
 
+/** Fourth chart series (e.g., open topics) — `--color-chart-4` */
+export const CHART_COLOR_4 = readCssVar("--color-chart-4");
+
+/** Fifth chart series — `--color-chart-5` */
+export const CHART_COLOR_5 = readCssVar("--color-chart-5");
+
+/** Sixth chart series — `--color-chart-6` */
+export const CHART_COLOR_6 = readCssVar("--color-chart-6");
+
 /** RGB triplet for heatmap alpha variation — `--color-heatmap-base` */
 export const HEATMAP_BASE = readCssVar("--color-heatmap-base");
 

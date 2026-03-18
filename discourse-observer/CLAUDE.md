@@ -20,7 +20,7 @@ During Phase 5 impact scans, search from the monorepo root (`c:\code\community\`
 
 ## Current state
 
-The frontend dashboard (`frontend/`) is actively implemented with mock data. It has six pages — Queue, Response Metrics, Distribution, SLO, Volume, Activity — covering UC-1 through UC-20. Specs, tests, and source files are in place for all implemented use cases. Tag configuration — areas, SLO thresholds, stalled-days settings, and closed-tag definitions — is unified in `config/tagConfig.json`. Response time distribution buckets are in `config/distributionBuckets.json`. Both are created from example files during setup.
+The frontend dashboard (`frontend/`) is actively implemented with mock data. It has five pages — Queue, Response Metrics, Distribution, SLO, Activity — covering UC-1 through UC-20. The former Volume page content (topic intake) has been merged into Response Metrics as part of the volume and median trend charts. Specs, tests, and source files are in place for all implemented use cases. Tag configuration — areas, SLO thresholds, stalled-days settings, and closed-tag definitions — is unified in `config/tagConfig.json`. Response time distribution buckets are in `config/distributionBuckets.json`. Both are created from example files during setup.
 
 The backend pipeline (Go) is in the foundation stage: module boundaries, architecture decisions, and directory structure are defined, but implementation has not started.
 

@@ -96,13 +96,15 @@ All components receive data from the same `DashboardData` object, using the `res
 
 ### Page composition
 
-The Response Metrics page is built from three specs that each cover a distinct perspective on the same data:
+The Response Metrics page is built from multiple sections that each cover a distinct perspective on the same data:
 
 1. **This file** — summary cards: median first reply, median resolution, outcomes, answer rate (UC-4, UC-5, UC-6, UC-7).
-2. **[response-time-trends.md](response-time-trends.md)** — weekly trend chart showing how median response times change over time (UC-8).
-3. **[response-time-distribution.md](response-time-distribution.md)** — histogram showing how response times are spread across time brackets (UC-20).
+2. **Topic volume** — four-line chart showing topics created, accepted answer, topics closed, and currently open per time bucket (UC-17, merged from the former Volume page).
+3. **Median first reply** — line chart showing median first reply time per time bucket.
+4. **Median first resolution** — line chart showing median resolution time per time bucket.
+5. **[response-time-distribution.md](response-time-distribution.md)** — histogram showing how response times are spread across time brackets (UC-20).
 
-All three consume `resolvedTopics` and share the period filter (UC-12) and tag filter (UC-15).
+Volume and median trend charts use the same daily/weekly bucketing as the former Topic Intake (TI-2) and respect the period filter (UC-12) and tag filter (UC-15).
 
 Per-tag breakdown of metrics (UC-9, UC-10) is on the Distribution page — see [tag-distribution.md](tag-distribution.md).
 

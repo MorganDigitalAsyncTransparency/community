@@ -16,7 +16,6 @@ const NAV_ITEMS: NavItem[] = [
   { page: "response-metrics", label: "Response metrics", icon: "\u25F7" },
   { page: "distribution", label: "Distribution", icon: "\u25D4" },
   { page: "slo", label: "SLO", icon: "\u25C9" },
-  { page: "volume", label: "Volume", icon: "\u25A4" },
   { page: "activity", label: "Activity", icon: "\u26A1" },
 ];
 

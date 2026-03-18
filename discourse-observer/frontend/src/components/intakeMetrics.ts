@@ -3,8 +3,11 @@
 
 import type { Topic } from "../mock/data";
 import type { ActivePeriod } from "./timePeriod";
-import { mondayOf } from "./trendMetrics";
-import { formatWeekLabel } from "./topicFormatting";
+import {
+  advanceBucket,
+  bucketKeyFor,
+  formatBucketLabel,
+} from "./bucketHelpers";
 
 export type IntakeGranularity = "daily" | "weekly";
 
@@ -15,19 +18,6 @@ export interface IntakeBucket {
 }
 
 const GRANULARITY_THRESHOLD_DAYS = 90;
-
-function dayOf(date: Date): string {
-  return date.toISOString().slice(0, 10);
-}
-
-function formatDayLabel(isoDate: string): string {
-  return new Date(isoDate + "T00:00:00Z").toLocaleDateString(undefined, {
-    year: "numeric",
-    month: "short",
-    day: "numeric",
-    timeZone: "UTC",
-  });
-}
 
 export function intakeGranularity(period: ActivePeriod): IntakeGranularity {
   if (period.kind === "preset") {
@@ -40,22 +30,6 @@ export function intakeGranularity(period: ActivePeriod): IntakeGranularity {
   const to = new Date(period.range.to + "T23:59:59.999Z").getTime();
   const spanDays = (to - from) / 86_400_000;
   return spanDays < GRANULARITY_THRESHOLD_DAYS ? "daily" : "weekly";
-}
-
-function nextDay(isoDate: string): string {
-  const d = new Date(isoDate + "T00:00:00Z");
-  d.setUTCDate(d.getUTCDate() + 1);
-  return dayOf(d);
-}
-
-function nextMonday(isoDate: string): string {
-  const d = new Date(isoDate + "T00:00:00Z");
-  d.setUTCDate(d.getUTCDate() + 7);
-  return dayOf(d);
-}
-
-function bucketKey(date: Date, granularity: IntakeGranularity): string {
-  return granularity === "daily" ? dayOf(date) : mondayOf(date);
 }
 
 export interface TimeRange {
@@ -73,8 +47,7 @@ export function computeTimeRange(
   let latest = "";
 
   for (const topic of topics) {
-    const date = new Date(topic.createdAt);
-    const key = bucketKey(date, granularity);
+    const key = bucketKeyFor(new Date(topic.createdAt), granularity);
     if (earliest === "" || key < earliest) earliest = key;
     if (latest === "" || key > latest) latest = key;
   }
@@ -89,7 +62,7 @@ function fillRange(
 ): Map<string, number> {
   if (range.first > range.last) return new Map();
 
-  const advance = granularity === "daily" ? nextDay : nextMonday;
+  const advance = advanceBucket(granularity);
 
   const filled = new Map<string, number>();
   let current = range.first;
@@ -110,13 +83,12 @@ export function computeIntakeBuckets(
   const byBucket = new Map<string, number>();
 
   for (const topic of topics) {
-    const date = new Date(topic.createdAt);
-    const key = bucketKey(date, granularity);
+    const key = bucketKeyFor(new Date(topic.createdAt), granularity);
     byBucket.set(key, (byBucket.get(key) ?? 0) + 1);
   }
 
   const filled = fillRange(byBucket, granularity, range);
-  const formatLabel = granularity === "daily" ? formatDayLabel : formatWeekLabel;
+  const formatLabel = formatBucketLabel(granularity);
 
   return [...filled.entries()]
     .sort(([a], [b]) => a.localeCompare(b))

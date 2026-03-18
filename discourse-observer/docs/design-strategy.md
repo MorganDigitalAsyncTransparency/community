@@ -161,9 +161,12 @@ Layout dimensions like `--sidebar-width-expanded` use the component name as cate
 | Variable | Semantic meaning |
 |----------|-----------------|
 | `--color-heatmap-base` | RGB triplet (no `#`) for heatmap alpha variation: `rgba(var(--color-heatmap-base) / α)` |
-| `--color-chart-1` | First chart series (e.g., time to first reply) |
-| `--color-chart-2` | Second chart series (e.g., resolution time) |
-| `--color-chart-3` | Third chart series (e.g., intake volume) |
+| `--color-chart-1` | First chart series (e.g., median first reply) |
+| `--color-chart-2` | Second chart series (e.g., median resolution) |
+| `--color-chart-3` | Third chart series (e.g., topics created) |
+| `--color-chart-4` | Fourth chart series (e.g., currently open) |
+| `--color-chart-5` | Fifth chart series (e.g., topics closed) |
+| `--color-chart-6` | Sixth chart series (e.g., accepted answer) |
 
 #### Table
 
