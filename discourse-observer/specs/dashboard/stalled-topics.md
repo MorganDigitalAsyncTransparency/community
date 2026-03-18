@@ -52,7 +52,7 @@ This file defines *what* the user sees and why. [dashboard-components.md](dashbo
 
 ### Placement
 
-**ST-12.** The stalled topics list appears on a new dashboard page titled "Activity", accessible via a navigation link alongside the existing pages (Queue, Response metrics, Distribution, SLO, Volume).
+**ST-12.** The stalled topics list appears on a new dashboard page titled "Activity", accessible via a navigation link alongside the existing pages (Queue, Response metrics, Distribution, SLO).
 
 ### Empty state
 

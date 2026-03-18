@@ -632,6 +632,24 @@ body {
   height: 300px;
 }
 
+/* ── Volume and median trend charts ── */
+
+.volume-chart-wrapper {
+  width: 100%;
+  height: 300px;
+}
+
+.median-trend-chart-wrapper {
+  width: 100%;
+  height: 250px;
+}
+
+.chart-empty {
+  font-size: var(--font-size-md);
+  color: var(--color-text-muted);
+  padding: var(--spacing-md) 0;
+}
+
 /* ── SLO monitoring (UC-13, UC-14) ── */
 
 .slo-section-title {

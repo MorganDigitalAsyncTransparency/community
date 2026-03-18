@@ -70,43 +70,47 @@ Given a sorted array of durations, the median is:
 
 ---
 
-## ResponseTimeTrends
+## VolumeChart
 
-Accepts `topics: Topic[]` (all resolved topics, unfiltered). Calls `computeWeeklyTrends` and renders:
+Accepts `data: VolumeBucket[]` (multi-series chart data). Renders a Recharts `LineChart` inside a `ResponsiveContainer` (width 100%, height 300px).
 
-- A section heading "Weekly trends".
-- A `ResponseTimeTrendChart` displaying the trend lines (see below).
-- A table with four columns: Week (Monday date), Topics (count), Median first reply, Median resolution.
-- Rows ordered newest week first.
-- If `computeWeeklyTrends` returns an empty array, renders an empty-state paragraph ("No data") instead of both the chart and the table.
+Four `Line` series:
 
-Week labels are formatted using `toLocaleDateString` with `{ year: "numeric", month: "short", day: "numeric", timeZone: "UTC" }` so that the display date matches the UTC Monday that identifies the week.
-
-`ResponseTimeTrends` is a pure function component. It does not filter topics — callers are responsible for passing the correct set. See [response-time-trends.md](response-time-trends.md) for the requirements.
-
----
-
-## ResponseTimeTrendChart
-
-Accepts `data: TrendChartPoint[]` (chart-ready data with numeric durations). Renders a Recharts `LineChart` inside a `ResponsiveContainer` (width 100%, height 300px).
-
-Two `Line` series:
-
-- "Median first reply" (`medianFirstReplyHours`) — colored via `--color-chart-1`.
-- "Median resolution" (`medianResolutionHours`) — colored via `--color-chart-2`.
-
-Both lines use `connectNulls={false}` so that weeks with `undefined` values (no qualifying topics) appear as gaps.
+- "Topics created" (`created`) — colored via `--color-chart-3`.
+- "Accepted answer" (`accepted`) — colored via `--color-chart-6`.
+- "Topics closed" (`closed`) — colored via `--color-chart-5`.
+- "Currently open" (`open`) — colored via `--color-chart-4`.
 
 Chart features:
 
-- `XAxis` with `dataKey="weekLabel"` showing formatted week dates.
+- `XAxis` with `dataKey="label"` showing bucket date labels.
+- `YAxis` with `allowDecimals={false}` for whole numbers.
+- `Tooltip` showing all series values.
+- `Legend` identifying the four series.
+
+CSS class prefix: `volume-chart-` for chart-specific elements.
+
+---
+
+## MedianTrendChart
+
+Accepts three props:
+
+| Prop | Type | Purpose |
+|------|------|---------|
+| `data` | `MedianBucket[]` | Per-bucket median durations |
+| `color` | `string` | Line color |
+| `name` | `string` | Series name for tooltip |
+
+Renders a Recharts `LineChart` inside a `ResponsiveContainer` (width 100%, height 250px). A single `Line` series plots `medianHours`. Buckets with `undefined` values appear as gaps (`connectNulls={false}`).
+
+Chart features:
+
+- `XAxis` with `dataKey="label"` showing bucket date labels.
 - `YAxis` with duration-formatted tick labels (hours/days via `formatDuration`).
-- `Tooltip` showing series name, formatted duration, and week label.
-- `Legend` with click-to-toggle (built-in Recharts behavior).
+- `Tooltip` showing formatted duration.
 
-CSS class prefix: `trends-chart-` for chart-specific elements.
-
-`ResponseTimeTrendChart` uses Recharts' `ResponsiveContainer`, which requires a parent with defined dimensions. The chart wrapper div provides this via CSS.
+CSS class prefix: `median-trend-chart-` for chart-specific elements.
 
 ---
 
@@ -202,49 +206,6 @@ When the SLO configuration is empty (no tags configured), the entire component r
 `SloMonitor` is a pure function component. It holds no state — all filtering is handled by `App` before passing props. See [slo-monitoring.md](slo-monitoring.md) for the requirements.
 
 CSS class prefix: `slo-` for all elements specific to this component.
-
----
-
-## TopicIntake
-
-Accepts three props:
-
-| Prop | Type | Purpose |
-|------|------|---------|
-| `topics` | `Topic[]` | Filtered unreplied + resolved topics combined — intake counts all created topics |
-| `granularity` | `IntakeGranularity` | `"daily"` or `"weekly"` — determines time bucket size |
-| `timeRange` | `TimeRange \| null` | Global time range for the x-axis — computed from all monitored-tag topics in the active period so the axis stays consistent when switching tags |
-
-Calls `computeIntakeBuckets(topics, granularity, timeRange)` and renders:
-
-- A section heading "Topic intake".
-- An `IntakeChart` displaying the line chart (see below).
-- If `computeIntakeBuckets` returns an empty array, renders an empty-state paragraph ("No data") instead of the chart.
-
-`TopicIntake` is a pure function component. It holds no state — all filtering is handled by `App` before passing props. See [topic-intake.md](topic-intake.md) for the requirements.
-
-CSS class prefix: `intake-` for section-level elements.
-
----
-
-## IntakeChart
-
-Accepts `data: IntakeBucket[]` (chart-ready data with labels and counts). Renders a Recharts `LineChart` inside a `ResponsiveContainer` (width 100%, height 300px).
-
-One `Line` series:
-
-- "Topics" (`count`) — colored via `--color-chart-3`, monotone interpolation, small dots (radius 3) for point visibility.
-
-Chart features:
-
-- `XAxis` with `dataKey="label"` showing bucket date labels.
-- `YAxis` with `allowDecimals={false}` to show whole numbers only.
-- `Tooltip` showing the bucket label and count.
-- No legend (single series makes a legend redundant).
-
-CSS class prefix: `intake-chart-` for chart-specific elements.
-
-`IntakeChart` uses Recharts' `ResponsiveContainer`, which requires a parent with defined dimensions. The chart wrapper div provides this via CSS.
 
 ---
 
@@ -400,7 +361,7 @@ Accepts four props:
 Renders a vertical sidebar spanning the full viewport height with:
 
 - A logo section showing "discourse-observer" (expanded) or "d-o" (collapsed).
-- Six navigation links — Queue, Response metrics, Distribution, SLO, Volume, Activity — each with an icon and text label. The active page is visually distinguished (`sidebar-link-active`).
+- Five navigation links — Queue, Response metrics, Distribution, SLO, Activity — each with an icon and text label. The active page is visually distinguished (`sidebar-link-active`).
 - A collapse/expand toggle at the bottom.
 
 **States:**
@@ -459,10 +420,10 @@ All time displays — both topic age and response time metrics — use a single 
 ### Styling
 
 - No inline styles. All styling uses CSS classes.
-- Class name prefixes: `summary-` for SummaryCards, `unreplied-` for UnrepliedTable, `untagged-` for UntaggedTable, `response-` for ResponseMetricsCards, `sidebar-` for Sidebar (including `sidebar-backdrop` and `sidebar-mobile-open`), `hamburger` for the mobile menu button, `footer-` for Footer, `period-` for PeriodSelector, `tag-` for TagSelector, `trends-` for ResponseTimeTrends, `trends-chart-` for ResponseTimeTrendChart, `slo-` for SloMonitor, `intake-` for TopicIntake, `intake-chart-` for IntakeChart, `stalled-` for StalledTopics, `peak-` for PeakActivity, `peak-tz-picker-` for TimezonePicker, `peak-consent-` for CookieConsentModal, `rd-` for ResponseTimeDistribution, `rd-chart-` for DistributionChart.
+- Class name prefixes: `summary-` for SummaryCards, `unreplied-` for UnrepliedTable, `untagged-` for UntaggedTable, `response-` for ResponseMetricsCards, `sidebar-` for Sidebar (including `sidebar-backdrop` and `sidebar-mobile-open`), `hamburger` for the mobile menu button, `footer-` for Footer, `period-` for PeriodSelector, `tag-` for TagSelector, `volume-chart-` for VolumeChart, `median-trend-chart-` for MedianTrendChart, `slo-` for SloMonitor, `stalled-` for StalledTopics, `peak-` for PeakActivity, `peak-tz-picker-` for TimezonePicker, `peak-consent-` for CookieConsentModal, `rd-` for ResponseTimeDistribution, `rd-chart-` for DistributionChart.
 
 ### Implementation constraints
 
-- Pure function components. No React hooks. Exceptions: `App` uses `useState` for page navigation, active period, custom range draft, active tag, active area, and mobile sidebar visibility state, as it is the application shell — not a display component. `Sidebar` uses `useState` for collapsed state — this state is local to the sidebar and does not affect other components. `PeakActivity` uses `useState` for timezone selections, picker visibility, and cookie consent state — this state is local to the heatmap and does not affect other components. `TimezonePicker` uses `useState` for the search input — this is local input state that does not affect other components. `ResponseTimeTrendChart` uses Recharts components that manage internal state for interactivity (tooltips, legend toggle); the component itself does not call hooks directly.
+- Pure function components. No React hooks. Exceptions: `App` uses `useState` for page navigation, active period, custom range draft, active tag, active area, and mobile sidebar visibility state, as it is the application shell — not a display component. `Sidebar` uses `useState` for collapsed state — this state is local to the sidebar and does not affect other components. `PeakActivity` uses `useState` for timezone selections, picker visibility, and cookie consent state — this state is local to the heatmap and does not affect other components. `TimezonePicker` uses `useState` for the search input — this is local input state that does not affect other components.
 - Each component file stays under 200 lines.
 - Types are imported from the mock data module.

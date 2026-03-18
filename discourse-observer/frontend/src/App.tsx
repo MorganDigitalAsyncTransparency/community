@@ -1,13 +1,13 @@
 // Spec: specs/dashboard/queue-visibility.md, specs/dashboard/response-metrics.md,
-//       specs/dashboard/time-period-filter.md, specs/dashboard/response-time-trends.md,
+//       specs/dashboard/time-period-filter.md,
 //       specs/dashboard/tag-distribution.md, specs/dashboard/slo-monitoring.md,
-//       specs/dashboard/tag-area-filter.md, specs/dashboard/topic-intake.md,
+//       specs/dashboard/tag-area-filter.md,
 //       specs/dashboard/stalled-topics.md, specs/dashboard/peak-activity.md,
 //       specs/dashboard/response-time-distribution.md
 // Tests: tests/dashboard/queue-visibility.unit.test.ts, tests/dashboard/response-metrics.unit.test.ts,
-//        tests/dashboard/time-period-filter.unit.test.ts, tests/dashboard/response-time-trends.unit.test.ts,
+//        tests/dashboard/time-period-filter.unit.test.ts,
 //        tests/dashboard/tag-distribution.unit.test.ts, tests/dashboard/slo-monitoring.unit.test.ts,
-//        tests/dashboard/tag-area-filter.unit.test.ts, tests/dashboard/topic-intake.unit.test.ts,
+//        tests/dashboard/tag-area-filter.unit.test.ts,
 //        tests/dashboard/stalled-topics.unit.test.ts, tests/dashboard/peak-activity.unit.test.ts,
 //        tests/dashboard/response-time-distribution.unit.test.ts
 
@@ -18,10 +18,10 @@ import { SummaryCards } from "./components/SummaryCards";
 import { UnrepliedTable } from "./components/UnrepliedTable";
 import { UntaggedTable } from "./components/UntaggedTable";
 import { ResponseMetricsCards } from "./components/ResponseMetricsCards";
-import { ResponseTimeTrends } from "./components/ResponseTimeTrends";
+import { VolumeChart } from "./components/VolumeChart";
+import { MedianTrendChart } from "./components/MedianTrendChart";
 import { TagDistribution } from "./components/TagDistribution";
 import { SloMonitor } from "./components/SloMonitor";
-import { TopicIntake } from "./components/TopicIntake";
 import { StalledTopics } from "./components/StalledTopics";
 import { PeakActivity } from "./components/PeakActivity";
 import { ResponseTimeDistribution } from "./components/ResponseTimeDistribution";
@@ -48,6 +48,12 @@ import {
   resolveAllTags,
 } from "./components/tagFilter";
 import { intakeGranularity, computeTimeRange } from "./components/intakeMetrics";
+import { computeVolumeBuckets } from "./components/volumeMetrics";
+import {
+  computeMedianFirstReplyBuckets,
+  computeMedianResolutionBuckets,
+} from "./components/medianTrendMetrics";
+import { CHART_COLOR_1, CHART_COLOR_2 } from "./components/themeColors";
 import type { Page } from "./types";
 
 export function App() {
@@ -119,7 +125,11 @@ export function App() {
     repliedOpenTopics: applyTagFilter(periodFiltered.repliedOpenTopics),
   };
 
-  const allFilteredTopics = [...filteredData.unrepliedTopics, ...filteredData.resolvedTopics];
+  const allFilteredTopics = [
+    ...filteredData.unrepliedTopics,
+    ...filteredData.resolvedTopics,
+    ...filteredData.repliedOpenTopics,
+  ];
 
   const hasActiveFilters =
     activePeriod.kind !== "preset" ||
@@ -127,14 +137,46 @@ export function App() {
     activeTag !== null ||
     activeArea !== null;
 
-  // TI-8a: global time range from period-filtered + monitored-tag topics.
+  // Global time range from period-filtered + monitored-tag topics.
   // Uses all monitored tags (not the active tag) so the x-axis stays
   // consistent when switching between tags within the same period.
   const granularity = intakeGranularity(activePeriod);
-  const allPeriodFiltered = [...periodFiltered.unrepliedTopics, ...periodFiltered.resolvedTopics];
+  const allPeriodFiltered = [
+    ...periodFiltered.unrepliedTopics,
+    ...periodFiltered.resolvedTopics,
+    ...periodFiltered.repliedOpenTopics,
+  ];
   const intakeTimeRange = computeTimeRange(
     filterByMonitoredTags(allPeriodFiltered, monitored),
     granularity,
+  );
+
+  // Volume chart data: 4 series bucketed by createdAt.
+  const solvedTopics = filteredData.resolvedTopics.filter((t) => t.outcome === "solved");
+  const selfClosedTopics = filteredData.resolvedTopics.filter((t) => t.outcome === "self-closed");
+  const openTopics = [...filteredData.unrepliedTopics, ...filteredData.repliedOpenTopics];
+
+  const volumeBuckets = computeVolumeBuckets(
+    {
+      allTopics: allFilteredTopics,
+      solvedTopics,
+      selfClosedTopics,
+      openTopics,
+    },
+    granularity,
+    intakeTimeRange,
+  );
+
+  // Median trend data: per-bucket median first reply and resolution.
+  const medianFirstReplyBuckets = computeMedianFirstReplyBuckets(
+    filteredData.resolvedTopics,
+    granularity,
+    intakeTimeRange,
+  );
+  const medianResolutionBuckets = computeMedianResolutionBuckets(
+    filteredData.resolvedTopics,
+    granularity,
+    intakeTimeRange,
   );
 
   return (
@@ -206,10 +248,42 @@ export function App() {
           {page === "response-metrics" && (
             <>
               <ResponseMetricsCards topics={filteredData.resolvedTopics} />
-              {/* RT-8: trends span full history (no period filter).
-                  TA-7: tag filter applies to trends — scope is a tag decision. */}
-              <ResponseTimeTrends topics={applyTagFilter(MOCK_DATA.resolvedTopics)} />
-              {/* RD-12: period filter applies; RD-13: tag filter applies */}
+
+              <section>
+                <h2 className="app-section-title">Topic volume</h2>
+                {volumeBuckets.length === 0 ? (
+                  <p className="chart-empty">No data</p>
+                ) : (
+                  <VolumeChart data={volumeBuckets} />
+                )}
+              </section>
+
+              <section>
+                <h2 className="app-section-title">Median first reply</h2>
+                {medianFirstReplyBuckets.length === 0 ? (
+                  <p className="chart-empty">No data</p>
+                ) : (
+                  <MedianTrendChart
+                    data={medianFirstReplyBuckets}
+                    color={CHART_COLOR_1}
+                    name="Median first reply"
+                  />
+                )}
+              </section>
+
+              <section>
+                <h2 className="app-section-title">Median first resolution</h2>
+                {medianResolutionBuckets.length === 0 ? (
+                  <p className="chart-empty">No data</p>
+                ) : (
+                  <MedianTrendChart
+                    data={medianResolutionBuckets}
+                    color={CHART_COLOR_2}
+                    name="Median resolution"
+                  />
+                )}
+              </section>
+
               <ResponseTimeDistribution
                 topics={filteredData.resolvedTopics}
                 ceilingsHours={distributionConfig.bucketCeilingsHours}
@@ -239,15 +313,6 @@ export function App() {
             />
           )}
 
-          {page === "volume" && (
-            // TI-5: period filter applies; TI-6: tag filter applies; TI-7: all topics (unreplied + resolved)
-            <TopicIntake
-              topics={allFilteredTopics}
-              granularity={granularity}
-              timeRange={intakeTimeRange}
-            />
-          )}
-
           {page === "activity" && (
             <>
               {/* ST-8: period filter applies; ST-9: tag filter applies */}
@@ -256,7 +321,7 @@ export function App() {
                 resolvedTags={resolvedTags}
                 monitoredTags={monitored}
               />
-              {/* PA-8: all topics (unreplied + resolved); PA-11: period filter; PA-12: tag filter */}
+              {/* PA-8: all topics (unreplied + resolved + repliedOpen); PA-11: period filter; PA-12: tag filter */}
               <PeakActivity
                 topics={allFilteredTopics}
               />
