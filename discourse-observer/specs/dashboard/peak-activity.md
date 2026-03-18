@@ -55,7 +55,7 @@ This file defines *what* the user sees and why. [dashboard-components.md](dashbo
 
 **PA-14.** The heatmap displays a UTC hour header row (0–23) that is always present and cannot be removed. This row is the bottom header row and is visually labeled "UTC".
 
-**PA-15.** The user can add up to three additional timezone header rows above the UTC row. Each row shows offset hour labels for a user-chosen IANA timezone.
+**PA-15.** The user can add up to three additional timezone header rows above the UTC row. Each row shows offset hour labels for a user-chosen IANA timezone. The most recently added timezone appears at the top (farthest from the UTC row); the first-added timezone appears closest to the UTC row.
 
 **PA-16.** An "Add timezone" button appears above the heatmap table (after the heading). When three timezone rows are already present, the button is disabled (greyed out) with a title attribute explaining the three-row limit.
 

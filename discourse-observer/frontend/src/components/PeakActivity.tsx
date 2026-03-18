@@ -124,7 +124,7 @@ export function PeakActivity({ topics }: PeakActivityProps) {
       <div className="peak-table-wrapper">
         <table className="peak-table">
           <thead>
-            {timezones.map((tz) => {
+            {[...timezones].reverse().map((tz) => {
               const offset = utcOffsetMinutes(tz);
               const name = timezoneShortName(tz);
               const offsetLabel = formatUtcOffset(offset);
