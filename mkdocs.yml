@@ -28,6 +28,7 @@ nav:
   - Strategy:
       - Purpose: docs/purpose.md
       - Engineering Strategy: docs/engineering-strategy.md
+      - Design Strategy: docs/design-strategy.md
       - Documentation Strategy: docs/documentation-strategy.md
   - Specifications:
       - Use Cases: specs/use-cases.md
@@ -65,6 +66,7 @@ nav:
       - "0008: Documentation and Traceability Strategy": docs/decisions/0008-documentation-and-traceability-strategy.md
       - "0009: Chart Library": docs/decisions/0009-chart-library.md
       - "0010: Timezone Strategy": docs/decisions/0010-timezone-strategy.md
+      - "0011: Dashboard Layout and Theme": docs/decisions/0011-dashboard-layout-and-theme.md
 
 markdown_extensions:
   - toc:
