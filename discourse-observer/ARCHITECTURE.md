@@ -85,11 +85,13 @@ These terms have specific meanings in this project. Other documentation uses the
 
 ### Frontend / Dashboard
 
-A React/TypeScript frontend exists in `frontend/` and renders a multi-page dashboard (Queue, Response metrics, Distribution, SLO, Activity) using mock data. Individual feature specs live in `specs/dashboard/`: queue-visibility, response-metrics, time-period-filter, tag-distribution, slo-monitoring, tag-area-filter, topic-intake (bucketing logic reused by volume charts), stalled-topics (on the Queue page), and peak-activity (on the Activity page). Cross-cutting component behavior is in `specs/dashboard/dashboard-components.md`. When the backend API is available, only the data source changes — the component interfaces remain the same.
+A React/TypeScript frontend exists in `frontend/` and renders a multi-page dashboard (Queue, Response metrics, Distribution, SLO, Activity) using mock data. Individual feature specs live in `specs/dashboard/`: queue-visibility, response-metrics, time-period-filter, tag-distribution, slo-monitoring, tag-area-filter, topic-intake (bucketing logic reused by volume charts), stalled-topics (on the Queue page), and peak-activity (on the Activity page). Cross-cutting component behavior is in `specs/dashboard/dashboard-components.md`. When the backend API is available, the frontend will consume domain aggregate endpoints ([specs/api/api-contract.md](specs/api/api-contract.md)) and its calculation logic (medians, bucketing, rankings) will be removed — the backend takes over that responsibility ([ADR 0012](docs/decisions/0012-api-responsibility-model.md)).
 
 ### Backend API
 
-There is no HTTP API or server component yet. The project currently focuses on the data pipeline: fetching, observing, modeling, and storing. An API layer will be introduced when there is something meaningful to serve.
+The API contract is specified in [specs/api/api-contract.md](specs/api/api-contract.md). It defines domain aggregate endpoints that serve pre-computed data to the frontend and future consumers (MCP servers, CLI tools). The responsibility model — why the backend computes aggregates rather than serving raw data — is recorded in [ADR 0012](docs/decisions/0012-api-responsibility-model.md).
+
+The API is not yet implemented. When it is, it will query the SQLite analytical store ([ADR 0006](docs/decisions/0006-analytical-storage.md)) and return domain-meaningful aggregates (medians, rankings, compliance rates, distributions) in machine-readable units.
 
 ### Event / History model
 
