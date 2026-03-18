@@ -1,6 +1,6 @@
 # 11. Dashboard Layout and Theme
 
-**Status:** Proposed
+**Status:** Accepted
 **Date:** 2026-03-18
 
 ## Context
@@ -278,8 +278,25 @@ On small screens (below ~768px), the sidebar collapses behind a hamburger toggle
 
 Alternative A (topbar) was rejected because horizontal tab navigation does not provide persistent "where am I" context and does not scale to grouped navigation. Alternative C (compact header) is essentially the current layout tightened — it does not solve the navigation clarity problem.
 
-**Content width** — pending. This decision has not been made.
+**Content width — Fixed max-width (1400px).** The content area uses `max-width: 1400px` with `margin: 0 auto` centering. On a 14" laptop (1366px typical), content fills nearly all available space after the sidebar. On large monitors, content stays readable rather than stretching across the full viewport.
+
+Fluid full-width was rejected because table rows and text become difficult to scan on wide screens. Adaptive max-width adds breakpoint complexity without clear benefit — the fixed value works well across the expected range (14" laptop to 45" ultrawide).
 
 ## Consequences
 
-*To be determined after the decision is made.*
+**Positive:**
+
+- Rebranding is a single-file change — replace CSS custom property values on `:root`, no component code touched.
+- Sidebar navigation provides persistent orientation and scales to more pages without layout changes.
+- Collapsible sidebar lets users reclaim horizontal space when they know where they are.
+- Fixed max-width ensures readable content across screen sizes from 14" laptops to ultrawide monitors.
+- All decisions align with the existing plain CSS approach (ADR 0002) — no new build dependencies.
+
+**Negative:**
+
+- Sidebar requires icons for each page. Icons must be chosen and maintained as pages are added.
+- Collapsed sidebar relies on tooltips for page names — less discoverable than visible text labels.
+- The collapsible sidebar interaction (expand/collapse toggle, state persistence) adds frontend logic that the current layout does not have.
+- Fixed max-width at 1400px means content does not use available space on very large monitors. This is an intentional trade-off for readability.
+- CSS custom properties have no compile-time validation — a typo in a variable name fails silently. Code review and consistent naming conventions must compensate.
+- Migrating the existing ~1000 lines of hardcoded CSS to use variables is a separate work package that this ADR does not cover.
