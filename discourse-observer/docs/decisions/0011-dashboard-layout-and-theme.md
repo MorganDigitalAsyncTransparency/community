@@ -246,7 +246,11 @@ Content area uses `max-width` that increases at defined breakpoints, or individu
 
 ## Decision
 
-*Pending — alternatives are presented for review. No decision has been made.*
+**Theme architecture — CSS custom properties (Alternative I).** The project already uses plain CSS without a preprocessor (ADR 0002). CSS custom properties solve the branding problem natively — a fork replaces one block of `--variable` values on `:root` and the entire dashboard follows. No build dependency, no runtime cost, no component code changes.
+
+Sass/Less (Alternative II) would add a build-time dependency to solve the same problem. CSS-in-JS (Alternative III) would require rewriting 1000 lines of plain CSS into a different paradigm and add a runtime dependency. Neither is justified when the branding model is fork-based with no runtime theme switching.
+
+**Layout and content width** — pending. These decisions have not been made.
 
 ## Consequences
 
