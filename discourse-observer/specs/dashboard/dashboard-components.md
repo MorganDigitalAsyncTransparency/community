@@ -30,11 +30,11 @@ Accepts `Topic[]`. Renders a table with three columns:
 
 | Column | Content |
 |--------|---------|
-| Age    | Time since `createdAt`, formatted as `"Xd"` (days) if ≥ 24 hours, otherwise `"Xh"` (hours) |
-| Title  | The topic title |
+| Topic  | The topic title, linked to the Discourse forum topic via `topicUrl` |
 | Tags   | Tags joined by comma, or "–" if empty |
+| Age    | Time since `createdAt`, formatted as `"Xd"` (days) if ≥ 24 hours, otherwise `"Xh"` (hours) |
 
-Rows are sorted oldest first (ascending by `createdAt`).
+All column headers are clickable to sort ascending or descending. Default sort: Age descending (oldest first). Sort state is managed via the shared `useTableSort` hook.
 
 ---
 
@@ -44,11 +44,11 @@ Accepts `Topic[]`. Renders a table with three columns:
 
 | Column   | Content |
 |----------|---------|
-| Age      | Same age format as UnrepliedTable |
-| Title    | The topic title |
+| Topic    | The topic title, linked to the Discourse forum topic via `topicUrl` |
 | Category | The topic category |
+| Age      | Same age format as UnrepliedTable |
 
-Rows are sorted oldest first (ascending by `createdAt`).
+All column headers are clickable to sort ascending or descending. Default sort: Age descending (oldest first). Sort state is managed via the shared `useTableSort` hook.
 
 ---
 
@@ -197,13 +197,13 @@ Accepts four props:
 
 Renders two sections in order:
 
-**1. "Threshold violations" (UC-13):** Three subsections, one per threshold type — "First reply violations", "Resolution violations", "Inactivity violations". Each calls the corresponding violation function and renders a table with columns: Title, Tag, Threshold, Actual, Excess. Rows are sorted by excess time descending. Each subsection shows an empty-state paragraph ("No violations") when the list is empty.
+**1. "Threshold violations" (UC-13):** Three subsections, one per threshold type — "First reply violations", "Resolution violations", "Inactivity violations". Each calls the corresponding violation function and renders a table with columns: Topic, Tag, Threshold, Actual, Excess. The Topic column shows the topic title as a clickable link to the Discourse forum topic. All column headers are clickable to sort ascending or descending; default sort is by Excess descending. Each subsection shows an empty-state paragraph ("No violations") when the list is empty.
 
-**2. "SLO compliance" (UC-14):** Calls the compliance function and renders a table with columns: Tag, First reply, Resolution, Inactivity. Each cell shows a percentage or "–" when no topics are eligible. Tags are sorted alphabetically. Shows an empty-state paragraph ("No data") when no monitored tags have eligible topics.
+**2. "SLO compliance" (UC-14):** Calls the compliance function and renders a table with columns: Tag, First reply, Resolution, Inactivity. Each cell shows a percentage or "–" when no topics are eligible. All column headers are clickable to sort; default sort is by Tag ascending. Shows an empty-state paragraph ("No data") when no monitored tags have eligible topics.
 
 When the SLO configuration is empty (no tags configured), the entire component renders a single empty-state message ("No SLO thresholds configured") instead of the sections above.
 
-`SloMonitor` is a pure function component. It holds no state — all filtering is handled by `App` before passing props. See [slo-monitoring.md](slo-monitoring.md) for the requirements.
+`SloMonitor` manages sort state for each sub-table via the shared `useTableSort` hook. All topic filtering is handled by `App` before passing props. See [slo-monitoring.md](slo-monitoring.md) for the requirements.
 
 CSS class prefix: `slo-` for all elements specific to this component.
 
@@ -226,16 +226,16 @@ Calls `filterStalledTopics(topics, resolvedTags)` and renders:
 
 | Column | Content |
 |--------|---------|
-| Title | The topic title |
-| Tag | First monitored tag on the topic, or "–" if none. Header is clickable to sort. |
+| Topic | The topic title, linked to the Discourse forum topic via `topicUrl` |
+| Tag | First monitored tag on the topic, or "–" if none |
 | Threshold | Per-topic stalled-days value via `stalledThresholdForTopic`, with "(default)" indicator when inherited from defaults |
-| Days inactive | Whole days since `lastActivityAt` (truncated), falling back to `createdAt`. Header is clickable to sort. |
+| Days inactive | Whole days since `lastActivityAt` (truncated), falling back to `createdAt` |
 
-- Default sort: Days inactive descending (highest first). Clicking a column header toggles direction; clicking a different column switches to that column's default direction (Tag: ascending, Days inactive: descending).
+- All column headers are clickable to sort ascending or descending. Default sort: Days inactive descending (highest first). Clicking a column header toggles direction; clicking a different column switches to that column's default direction (Topic: ascending, Tag: ascending, Threshold: ascending, Days inactive: descending).
 - The active sort column header shows an arrow indicator (▲ ascending, ▼ descending).
 - If no topics pass the stalled filter, renders an empty-state paragraph ("No stalled topics") instead of the table.
 
-`StalledTopics` holds sort state (column and direction) via `useState`. All topic filtering is handled by `App` before passing props. See [stalled-topics.md](stalled-topics.md) for the requirements.
+`StalledTopics` manages sort state via the shared `useTableSort` hook. All topic filtering is handled by `App` before passing props. See [stalled-topics.md](stalled-topics.md) for the requirements.
 
 CSS class prefix: `stalled-` for all elements specific to this component.
 
@@ -427,6 +427,6 @@ All time displays — both topic age and response time metrics — use a single 
 
 ### Implementation constraints
 
-- Pure function components. No React hooks. Exceptions: `App` uses `useState` for page navigation, active period, custom range draft, active tag, active area, and mobile sidebar visibility state, as it is the application shell — not a display component. `Sidebar` uses `useState` for collapsed state — this state is local to the sidebar and does not affect other components. `StalledTopics` uses `useState` for sort column and direction — this state is local to the table and does not affect other components. `PeakActivity` uses `useState` for timezone selections, picker visibility, and cookie consent state — this state is local to the heatmap and does not affect other components. `TimezonePicker` uses `useState` for the search input — this is local input state that does not affect other components.
+- Pure function components. No React hooks. Exceptions: `App` uses `useState` for page navigation, active period, custom range draft, active tag, active area, and mobile sidebar visibility state, as it is the application shell — not a display component. `Sidebar` uses `useState` for collapsed state — this state is local to the sidebar and does not affect other components. `UnrepliedTable`, `UntaggedTable`, `StalledTopics`, and `SloMonitor` (via its `ViolationTable` and `ComplianceTable` sub-components) use the shared `useTableSort` hook for sort column and direction — this state is local to each table and does not affect other components. `PeakActivity` uses `useState` for timezone selections, picker visibility, and cookie consent state — this state is local to the heatmap and does not affect other components. `TimezonePicker` uses `useState` for the search input — this is local input state that does not affect other components.
 - Each component file stays under 200 lines.
 - Types are imported from the mock data module.

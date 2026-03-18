@@ -22,12 +22,6 @@ export function formatAge(isoDate: string): string {
   return formatDuration(Date.now() - new Date(isoDate).getTime());
 }
 
-export function sortedByOldest(topics: Topic[]): Topic[] {
-  return [...topics].sort(
-    (a, b) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime()
-  );
-}
-
 export function oldestUnrepliedDays(topics: Topic[]): string {
   if (topics.length === 0) {
     return "–";
@@ -44,6 +38,13 @@ export function oldestUnrepliedDays(topics: Topic[]): string {
 
 export function formatTags(tags: string[]): string {
   return tags.length > 0 ? tags.join(", ") : "–";
+}
+
+// Placeholder base URL — will be provided by the backend in production.
+const FORUM_BASE_URL = "https://forum.example.com";
+
+export function topicUrl(topicId: number): string {
+  return `${FORUM_BASE_URL}/t/${topicId}`;
 }
 
 // Formats a YYYY-MM-DD week-start date (UTC Monday) as a locale-aware short date.

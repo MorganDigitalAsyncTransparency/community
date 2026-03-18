@@ -44,9 +44,9 @@ This file defines *what* the user sees and why. [dashboard-components.md](dashbo
 
 **SL-5.** Violations are grouped into three sections by threshold type: first reply violations, resolution violations, and inactivity violations.
 
-**SL-6.** Within each section, topics are sorted by excess time descending — the topic that exceeds the threshold by the largest margin appears first.
+**SL-6.** Within each section, topics are sorted by excess time descending by default — the topic that exceeds the threshold by the largest margin appears first. The user can click any column header to sort ascending or descending.
 
-**SL-7.** Each violation row displays: the topic title, the tag whose threshold was exceeded, the threshold value, the actual elapsed time, and the excess time (actual minus threshold).
+**SL-7.** Each violation row displays: the topic title (linked to the Discourse forum topic), the tag whose threshold was exceeded, the threshold value, the actual elapsed time, and the excess time (actual minus threshold). The column header reads "Topic".
 
 **SL-8.** Times in violation rows use the shared duration format (see RT-10 / RM-13): whole days for ≥ 24 hours, whole hours for < 24 hours, minimum "1h".
 
@@ -78,7 +78,7 @@ This file defines *what* the user sees and why. [dashboard-components.md](dashbo
 
 **SL-18a.** Both violations and compliance respect the active area and tag filters (UC-15, UC-16). When an area is selected, only tags belonging to that area appear in the compliance table. When a specific tag is selected, only that tag appears. The SLO configuration passed to the monitoring component is scoped to visible tags via `scopeSloConfig`.
 
-**SL-19.** Tags are sorted alphabetically by tag name.
+**SL-19.** Tags are sorted alphabetically by tag name by default. The user can click any column header to sort ascending or descending.
 
 **SL-20.** When no monitored tags have any eligible topics, the compliance table is replaced by an empty-state message.
 

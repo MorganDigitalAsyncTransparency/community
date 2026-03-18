@@ -34,9 +34,9 @@ This file defines *what* the user sees and why. [dashboard-components.md](dashbo
 
 **ST-5.** The closed tag is defined per tag in the configuration file, under each tag's optional `closedTag` field. There is no default — absence means the tag does not participate in closed-tag exclusion. When a topic has multiple configured tags, the closed tags from all of them are checked. A topic carrying any of its tags' configured closed tags is considered closed (not stalled).
 
-**ST-6.** The default sort order is by days since last activity, descending (highest first). The user can click the Tag or Days inactive column header to toggle sort direction for that column. Only one column is sorted at a time; clicking a different column switches to that column in its default direction (Tag ascending, Days inactive descending).
+**ST-6.** The default sort order is by days since last activity, descending (highest first). The user can click any column header to toggle sort direction for that column. Only one column is sorted at a time; clicking a different column switches to that column in its default direction (Topic ascending, Tag ascending, Threshold ascending, Days inactive descending).
 
-**ST-7.** Each row displays: topic title, tag (first monitored tag on the topic, or "–" if none), threshold (the per-topic stalled-days value with a "(default)" indicator when inherited from `defaults.stalledDays`), and days since last activity (whole days, truncated).
+**ST-7.** Each row displays: topic title (linked to the Discourse forum topic), tag (first monitored tag on the topic, or "–" if none), threshold (the per-topic stalled-days value with a "(default)" indicator when inherited from `defaults.stalledDays`), and days since last activity (whole days, truncated).
 
 **ST-7a.** The section heading reads "Stalled topics" without a specific threshold number, because the threshold varies per topic.
 
@@ -137,15 +137,16 @@ Returns the strictest (lowest) `stalledDays` across the topic's configured tags 
 Calls `filterStalledTopics(topics, resolvedTags)` and renders:
 
 - A section heading: "Stalled topics" (no threshold number, since thresholds vary per topic).
-- A table with columns: Title, Tag, Threshold, Days inactive.
+- A table with columns: Topic, Tag, Threshold, Days inactive.
+- The Topic column shows the topic title as a clickable link to the Discourse forum topic.
 - The Threshold column shows the per-topic stalled-days value via `stalledThresholdForTopic`. When the value is inherited from defaults, a "(default)" indicator is appended.
-- The Tag and Days inactive column headers are clickable to sort. The active sort column shows an arrow indicator (▲ ascending, ▼ descending). Clicking the same column toggles direction; clicking a different column switches to that column's default direction (Tag: ascending, Days inactive: descending).
+- All column headers are clickable to sort. The active sort column shows an arrow indicator (▲ ascending, ▼ descending). Clicking the same column toggles direction; clicking a different column switches to that column's default direction (Topic: ascending, Tag: ascending, Threshold: ascending, Days inactive: descending).
 - Default sort: Days inactive descending (highest first).
 - If `filterStalledTopics` returns an empty array, renders an empty-state paragraph ("No stalled topics") instead of the table.
 
 CSS class prefix: `stalled-` for all elements specific to this component.
 
-`StalledTopics` holds sort state (column and direction) via `useState`. All topic filtering is handled by `App` before passing props.
+`StalledTopics` manages sort state via the shared `useTableSort` hook. All topic filtering is handled by `App` before passing props.
 
 ### Data flow
 
@@ -156,7 +157,8 @@ CSS class prefix: `stalled-` for all elements specific to this component.
 | Component | File | Requirements |
 |-----------|------|-------------|
 | `App` | App.tsx | ST-8 — period filter applied; ST-9 — tag filter applied; ST-12 — queue page placement |
-| `StalledTopics` | StalledTopics.tsx | ST-1 — renders stalled list; ST-6 — sort order and interactive sorting; ST-7 — columns including threshold; ST-13 — empty state |
+| `StalledTopics` | StalledTopics.tsx | ST-1 — renders stalled list; ST-6 — sort order and interactive sorting on all columns; ST-7 — columns including threshold and topic links; ST-13 — empty state |
+| `useTableSort` | useTableSort.ts | ST-6 — shared sort state management (column, direction, toggle, arrow indicator) |
 | `stalledMetrics` | stalledMetrics.ts | ST-2 — stalled criteria; ST-3 — lastActivityAt usage; ST-4 — stalledDays threshold; ST-5 — closedTag exclusion |
 | `tagFilter` | tagFilter.ts | ST-10 — TagConfig structure; resolveAllTags for per-tag resolution |
 | Config file | tagConfig.json (tagConfig.example.json) | ST-10 — unified structure; ST-11 — example updated |
@@ -192,8 +194,8 @@ Test location: `tests/dashboard/stalled-topics.unit.test.ts`
 | What | Requirements | Rationale |
 |------|-------------|-----------|
 | Stalled topics section visible on Queue page | ST-12 | Layout concern. |
-| Table renders with correct columns (Title, Tag, Threshold, Days inactive) | ST-7 | Visual rendering concern. |
-| Clicking Tag header sorts by tag; clicking Days inactive header sorts by days | ST-6 | Interactive sort. |
+| Table renders with correct columns (Topic, Tag, Threshold, Days inactive) and topic links | ST-7 | Visual rendering concern. |
+| Clicking any column header sorts by that column with arrow indicator | ST-6 | Interactive sort on all four columns. |
 | Switching period filter updates the list | ST-8 | Cross-component interaction. |
 | Selecting a tag scopes the list to that tag | ST-9 | Filter interaction. |
 | Empty-state message shown when no stalled topics | ST-13 | Requires visual confirmation. |
