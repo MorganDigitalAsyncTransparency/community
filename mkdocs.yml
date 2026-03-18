@@ -51,6 +51,10 @@ nav:
           - URL State: specs/dashboard/url-state.md
           - Components: specs/dashboard/dashboard-components.md
           - Traceability: specs/dashboard/traceability.md
+      - API:
+          - API Contract: specs/api/api-contract.md
+          - API Contract Verification: specs/api/api-contract_verification.md
+          - Traceability: specs/api/traceability.md
       - Observer:
           - Observer Behavior: specs/observer/observer-behavior.md
       - Discourse:
@@ -68,6 +72,7 @@ nav:
       - "0009: Chart Library": docs/decisions/0009-chart-library.md
       - "0010: Timezone Strategy": docs/decisions/0010-timezone-strategy.md
       - "0011: Dashboard Layout and Theme": docs/decisions/0011-dashboard-layout-and-theme.md
+      - "0012: API Responsibility Model": docs/decisions/0012-api-responsibility-model.md
 
 markdown_extensions:
   - toc:
