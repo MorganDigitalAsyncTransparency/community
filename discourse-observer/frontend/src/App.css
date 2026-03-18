@@ -1206,4 +1206,11 @@ body {
     width: var(--sidebar-width-expanded);
     z-index: calc(var(--z-sidebar) + 1);
   }
+
+  /* Override collapsed styles — mobile overlay always shows labels */
+  .sidebar-mobile-open .sidebar-label,
+  .sidebar-mobile-open .sidebar-toggle-label {
+    opacity: 1;
+    width: auto;
+  }
 }
