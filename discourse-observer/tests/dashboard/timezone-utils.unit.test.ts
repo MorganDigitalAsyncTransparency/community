@@ -5,7 +5,7 @@ import {
   utcOffsetMinutes,
   formatOffsetHour,
   formatUtcOffset,
-  TIMEZONE_LIST,
+  getTimezoneList,
 } from "../../frontend/src/components/timezoneUtils";
 import {
   readTimezoneCookie,
@@ -193,26 +193,35 @@ describe("cookie functions", () => {
 });
 
 // ---------------------------------------------------------------------------
-// TIMEZONE_LIST (PA-21, PA-22)
+// getTimezoneList (PA-21, PA-22)
 // ---------------------------------------------------------------------------
 
-describe("TIMEZONE_LIST", () => {
+describe("getTimezoneList", () => {
   it("has no duplicate entries", () => {
-    const ids = TIMEZONE_LIST.map((tz) => tz.id);
+    const list = getTimezoneList();
+    const ids = list.map((tz) => tz.id);
     expect(new Set(ids).size).toBe(ids.length);
   });
 
   it("every entry is a valid IANA identifier", () => {
-    for (const tz of TIMEZONE_LIST) {
+    for (const tz of getTimezoneList()) {
       expect(() => {
         new Intl.DateTimeFormat("en-US", { timeZone: tz.id });
       }).not.toThrow();
     }
   });
 
-  it("every entry has a region", () => {
-    for (const tz of TIMEZONE_LIST) {
-      expect(tz.region.length).toBeGreaterThan(0);
+  it("every entry has a code and at least one city", () => {
+    for (const tz of getTimezoneList()) {
+      expect(tz.code.length).toBeGreaterThan(0);
+      expect(tz.cities.length).toBeGreaterThan(0);
+    }
+  });
+
+  it("is sorted by offset ascending", () => {
+    const list = getTimezoneList();
+    for (let i = 1; i < list.length; i++) {
+      expect(list[i].offsetMinutes).toBeGreaterThanOrEqual(list[i - 1].offsetMinutes);
     }
   });
 });

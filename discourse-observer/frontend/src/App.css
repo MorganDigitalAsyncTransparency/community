@@ -736,7 +736,7 @@ body {
   color: #555;
   cursor: pointer;
   font-family: inherit;
-  margin-top: 0.5rem;
+  margin-bottom: 0.5rem;
 }
 
 .peak-add-tz-btn:disabled {
@@ -752,11 +752,11 @@ body {
 /* Timezone picker */
 
 .peak-tz-picker {
-  margin-top: 0.5rem;
+  margin-bottom: 0.5rem;
   border: 1px solid #ddd;
   border-radius: 6px;
   background: #fff;
-  max-width: 320px;
+  max-width: 420px;
 }
 
 .peak-tz-picker-search {
@@ -775,26 +775,14 @@ body {
   overflow-y: auto;
 }
 
-.peak-tz-picker-group {
-  padding: 0;
-}
-
-.peak-tz-picker-region {
-  font-size: 0.7rem;
-  font-weight: 600;
-  text-transform: uppercase;
-  letter-spacing: 0.03em;
-  color: #999;
-  padding: 0.4rem 0.6rem 0.15rem;
-}
-
 .peak-tz-picker-item {
   display: flex;
-  justify-content: space-between;
+  gap: 0.5rem;
+  align-items: baseline;
   width: 100%;
   background: none;
   border: none;
-  padding: 0.3rem 0.6rem;
+  padding: 0.35rem 0.6rem;
   font-size: 0.85rem;
   cursor: pointer;
   font-family: inherit;
@@ -809,6 +797,23 @@ body {
 .peak-tz-picker-offset {
   color: #888;
   font-size: 0.75rem;
+  min-width: 3.5rem;
+  text-align: right;
+  flex-shrink: 0;
+}
+
+.peak-tz-picker-code {
+  font-weight: 600;
+  min-width: 3rem;
+  flex-shrink: 0;
+}
+
+.peak-tz-picker-cities {
+  color: #888;
+  font-size: 0.8rem;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .peak-tz-picker-empty {

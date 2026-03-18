@@ -293,7 +293,7 @@ Calls `computeHeatmapData(topics)` and renders:
 - Cell background uses `rgba(59, 130, 246, α)`. Text color switches to white when α > 0.5.
 - Zero-count cells show "0" with no background color (transparent).
 - A color scale legend below the table showing the range from 0 to the maximum count.
-- An "Add timezone" button below the legend. Disabled when 3 timezone rows are present.
+- An "Add timezone" button above the table (after the heading). Disabled when 3 timezone rows are present.
 - If the input is empty, renders an empty-state paragraph ("No data") instead of the table.
 
 `PeakActivity` manages timezone-related state internally via `useState`: the list of selected IANA timezones (max 3), whether the timezone picker is open, and the cookie consent state. On mount it reads persisted state from cookies if consent was previously accepted. See [peak-activity.md](peak-activity.md) for the requirements.
@@ -321,7 +321,7 @@ A controlled component that renders a searchable timezone list. Accepts:
 | `onClose` | `() => void` | Called to close the picker |
 | `excludeTimezones` | `string[]` | Timezones to hide (already selected) |
 
-Renders a text input for filtering and a scrollable list of IANA timezones grouped by region (e.g. "Africa", "America", "Asia", "Europe", "Pacific"). The list is a curated set of ~80 commonly used timezones. Clicking a timezone calls `onSelect` and then `onClose`.
+Renders a text input for filtering and a scrollable list of IANA timezones sorted by UTC offset. Each entry shows the offset, short code (e.g. "IST", "CET"), and representative cities. The list is a curated set of ~24 entries covering all major offsets. Search matches code, city name, offset string, and IANA identifier. Clicking a timezone calls `onSelect` and then `onClose`.
 
 CSS class prefix: `peak-tz-picker-` for all picker elements.
 

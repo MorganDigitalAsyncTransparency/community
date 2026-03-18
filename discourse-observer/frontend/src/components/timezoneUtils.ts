@@ -65,90 +65,60 @@ export function formatUtcOffset(offsetMinutes: number): string {
 }
 
 /**
- * Curated list of commonly used IANA timezones grouped by region.
+ * Curated list of commonly used IANA timezones, each with a representative
+ * IANA id, its short code, and a list of major cities sharing that offset.
+ * Sorted by UTC offset (ascending) for display in the picker.
  */
 export interface TimezoneEntry {
   id: string;
-  region: string;
+  code: string;
+  cities: string[];
+  offsetMinutes: number;
 }
 
-export const TIMEZONE_LIST: TimezoneEntry[] = [
-  // Africa
-  { id: "Africa/Cairo", region: "Africa" },
-  { id: "Africa/Casablanca", region: "Africa" },
-  { id: "Africa/Johannesburg", region: "Africa" },
-  { id: "Africa/Lagos", region: "Africa" },
-  { id: "Africa/Nairobi", region: "Africa" },
-  // America
-  { id: "America/Anchorage", region: "America" },
-  { id: "America/Argentina/Buenos_Aires", region: "America" },
-  { id: "America/Bogota", region: "America" },
-  { id: "America/Chicago", region: "America" },
-  { id: "America/Denver", region: "America" },
-  { id: "America/Halifax", region: "America" },
-  { id: "America/Lima", region: "America" },
-  { id: "America/Los_Angeles", region: "America" },
-  { id: "America/Mexico_City", region: "America" },
-  { id: "America/New_York", region: "America" },
-  { id: "America/Phoenix", region: "America" },
-  { id: "America/Santiago", region: "America" },
-  { id: "America/Sao_Paulo", region: "America" },
-  { id: "America/Toronto", region: "America" },
-  { id: "America/Vancouver", region: "America" },
-  // Asia
-  { id: "Asia/Bangkok", region: "Asia" },
-  { id: "Asia/Colombo", region: "Asia" },
-  { id: "Asia/Dhaka", region: "Asia" },
-  { id: "Asia/Dubai", region: "Asia" },
-  { id: "Asia/Ho_Chi_Minh", region: "Asia" },
-  { id: "Asia/Hong_Kong", region: "Asia" },
-  { id: "Asia/Istanbul", region: "Asia" },
-  { id: "Asia/Jakarta", region: "Asia" },
-  { id: "Asia/Karachi", region: "Asia" },
-  { id: "Asia/Kathmandu", region: "Asia" },
-  { id: "Asia/Kolkata", region: "Asia" },
-  { id: "Asia/Kuala_Lumpur", region: "Asia" },
-  { id: "Asia/Manila", region: "Asia" },
-  { id: "Asia/Riyadh", region: "Asia" },
-  { id: "Asia/Seoul", region: "Asia" },
-  { id: "Asia/Shanghai", region: "Asia" },
-  { id: "Asia/Singapore", region: "Asia" },
-  { id: "Asia/Taipei", region: "Asia" },
-  { id: "Asia/Tehran", region: "Asia" },
-  { id: "Asia/Tokyo", region: "Asia" },
-  // Atlantic
-  { id: "Atlantic/Reykjavik", region: "Atlantic" },
-  // Australia
-  { id: "Australia/Adelaide", region: "Australia" },
-  { id: "Australia/Brisbane", region: "Australia" },
-  { id: "Australia/Darwin", region: "Australia" },
-  { id: "Australia/Melbourne", region: "Australia" },
-  { id: "Australia/Perth", region: "Australia" },
-  { id: "Australia/Sydney", region: "Australia" },
-  // Europe
-  { id: "Europe/Amsterdam", region: "Europe" },
-  { id: "Europe/Athens", region: "Europe" },
-  { id: "Europe/Berlin", region: "Europe" },
-  { id: "Europe/Brussels", region: "Europe" },
-  { id: "Europe/Bucharest", region: "Europe" },
-  { id: "Europe/Dublin", region: "Europe" },
-  { id: "Europe/Helsinki", region: "Europe" },
-  { id: "Europe/Kiev", region: "Europe" },
-  { id: "Europe/Lisbon", region: "Europe" },
-  { id: "Europe/London", region: "Europe" },
-  { id: "Europe/Madrid", region: "Europe" },
-  { id: "Europe/Moscow", region: "Europe" },
-  { id: "Europe/Oslo", region: "Europe" },
-  { id: "Europe/Paris", region: "Europe" },
-  { id: "Europe/Prague", region: "Europe" },
-  { id: "Europe/Rome", region: "Europe" },
-  { id: "Europe/Stockholm", region: "Europe" },
-  { id: "Europe/Vienna", region: "Europe" },
-  { id: "Europe/Warsaw", region: "Europe" },
-  { id: "Europe/Zurich", region: "Europe" },
-  // Pacific
-  { id: "Pacific/Auckland", region: "Pacific" },
-  { id: "Pacific/Fiji", region: "Pacific" },
-  { id: "Pacific/Guam", region: "Pacific" },
-  { id: "Pacific/Honolulu", region: "Pacific" },
-];
+/**
+ * Builds the timezone list with live offsets. Called once and cached.
+ * Each entry's offsetMinutes reflects the current offset (DST-aware).
+ */
+function buildTimezoneList(): TimezoneEntry[] {
+  const raw: { id: string; code: string; cities: string[] }[] = [
+    { id: "Pacific/Honolulu", code: "HST", cities: ["Honolulu"] },
+    { id: "America/Anchorage", code: "AKST", cities: ["Anchorage"] },
+    { id: "America/Los_Angeles", code: "PST", cities: ["Los Angeles", "Vancouver", "Seattle"] },
+    { id: "America/Denver", code: "MST", cities: ["Denver", "Phoenix", "Salt Lake City"] },
+    { id: "America/Chicago", code: "CST", cities: ["Chicago", "Mexico City", "Houston"] },
+    { id: "America/New_York", code: "EST", cities: ["New York", "Toronto", "Montreal"] },
+    { id: "America/Halifax", code: "AST", cities: ["Halifax", "Santiago"] },
+    { id: "America/Sao_Paulo", code: "BRT", cities: ["São Paulo", "Buenos Aires"] },
+    { id: "Atlantic/Reykjavik", code: "GMT", cities: ["Reykjavik"] },
+    { id: "Europe/London", code: "GMT/BST", cities: ["London", "Dublin", "Lisbon"] },
+    { id: "Europe/Berlin", code: "CET", cities: ["Berlin", "Paris", "Stockholm", "Oslo", "Rome", "Madrid", "Amsterdam", "Brussels", "Prague", "Vienna", "Warsaw", "Zurich"] },
+    { id: "Europe/Athens", code: "EET", cities: ["Athens", "Helsinki", "Bucharest", "Kyiv"] },
+    { id: "Europe/Moscow", code: "MSK", cities: ["Moscow", "Istanbul"] },
+    { id: "Asia/Dubai", code: "GST", cities: ["Dubai"] },
+    { id: "Asia/Karachi", code: "PKT", cities: ["Karachi"] },
+    { id: "Asia/Kolkata", code: "IST", cities: ["Mumbai", "Delhi", "Kolkata", "Colombo"] },
+    { id: "Asia/Kathmandu", code: "NPT", cities: ["Kathmandu"] },
+    { id: "Asia/Dhaka", code: "BST", cities: ["Dhaka"] },
+    { id: "Asia/Bangkok", code: "ICT", cities: ["Bangkok", "Ho Chi Minh City", "Jakarta"] },
+    { id: "Asia/Shanghai", code: "CST", cities: ["Shanghai", "Hong Kong", "Taipei", "Singapore", "Kuala Lumpur", "Manila", "Perth"] },
+    { id: "Asia/Tokyo", code: "JST", cities: ["Tokyo", "Seoul"] },
+    { id: "Australia/Adelaide", code: "ACST", cities: ["Adelaide", "Darwin"] },
+    { id: "Australia/Sydney", code: "AEST", cities: ["Sydney", "Melbourne", "Brisbane", "Guam"] },
+    { id: "Pacific/Auckland", code: "NZST", cities: ["Auckland", "Fiji"] },
+  ];
+
+  return raw
+    .map((entry) => ({
+      ...entry,
+      offsetMinutes: utcOffsetMinutes(entry.id),
+    }))
+    .sort((a, b) => a.offsetMinutes - b.offsetMinutes);
+}
+
+let _cachedList: TimezoneEntry[] | null = null;
+
+export function getTimezoneList(): TimezoneEntry[] {
+  if (!_cachedList) _cachedList = buildTimezoneList();
+  return _cachedList;
+}

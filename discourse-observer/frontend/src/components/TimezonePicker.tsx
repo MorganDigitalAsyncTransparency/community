@@ -2,11 +2,7 @@
 // Tests: tests/dashboard/timezone-utils.unit.test.ts
 
 import { useState } from "react";
-import {
-  TIMEZONE_LIST,
-  utcOffsetMinutes,
-  formatUtcOffset,
-} from "./timezoneUtils";
+import { getTimezoneList, formatUtcOffset } from "./timezoneUtils";
 
 interface TimezonePickerProps {
   onSelect: (tz: string) => void;
@@ -24,60 +20,48 @@ export function TimezonePicker({
   const excluded = new Set(excludeTimezones);
   const query = search.toLowerCase();
 
-  const filtered = TIMEZONE_LIST.filter(
-    (tz) =>
-      !excluded.has(tz.id) &&
-      (tz.id.toLowerCase().includes(query) ||
-        tz.region.toLowerCase().includes(query)),
-  );
-
-  const grouped = new Map<string, typeof filtered>();
-  for (const tz of filtered) {
-    const list = grouped.get(tz.region) ?? [];
-    list.push(tz);
-    grouped.set(tz.region, list);
-  }
-
-  function cityName(id: string): string {
-    const parts = id.split("/");
-    return (parts[parts.length - 1] ?? id).replace(/_/g, " ");
-  }
+  const entries = getTimezoneList().filter((tz) => {
+    if (excluded.has(tz.id)) return false;
+    if (query === "") return true;
+    const offsetStr = formatUtcOffset(tz.offsetMinutes).toLowerCase();
+    return (
+      tz.code.toLowerCase().includes(query) ||
+      tz.cities.some((c) => c.toLowerCase().includes(query)) ||
+      offsetStr.includes(query) ||
+      tz.id.toLowerCase().includes(query)
+    );
+  });
 
   return (
     <div className="peak-tz-picker">
       <input
         className="peak-tz-picker-search"
         type="text"
-        placeholder="Search timezones..."
+        placeholder="Search by code, city, or offset..."
         value={search}
         onChange={(e) => setSearch(e.target.value)}
         autoFocus
       />
       <div className="peak-tz-picker-list">
-        {[...grouped.entries()].map(([region, entries]) => (
-          <div key={region} className="peak-tz-picker-group">
-            <div className="peak-tz-picker-region">{region}</div>
-            {entries.map((tz) => {
-              const offset = utcOffsetMinutes(tz.id);
-              return (
-                <button
-                  key={tz.id}
-                  className="peak-tz-picker-item"
-                  onClick={() => {
-                    onSelect(tz.id);
-                    onClose();
-                  }}
-                >
-                  <span className="peak-tz-picker-city">{cityName(tz.id)}</span>
-                  <span className="peak-tz-picker-offset">
-                    {formatUtcOffset(offset)}
-                  </span>
-                </button>
-              );
-            })}
-          </div>
+        {entries.map((tz) => (
+          <button
+            key={tz.id}
+            className="peak-tz-picker-item"
+            onClick={() => {
+              onSelect(tz.id);
+              onClose();
+            }}
+          >
+            <span className="peak-tz-picker-offset">
+              {formatUtcOffset(tz.offsetMinutes)}
+            </span>
+            <span className="peak-tz-picker-code">{tz.code}</span>
+            <span className="peak-tz-picker-cities">
+              {tz.cities.join(", ")}
+            </span>
+          </button>
         ))}
-        {filtered.length === 0 && (
+        {entries.length === 0 && (
           <p className="peak-tz-picker-empty">No timezones found</p>
         )}
       </div>

@@ -57,7 +57,7 @@ This file defines *what* the user sees and why. [dashboard-components.md](dashbo
 
 **PA-15.** The user can add up to three additional timezone header rows above the UTC row. Each row shows offset hour labels for a user-chosen IANA timezone.
 
-**PA-16.** An "Add timezone" button appears below the heatmap (after the legend). When three timezone rows are already present, the button is disabled (greyed out) with a title attribute explaining the three-row limit.
+**PA-16.** An "Add timezone" button appears above the heatmap table (after the heading). When three timezone rows are already present, the button is disabled (greyed out) with a title attribute explaining the three-row limit.
 
 **PA-17.** Each added timezone header row displays: the timezone short name (e.g. "CET"), the current UTC offset in parentheses (e.g. "(+1)"), and 24 offset hour labels aligned to the UTC columns. A remove button (×) at the end of the row allows the user to delete it.
 
@@ -69,7 +69,7 @@ This file defines *what* the user sees and why. [dashboard-components.md](dashbo
 
 ### Timezone picker
 
-**PA-21.** Clicking "Add timezone" opens a timezone picker rendered inline below the button. The picker contains a text input for searching and a list of IANA timezones grouped by region. Selecting a timezone adds a header row and closes the picker.
+**PA-21.** Clicking "Add timezone" opens a timezone picker rendered inline below the button. The picker contains a text input for searching and a list of IANA timezones sorted by UTC offset. Each entry shows the offset, short code (e.g. "IST"), and representative cities. The search matches code, city name, offset string, and IANA identifier. Selecting a timezone adds a header row and closes the picker.
 
 **PA-22.** Duplicate timezone selections are prevented. If the user selects a timezone already displayed in a header row, no new row is added and the picker closes.
 
@@ -191,7 +191,7 @@ function writeConsentCookie(): void;
 | `onClose` | `() => void` | Called when the picker should close |
 | `excludeTimezones` | `string[]` | Timezones already selected (hidden from the list) |
 
-It renders a search input and a filtered list of IANA timezones grouped by region. The timezone list is a curated set of ~80 commonly used timezones (not the full ~400+ IANA database). Clicking a timezone calls `onSelect`.
+It renders a search input and a scrollable list of IANA timezones sorted by UTC offset. Each entry shows the offset, short code (e.g. "IST", "CET"), and representative cities. The list is a curated set of ~24 entries covering all major UTC offsets. Search matches code, city name, offset string, and IANA identifier. Clicking a timezone calls `onSelect`.
 
 CSS class prefix: `peak-tz-picker-` for all picker elements.
 

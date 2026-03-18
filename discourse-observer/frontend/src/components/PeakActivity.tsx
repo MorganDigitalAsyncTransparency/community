@@ -102,6 +102,25 @@ export function PeakActivity({ topics }: PeakActivityProps) {
   return (
     <section className="peak-section">
       <h2 className="peak-heading">Peak activity</h2>
+      <button
+        className="peak-add-tz-btn"
+        disabled={timezones.length >= MAX_TZ_ROWS}
+        title={
+          timezones.length >= MAX_TZ_ROWS
+            ? "Maximum of 3 timezone rows reached"
+            : "Add a timezone header row"
+        }
+        onClick={() => setPickerOpen(true)}
+      >
+        + Add timezone
+      </button>
+      {pickerOpen && (
+        <TimezonePicker
+          onSelect={handlePickerSelect}
+          onClose={() => setPickerOpen(false)}
+          excludeTimezones={timezones}
+        />
+      )}
       <div className="peak-table-wrapper">
         <table className="peak-table">
           <thead>
@@ -166,25 +185,6 @@ export function PeakActivity({ topics }: PeakActivityProps) {
         <div className="peak-legend-bar" />
         <span className="peak-legend-label">{maxCount}</span>
       </div>
-      <button
-        className="peak-add-tz-btn"
-        disabled={timezones.length >= MAX_TZ_ROWS}
-        title={
-          timezones.length >= MAX_TZ_ROWS
-            ? "Maximum of 3 timezone rows reached"
-            : "Add a timezone header row"
-        }
-        onClick={() => setPickerOpen(true)}
-      >
-        + Add timezone
-      </button>
-      {pickerOpen && (
-        <TimezonePicker
-          onSelect={handlePickerSelect}
-          onClose={() => setPickerOpen(false)}
-          excludeTimezones={timezones}
-        />
-      )}
       {pendingTz !== null && (
         <CookieConsentModal
           onAccept={handleConsentAccept}
