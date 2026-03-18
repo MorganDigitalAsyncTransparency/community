@@ -669,6 +669,244 @@ body {
   border: 1px solid #ddd;
 }
 
+/* Timezone header rows (ADR 0010) */
+
+.peak-tz-row {
+  background: #f8f9fb;
+}
+
+.peak-tz-label {
+  padding: 0.25rem 0.5rem;
+  font-size: 0.7rem;
+  font-weight: 600;
+  color: #666;
+  white-space: nowrap;
+  text-align: left;
+}
+
+.peak-tz-hour {
+  text-align: center;
+  padding: 0.25rem 0.2rem;
+  font-size: 0.65rem;
+  font-weight: 400;
+  color: #888;
+  min-width: 1.8rem;
+}
+
+.peak-tz-remove-cell {
+  width: 1.5rem;
+  text-align: center;
+  padding: 0;
+}
+
+.peak-tz-remove {
+  background: none;
+  border: none;
+  color: #aaa;
+  font-size: 0.85rem;
+  cursor: pointer;
+  padding: 0 0.25rem;
+  font-family: inherit;
+  line-height: 1;
+}
+
+.peak-tz-remove:hover {
+  color: #e55;
+}
+
+.peak-header-utc {
+  border-bottom: 2px solid #ccc;
+}
+
+.peak-header-utc .peak-header-day {
+  font-size: 0.7rem;
+  font-weight: 600;
+  color: #555;
+  padding: 0.3rem 0.5rem;
+}
+
+/* Add timezone button */
+
+.peak-add-tz-btn {
+  background: none;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  padding: 0.25rem 0.65rem;
+  font-size: 0.8rem;
+  color: #555;
+  cursor: pointer;
+  font-family: inherit;
+  margin-bottom: 0.5rem;
+}
+
+.peak-add-tz-btn:disabled {
+  color: #bbb;
+  border-color: #e8e8e8;
+  cursor: not-allowed;
+}
+
+.peak-add-tz-btn:hover:not(:disabled) {
+  background: #eef0f4;
+}
+
+/* Timezone picker */
+
+.peak-tz-picker {
+  margin-bottom: 0.5rem;
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  background: #fff;
+  max-width: 420px;
+}
+
+.peak-tz-picker-search {
+  width: 100%;
+  padding: 0.5rem 0.6rem;
+  font-size: 0.85rem;
+  border: none;
+  border-bottom: 1px solid #eee;
+  font-family: inherit;
+  outline: none;
+  border-radius: 6px 6px 0 0;
+}
+
+.peak-tz-picker-list {
+  max-height: 240px;
+  overflow-y: auto;
+}
+
+.peak-tz-picker-item {
+  display: flex;
+  gap: 0.5rem;
+  align-items: baseline;
+  width: 100%;
+  background: none;
+  border: none;
+  padding: 0.35rem 0.6rem;
+  font-size: 0.85rem;
+  cursor: pointer;
+  font-family: inherit;
+  color: #333;
+  text-align: left;
+}
+
+.peak-tz-picker-item:hover {
+  background: #f0f4ff;
+}
+
+.peak-tz-picker-offset {
+  color: #888;
+  font-size: 0.75rem;
+  min-width: 3.5rem;
+  text-align: right;
+  flex-shrink: 0;
+}
+
+.peak-tz-picker-code {
+  font-weight: 600;
+  min-width: 3rem;
+  flex-shrink: 0;
+}
+
+.peak-tz-picker-cities {
+  color: #888;
+  font-size: 0.8rem;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.peak-tz-picker-empty {
+  padding: 0.75rem 0.6rem;
+  font-size: 0.85rem;
+  color: #888;
+}
+
+.peak-tz-picker-close {
+  width: 100%;
+  padding: 0.4rem;
+  font-size: 0.8rem;
+  background: #f8f9fb;
+  border: none;
+  border-top: 1px solid #eee;
+  cursor: pointer;
+  font-family: inherit;
+  color: #666;
+  border-radius: 0 0 6px 6px;
+}
+
+.peak-tz-picker-close:hover {
+  background: #eef0f4;
+}
+
+/* Cookie consent modal */
+
+.peak-consent-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgb(0 0 0 / 40%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
+
+.peak-consent-dialog {
+  background: #fff;
+  border-radius: 8px;
+  padding: 1.5rem;
+  max-width: 400px;
+  width: 90%;
+  box-shadow: 0 4px 24px rgb(0 0 0 / 15%);
+}
+
+.peak-consent-title {
+  font-size: 1rem;
+  font-weight: 600;
+  margin-bottom: 0.75rem;
+}
+
+.peak-consent-text {
+  font-size: 0.9rem;
+  color: #555;
+  line-height: 1.5;
+  margin-bottom: 1.25rem;
+}
+
+.peak-consent-actions {
+  display: flex;
+  gap: 0.75rem;
+  justify-content: flex-end;
+}
+
+.peak-consent-btn {
+  padding: 0.4rem 1rem;
+  font-size: 0.85rem;
+  border-radius: 4px;
+  cursor: pointer;
+  font-family: inherit;
+  border: 1px solid #ddd;
+}
+
+.peak-consent-btn-accept {
+  background: #3b82f6;
+  color: #fff;
+  border-color: #3b82f6;
+}
+
+.peak-consent-btn-accept:hover {
+  background: #2563eb;
+}
+
+.peak-consent-btn-deny {
+  background: #fff;
+  color: #555;
+}
+
+.peak-consent-btn-deny:hover {
+  background: #f0f1f3;
+}
+
 /* Stalled topics (UC-18) */
 
 .stalled-section {

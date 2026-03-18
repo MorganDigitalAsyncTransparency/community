@@ -106,6 +106,9 @@ This matrix shows how use cases decompose into specifications, requirements, and
 |----------|------|-------------|--------------|
 | UC-19: Identify peak activity periods | [peak-activity.md](peak-activity.md) | PA-1 – PA-9 | [peak-activity.unit.test.ts](../../tests/dashboard/peak-activity.unit.test.ts) (PA-2, PA-3, PA-5, PA-6, PA-7, PA-13); manual (PA-1, PA-4, PA-9) |
 | (cross-cutting: placement, filters, empty) | [peak-activity.md](peak-activity.md) | PA-10 – PA-13 | [peak-activity.unit.test.ts](../../tests/dashboard/peak-activity.unit.test.ts) (PA-13); manual (PA-10, PA-11, PA-12) |
+| (timezone headers: ADR 0010) | [peak-activity.md](peak-activity.md) | PA-14 – PA-20 | [timezone-utils.unit.test.ts](../../tests/dashboard/timezone-utils.unit.test.ts) (PA-17, PA-18, PA-19); manual (PA-14, PA-15, PA-16, PA-20) |
+| (timezone picker) | [peak-activity.md](peak-activity.md) | PA-21 – PA-22 | [timezone-utils.unit.test.ts](../../tests/dashboard/timezone-utils.unit.test.ts) (PA-22 via data integrity); manual (PA-21, PA-22) |
+| (cookie consent) | [peak-activity.md](peak-activity.md) | PA-23 – PA-25 | [timezone-utils.unit.test.ts](../../tests/dashboard/timezone-utils.unit.test.ts) (PA-25); manual (PA-23, PA-24) |
 
 ---
 

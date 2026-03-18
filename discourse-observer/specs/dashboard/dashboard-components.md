@@ -288,16 +288,57 @@ Accepts one prop:
 Calls `computeHeatmapData(topics)` and renders:
 
 - A section heading "Peak activity".
-- An HTML `<table>` heatmap with 7 rows (Mon–Sun) and 24 columns (hours 0–23).
-- Each cell displays the topic count and has a background color whose intensity reflects the count relative to the grid maximum (`count / maxCount`).
+- An HTML `<table>` heatmap with timezone header rows (see below), a UTC hour header row, 7 data rows (Mon–Sun), and 24 columns (hours 0–23).
+- Each data cell displays the topic count and has a background color whose intensity reflects the count relative to the grid maximum (`count / maxCount`).
 - Cell background uses `rgba(59, 130, 246, α)`. Text color switches to white when α > 0.5.
 - Zero-count cells show "0" with no background color (transparent).
 - A color scale legend below the table showing the range from 0 to the maximum count.
+- An "Add timezone" button above the table (after the heading). Disabled when 3 timezone rows are present.
 - If the input is empty, renders an empty-state paragraph ("No data") instead of the table.
 
-`PeakActivity` is a pure function component. It holds no state — all filtering is handled by `App` before passing props. See [peak-activity.md](peak-activity.md) for the requirements.
+`PeakActivity` manages timezone-related state internally via `useState`: the list of selected IANA timezones (max 3), whether the timezone picker is open, and the cookie consent state. On mount it reads persisted state from cookies if consent was previously accepted. See [peak-activity.md](peak-activity.md) for the requirements.
 
 CSS class prefix: `peak-` for all elements specific to this component.
+
+### Timezone header rows
+
+The `<thead>` contains:
+
+1. Zero to three user-added timezone header rows, each showing: a label cell with the timezone short name and UTC offset, 24 offset hour labels, and a remove (×) button cell. CSS class: `peak-tz-row`.
+2. A UTC header row (always present, always last in `<thead>`). Label cell shows "UTC". CSS class: `peak-header-utc`.
+
+A visual separator (heavier border) distinguishes the header rows from the data rows.
+
+---
+
+## TimezonePicker
+
+A controlled component that renders a searchable timezone list. Accepts:
+
+| Prop | Type | Purpose |
+|------|------|---------|
+| `onSelect` | `(tz: string) => void` | Called when a timezone is selected |
+| `onClose` | `() => void` | Called to close the picker |
+| `excludeTimezones` | `string[]` | Timezones to hide (already selected) |
+
+Renders a text input for filtering and a scrollable list of IANA timezones sorted by UTC offset. Each entry shows the offset, short code (e.g. "IST", "CET"), and representative cities. The list is a curated set of ~24 entries covering all major offsets. Search matches code, city name, offset string, and IANA identifier. Clicking a timezone calls `onSelect` and then `onClose`.
+
+CSS class prefix: `peak-tz-picker-` for all picker elements.
+
+---
+
+## CookieConsentModal
+
+A modal dialog for timezone cookie consent. Accepts:
+
+| Prop | Type | Purpose |
+|------|------|---------|
+| `onAccept` | `() => void` | User accepts cookie persistence |
+| `onDeny` | `() => void` | User denies (session-only) |
+
+Renders a backdrop overlay and a centered dialog explaining that timezone selections will be stored in a browser cookie. Two buttons: "Accept" and "Deny".
+
+CSS class prefix: `peak-consent-` for all modal elements.
 
 ---
 
@@ -375,10 +416,10 @@ All time displays — both topic age and response time metrics — use a single 
 ### Styling
 
 - No inline styles. All styling uses CSS classes.
-- Class name prefixes: `summary-` for SummaryCards, `unreplied-` for UnrepliedTable, `untagged-` for UntaggedTable, `response-` for ResponseMetricsCards, `nav-` for navigation, `period-` for PeriodSelector, `tag-` for TagSelector, `trends-` for ResponseTimeTrends, `trends-chart-` for ResponseTimeTrendChart, `slo-` for SloMonitor, `intake-` for TopicIntake, `intake-chart-` for IntakeChart, `stalled-` for StalledTopics, `peak-` for PeakActivity, `rd-` for ResponseTimeDistribution, `rd-chart-` for DistributionChart.
+- Class name prefixes: `summary-` for SummaryCards, `unreplied-` for UnrepliedTable, `untagged-` for UntaggedTable, `response-` for ResponseMetricsCards, `nav-` for navigation, `period-` for PeriodSelector, `tag-` for TagSelector, `trends-` for ResponseTimeTrends, `trends-chart-` for ResponseTimeTrendChart, `slo-` for SloMonitor, `intake-` for TopicIntake, `intake-chart-` for IntakeChart, `stalled-` for StalledTopics, `peak-` for PeakActivity, `peak-tz-picker-` for TimezonePicker, `peak-consent-` for CookieConsentModal, `rd-` for ResponseTimeDistribution, `rd-chart-` for DistributionChart.
 
 ### Implementation constraints
 
-- Pure function components. No React hooks. Exceptions: `App` uses `useState` for page navigation, active period, custom range draft, active tag, and active area state, as it is the application shell — not a display component. `ResponseTimeTrendChart` uses Recharts components that manage internal state for interactivity (tooltips, legend toggle); the component itself does not call hooks directly.
+- Pure function components. No React hooks. Exceptions: `App` uses `useState` for page navigation, active period, custom range draft, active tag, and active area state, as it is the application shell — not a display component. `PeakActivity` uses `useState` for timezone selections, picker visibility, and cookie consent state — this state is local to the heatmap and does not affect other components. `TimezonePicker` uses `useState` for the search input — this is local input state that does not affect other components. `ResponseTimeTrendChart` uses Recharts components that manage internal state for interactivity (tooltips, legend toggle); the component itself does not call hooks directly.
 - Each component file stays under 200 lines.
 - Types are imported from the mock data module.
