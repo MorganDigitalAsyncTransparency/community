@@ -29,7 +29,8 @@ interface PeakActivityProps {
 type ConsentState = "pending" | "accepted" | "denied";
 
 function initTimezones(): string[] {
-  return readConsentCookie() === "accepted" ? readTimezoneCookie() : [];
+  if (readConsentCookie() !== "accepted") return [];
+  return readTimezoneCookie().filter((tz) => tz.length > 0).slice(0, MAX_TZ_ROWS);
 }
 
 function initConsent(): ConsentState {

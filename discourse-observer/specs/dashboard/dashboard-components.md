@@ -420,6 +420,6 @@ All time displays — both topic age and response time metrics — use a single 
 
 ### Implementation constraints
 
-- Pure function components. No React hooks. Exceptions: `App` uses `useState` for page navigation, active period, custom range draft, active tag, and active area state, as it is the application shell — not a display component. `PeakActivity` uses `useState` for timezone selections, picker visibility, and cookie consent state — this state is local to the heatmap and does not affect other components. `ResponseTimeTrendChart` uses Recharts components that manage internal state for interactivity (tooltips, legend toggle); the component itself does not call hooks directly.
+- Pure function components. No React hooks. Exceptions: `App` uses `useState` for page navigation, active period, custom range draft, active tag, and active area state, as it is the application shell — not a display component. `PeakActivity` uses `useState` for timezone selections, picker visibility, and cookie consent state — this state is local to the heatmap and does not affect other components. `TimezonePicker` uses `useState` for the search input — this is local input state that does not affect other components. `ResponseTimeTrendChart` uses Recharts components that manage internal state for interactivity (tooltips, legend toggle); the component itself does not call hooks directly.
 - Each component file stays under 200 lines.
 - Types are imported from the mock data module.
