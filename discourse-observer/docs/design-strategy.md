@@ -177,11 +177,16 @@ When rebranding, these pairs must maintain sufficient contrast. Changing one wit
 |------------|------------|---------|
 | `--color-text-primary` | `--color-bg-primary` | Body text on page |
 | `--color-text-primary` | `--color-bg-surface` | Body text on cards/tables |
-| `--color-text-secondary` | `--color-bg-primary` | Labels and captions |
+| `--color-text-secondary` | `--color-bg-primary` | Labels and captions on page |
+| `--color-text-secondary` | `--color-bg-surface` | Table headers, labels in cards |
+| `--color-text-muted` | `--color-bg-primary` | Timestamps and hints on page |
+| `--color-text-muted` | `--color-bg-surface` | Empty state messages in cards |
+| `--color-text-disabled` | `--color-bg-surface` | Disabled controls in cards |
 | `--color-text-sidebar` | `--color-bg-sidebar` | Sidebar navigation text |
 | `--color-text-sidebar-active` | `--color-bg-sidebar` | Active sidebar item |
 | `--color-text-on-accent` | `--color-accent-primary` | Text on accent buttons |
-| `--color-text-muted` | `--color-bg-surface` | Empty state messages in cards |
+| `--color-status-warning` | `--color-bg-surface` | SLO warning indicators in tables |
+| `--color-status-error` | `--color-bg-surface` | Error markers and remove buttons |
 
 ### Typography
 
@@ -241,11 +246,13 @@ Z-index values are defined in the document (not just the stylesheet) because the
 
 ### Sidebar dimensions
 
-| Variable | Semantic meaning |
-|----------|-----------------|
-| `--sidebar-width-expanded` | Sidebar width when showing icon + text (200px) |
-| `--sidebar-width-collapsed` | Sidebar width when showing icon only (48px) |
-| `--sidebar-width` | Active sidebar width — toggled between expanded and collapsed by JavaScript |
+Sidebar dimension values are defined in the document (not just the stylesheet) because they are structural constraints that affect the grid layout, responsive breakpoints, and icon sizing. Changing them has cascading consequences beyond visual appearance.
+
+| Variable | Semantic meaning | Value |
+|----------|-----------------|-------|
+| `--sidebar-width-expanded` | Sidebar width when showing icon + text | 200px |
+| `--sidebar-width-collapsed` | Sidebar width when showing icon only | 48px |
+| `--sidebar-width` | Active sidebar width — toggled between expanded and collapsed by JavaScript | — |
 
 ---
 
@@ -258,4 +265,6 @@ To rebrand a fork:
 3. Verify contrast pairs (see table above) — changing a background without adjusting its text color will break readability.
 4. Test chart colors for accessibility — data visualization colors must be distinguishable for color-blind users.
 
-No component code changes. No class name changes. The variable names are the contract between structure and style.
+No class name changes. The variable names are the contract between structure and style.
+
+**Note on chart colors:** Chart libraries (Recharts) receive colors as JavaScript props, not via CSS inheritance. Changing `--color-chart-*` or `--color-heatmap-base` in the stylesheet requires a JavaScript bridge that reads the computed variable values and passes them to chart components. This bridge is an implementation concern — but be aware that chart rebranding is not pure CSS.
