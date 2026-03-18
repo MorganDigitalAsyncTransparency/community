@@ -290,7 +290,7 @@ Calls `computeHeatmapData(topics)` and renders:
 - A section heading "Peak activity".
 - An HTML `<table>` heatmap with timezone header rows (see below), a UTC hour header row, 7 data rows (Mon–Sun), and 24 columns (hours 0–23).
 - Each data cell displays the topic count and has a background color whose intensity reflects the count relative to the grid maximum (`count / maxCount`).
-- Cell background uses `rgba(var(--color-heatmap-base), α)`. Text color switches to white when α > 0.5. The heatmap base color is read from the CSS custom property via `getThemeColor()`.
+- Cell background uses `rgba(var(--color-heatmap-base), α)`. Text color switches to white when α > 0.5. The heatmap base color is read from the CSS custom property via the `HEATMAP_BASE` constant exported by `themeColors.ts`.
 - Zero-count cells show "0" with no background color (transparent).
 - A color scale legend below the table showing the range from 0 to the maximum count.
 - An "Add timezone" button above the table (after the heading). Disabled when 3 timezone rows are present.
