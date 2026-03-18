@@ -60,7 +60,7 @@ The `--sidebar-width` variable is toggled between expanded and collapsed values.
 
 ### Filter bar
 
-The filter bar sits above the content area and is sticky — it remains visible when the content scrolls. It contains:
+The filter bar sits above the content area. It does not scroll — the grid row is `auto`-sized, so the filter bar stays at the top while the content area scrolls independently. It contains:
 
 - Period selector (preset buttons + custom date range)
 - Tag/area selector (area dropdown + tag buttons)
@@ -69,8 +69,6 @@ The filter bar sits above the content area and is sticky — it remains visible 
 ```css
 .filter-bar {
   grid-area: filter-bar;
-  position: sticky;
-  top: 0;
   z-index: var(--z-filter-bar);
   background: var(--color-bg-primary);
   border-bottom: 1px solid var(--color-border-subtle);
@@ -78,20 +76,19 @@ The filter bar sits above the content area and is sticky — it remains visible 
 }
 ```
 
+Note: `position: sticky` is not needed here. The grid layout already keeps the filter bar fixed — only the content row scrolls (via `overflow-y: auto`). The z-index ensures the filter bar renders above any content that may overlap during scroll transitions.
+
 ### Content
 
-The scrollable area for page-specific components (tables, charts, cards). Content is constrained to `max-width: 1400px` and centered within the grid cell.
+The scrollable area for page-specific components (tables, charts, cards). Content scrolls independently within its grid cell and constrains its children to `max-width: 1400px`.
 
 ```css
 .content {
   grid-area: content;
   overflow-y: auto;
-  padding: var(--spacing-lg) var(--spacing-md);
-}
-
-.content-inner {
   max-width: 1400px;
   margin: 0 auto;
+  padding: var(--spacing-lg) var(--spacing-md);
 }
 ```
 
@@ -135,9 +132,11 @@ All visual tokens live on `:root`. A fork replaces this block to rebrand the das
 --{category}-{target}-{variant}
 ```
 
-- **category**: `color`, `font`, `spacing`, `radius`, `shadow`, `z`
-- **target**: what it applies to (`bg`, `text`, `border`, `sidebar`, `filter-bar`)
-- **variant**: optional modifier (`primary`, `secondary`, `subtle`, `hover`, `active`)
+- **category**: `color`, `font`, `spacing`, `radius`, `shadow`, `z`, `sidebar`
+- **target**: what it applies to (`bg`, `text`, `border`, `sidebar`, `filter-bar`, `width`)
+- **variant**: optional modifier (`primary`, `secondary`, `subtle`, `hover`, `active`, `expanded`, `collapsed`, `disabled`)
+
+Layout dimensions like `--sidebar-width-expanded` use the component name as category and the dimension as target. This keeps layout tokens distinct from design tokens while following the same `--{category}-{target}-{variant}` shape.
 
 ### Colors
 
@@ -146,20 +145,27 @@ All visual tokens live on `:root`. A fork replaces this block to rebrand the das
   /* Backgrounds */
   --color-bg-primary: #f5f6f8;
   --color-bg-surface: #ffffff;
+  --color-bg-raised: #f8f9fb;
   --color-bg-sidebar: #1a1c22;
   --color-bg-hover: #eef0f4;
   --color-bg-active: #e2e5ea;
 
   /* Text */
   --color-text-primary: #1a1a1a;
-  --color-text-secondary: #666666;
+  --color-text-secondary: #555555;
+  --color-text-tertiary: #666666;
   --color-text-muted: #888888;
+  --color-text-disabled: #bbbbbb;
   --color-text-sidebar: #d8d9da;
   --color-text-sidebar-active: #ffffff;
+  --color-text-on-accent: #ffffff;
 
   /* Borders */
   --color-border-default: #dddddd;
   --color-border-subtle: #eeeeee;
+  --color-border-strong: #cccccc;
+  --color-border-active: #999999;
+  --color-border-disabled: #e8e8e8;
 
   /* Accent */
   --color-accent-primary: #3b82f6;
@@ -167,7 +173,7 @@ All visual tokens live on `:root`. A fork replaces this block to rebrand the das
 
   /* Semantic */
   --color-status-warning: #b08000;
-  --color-status-error: #e55555;
+  --color-status-error: #ee5555;
 
   /* Data visualization */
   --color-heatmap-base: 59, 130, 246;  /* RGB triplet for alpha variation */
@@ -208,7 +214,7 @@ All visual tokens live on `:root`. A fork replaces this block to rebrand the das
 
 ### Spacing
 
-An 8px-based scale. Each step doubles or halves the base.
+A 4px-based scale: 4, 8, 16, 24, 32. The first three steps double; the last two grow linearly. This gives tight control at small sizes and comfortable jumps at larger ones.
 
 ```css
 :root {
@@ -240,10 +246,20 @@ An 8px-based scale. Each step doubles or halves the base.
 
 ### Z-index
 
+Stacking order from back to front:
+
+| Layer | Variable | Value | Reason |
+|-------|----------|-------|--------|
+| Filter bar | `--z-filter-bar` | 50 | Above content scroll area |
+| Sidebar | `--z-sidebar` | 100 | Overlays filter bar and content when expanded |
+| Dropdowns | `--z-dropdown` | 200 | Timezone picker and similar overlays |
+| Dialog backdrop | `--z-dialog-backdrop` | 1000 | Modal overlays — above everything |
+
 ```css
 :root {
-  --z-sidebar: 100;
   --z-filter-bar: 50;
+  --z-sidebar: 100;
+  --z-dropdown: 200;
   --z-dialog-backdrop: 1000;
 }
 ```
