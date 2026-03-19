@@ -1,4 +1,4 @@
-.PHONY: check setup lint lint-go lint-md lint-frontend test verify docs build up down start restart open seed qa
+.PHONY: check setup lint lint-go lint-md lint-frontend test verify docs build up down start restart open seed qa maybe-seed
 
 ## Check — verify prerequisites are installed
 check:
@@ -50,7 +50,8 @@ down:
 	docker compose down --timeout 10 --remove-orphans
 
 ## Start — one-command onboarding: setup, configure, build, launch, open browser
-start: setup .env config/tagConfig.json verify build up open
+## Seeds mock data automatically when DISCOURSE_API_TOKEN is empty in .env.
+start: setup .env config/tagConfig.json verify maybe-seed build up open
 
 ## QA — seed mock data, build, and launch (skips setup/verify)
 qa: seed build up open
@@ -67,6 +68,17 @@ config/tagConfig.json:
 seed:
 	@mkdir -p data
 	go run ./backend/cmd/seed
+
+## Maybe-seed — seed only when no real Discourse credentials are configured
+maybe-seed:
+	@TOKEN=$$(grep -s '^DISCOURSE_API_TOKEN=' .env | cut -d= -f2-); \
+	if [ -z "$$TOKEN" ]; then \
+		echo "No DISCOURSE_API_TOKEN in .env — seeding mock data..."; \
+		mkdir -p data; \
+		go run ./backend/cmd/seed; \
+	else \
+		echo "DISCOURSE_API_TOKEN found — skipping seed."; \
+	fi
 
 ## Restart — rebuild and relaunch after code changes
 restart: down verify build up open
