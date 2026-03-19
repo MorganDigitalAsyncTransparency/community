@@ -86,21 +86,34 @@ func Topics() []model.Topic {
 		// Untagged — 7 topics
 		// ---------------------------------------------------------------
 
+		// Note: old frontend mock had replyCount>0 without firstReplyAt on some
+		// untagged topics. That was inconsistent — a topic with replies always has
+		// a firstReplyAt in Discourse. Fixed here so the backend classifies them
+		// correctly as "replied" rather than "unreplied".
+
 		{ID: 1044, Title: "How do I change the default theme colors?",
 			Tags: []string{}, CategoryName: "General", ReplyCount: 3,
-			CreatedAt: t("2026-03-07T12:00:00Z"), TopicURL: topicURL(1044)},
+			CreatedAt:    t("2026-03-07T12:00:00Z"),
+			FirstReplyAt: ptr(t("2026-03-07T18:00:00Z")),
+			TopicURL:     topicURL(1044)},
 
 		{ID: 1067, Title: "Sidebar navigation disappeared after update",
 			Tags: []string{}, CategoryName: "Bug Reports", ReplyCount: 1,
-			CreatedAt: t("2026-03-11T12:00:00Z"), TopicURL: topicURL(1067)},
+			CreatedAt:    t("2026-03-11T12:00:00Z"),
+			FirstReplyAt: ptr(t("2026-03-11T20:00:00Z")),
+			TopicURL:     topicURL(1067)},
 
 		{ID: 1085, Title: "Best practices for category permissions?",
 			Tags: []string{}, CategoryName: "General", ReplyCount: 5,
-			CreatedAt: t("2026-03-13T12:00:00Z"), TopicURL: topicURL(1085)},
+			CreatedAt:    t("2026-03-13T12:00:00Z"),
+			FirstReplyAt: ptr(t("2026-03-13T16:00:00Z")),
+			TopicURL:     topicURL(1085)},
 
 		{ID: 1098, Title: "Mobile layout issues on Galaxy S24",
 			Tags: []string{}, CategoryName: "Bug Reports", ReplyCount: 2,
-			CreatedAt: t("2026-03-16T12:00:00Z"), TopicURL: topicURL(1098)},
+			CreatedAt:    t("2026-03-16T12:00:00Z"),
+			FirstReplyAt: ptr(t("2026-03-16T18:00:00Z")),
+			TopicURL:     topicURL(1098)},
 
 		{ID: 1112, Title: "User group sync with external directory not working",
 			Tags: []string{}, CategoryName: "Support",
@@ -112,7 +125,9 @@ func Topics() []model.Topic {
 
 		{ID: 910, Title: "Emoji picker not loading on Safari 15",
 			Tags: []string{}, CategoryName: "Bug Reports", ReplyCount: 2,
-			CreatedAt: t("2025-02-12T12:00:00Z"), TopicURL: topicURL(910)},
+			CreatedAt:    t("2025-02-12T12:00:00Z"),
+			FirstReplyAt: ptr(t("2025-02-13T10:00:00Z")),
+			TopicURL:     topicURL(910)},
 
 		// ---------------------------------------------------------------
 		// Resolved — solved — 13 topics

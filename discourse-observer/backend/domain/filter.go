@@ -39,6 +39,22 @@ func FilterByTag(topics []model.Topic, tag string) []model.Topic {
 	return result
 }
 
+// FilterByMonitoredTags keeps topics that carry at least one monitored tag.
+// Untagged topics are excluded. AC-10: when no tag filter is specified,
+// only monitored topics are included.
+func FilterByMonitoredTags(topics []model.Topic, monitored map[string]bool) []model.Topic {
+	var result []model.Topic
+	for i := range topics {
+		for _, tag := range topics[i].Tags {
+			if monitored[tag] {
+				result = append(result, topics[i])
+				break
+			}
+		}
+	}
+	return result
+}
+
 // FilterUnreplied returns topics with no replies and no outcome.
 func FilterUnreplied(topics []model.Topic) []model.Topic {
 	var result []model.Topic

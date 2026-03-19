@@ -15,7 +15,7 @@ func (s *Server) handleDistributionVolume(w http.ResponseWriter, r *http.Request
 		respondError(w, http.StatusBadRequest, err.Error())
 		return
 	}
-	topics := applyAllFilters(s.Topics, f, s.Now())
+	topics := applyAllFilters(s.Topics, f, s.Now(), s.MonitoredTags())
 	ranking := domain.TagVolumeRanking(topics)
 
 	type item struct {
@@ -35,7 +35,7 @@ func (s *Server) handleDistributionResolution(w http.ResponseWriter, r *http.Req
 		respondError(w, http.StatusBadRequest, err.Error())
 		return
 	}
-	topics := applyAllFilters(s.Topics, f, s.Now())
+	topics := applyAllFilters(s.Topics, f, s.Now(), s.MonitoredTags())
 	ranking := domain.TagResolutionRanking(topics)
 
 	type item struct {
@@ -56,7 +56,7 @@ func (s *Server) handleDistributionBacklog(w http.ResponseWriter, r *http.Reques
 		respondError(w, http.StatusBadRequest, err.Error())
 		return
 	}
-	topics := applyAllFilters(s.Topics, f, s.Now())
+	topics := applyAllFilters(s.Topics, f, s.Now(), s.MonitoredTags())
 	ranking := domain.TagBacklogRanking(topics)
 
 	type item struct {
@@ -77,7 +77,7 @@ func (s *Server) handleDistributionBacklogTrend(w http.ResponseWriter, r *http.R
 		respondError(w, http.StatusBadRequest, err.Error())
 		return
 	}
-	topics := applyTagFilter(s.Topics, f)
+	topics := applyTagFilter(s.Topics, f, s.MonitoredTags())
 
 	// Open topics = unreplied + replied-open (no outcome)
 	var openTopics []domain.WeeklyBacklog

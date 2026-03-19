@@ -15,7 +15,7 @@ func (s *Server) handleQueueSummary(w http.ResponseWriter, r *http.Request) {
 		respondError(w, http.StatusBadRequest, err.Error())
 		return
 	}
-	topics := applyAllFilters(s.Topics, f, s.Now())
+	topics := applyAllFilters(s.Topics, f, s.Now(), s.MonitoredTags())
 	result := domain.ComputeQueueSummary(topics, s.Now())
 
 	respondJSON(w, map[string]any{
@@ -31,7 +31,7 @@ func (s *Server) handleQueueUnreplied(w http.ResponseWriter, r *http.Request) {
 		respondError(w, http.StatusBadRequest, err.Error())
 		return
 	}
-	topics := applyAllFilters(s.Topics, f, s.Now())
+	topics := applyAllFilters(s.Topics, f, s.Now(), s.MonitoredTags())
 	unreplied := domain.FilterUnreplied(topics)
 
 	sort.Slice(unreplied, func(i, j int) bool {
@@ -99,7 +99,7 @@ func (s *Server) handleQueueStalled(w http.ResponseWriter, r *http.Request) {
 		respondError(w, http.StatusBadRequest, err.Error())
 		return
 	}
-	topics := applyAllFilters(s.Topics, f, s.Now())
+	topics := applyAllFilters(s.Topics, f, s.Now(), s.MonitoredTags())
 	stalled := domain.FindStalledTopics(topics, s.ResolvedTags, s.TagConfig.Defaults.StalledDays, s.Now())
 
 	type item struct {
