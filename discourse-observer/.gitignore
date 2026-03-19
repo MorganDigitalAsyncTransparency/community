@@ -4,4 +4,5 @@ site/
 .env
 config/tagConfig.json
 *.exe
+data/
 docs/test-reports/

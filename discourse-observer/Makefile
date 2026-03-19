@@ -1,4 +1,4 @@
-.PHONY: check setup lint lint-go lint-md lint-frontend test verify docs build up down start restart open
+.PHONY: check setup lint lint-go lint-md lint-frontend test verify docs build up down start restart open seed
 
 ## Check — verify prerequisites are installed
 check:
@@ -59,6 +59,11 @@ start: setup .env config/tagConfig.json verify build up open
 config/tagConfig.json:
 	cp config/tagConfig.example.json config/tagConfig.json
 	@echo "Created config/tagConfig.json from example — edit it with your tag and SLO configuration."
+
+## Seed — populate SQLite with mock data for development
+seed:
+	@mkdir -p data
+	go run ./backend/cmd/seed
 
 ## Restart — rebuild and relaunch after code changes
 restart: down verify build up open
