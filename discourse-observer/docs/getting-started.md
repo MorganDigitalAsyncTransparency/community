@@ -110,7 +110,7 @@ docker compose up -d
 After starting, confirm the stack is healthy:
 
 ```sh
-curl http://localhost:3000/api/health   # should return {"status":"ok"}
+curl http://localhost:3000/api/v1/status   # should return {"lastSyncedAt":...,"version":"..."}
 ```
 
 Open <http://localhost:3000> in a browser to see the dashboard.
