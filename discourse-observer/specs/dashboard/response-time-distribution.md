@@ -180,7 +180,7 @@ CSS class prefix: `rd-chart-` for chart-specific elements.
 | `resolutionDurations` — computes correct durations in ms | RD-6 | Duration computation. |
 | `bucketDurations` — does not mutate input array | RD-2 | Pure function contract. |
 
-Test location: `tests/dashboard/response-time-distribution.unit.test.ts`
+Test location: `backend/api/contract_test.go`, `backend/domain/*_test.go`
 
 ### Manual verification
 

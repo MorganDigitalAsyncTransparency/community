@@ -31,7 +31,7 @@ This file defines *what* the user sees and why. [dashboard-components.md](dashbo
 
 **TI-6.** When a tag is selected (UC-15), the chart shows intake for that tag only. When no tag is selected, the chart shows aggregate intake across all monitored tags.
 
-**TI-7.** The data source for intake is all support topics — both unreplied and resolved — since intake measures when topics are created regardless of their current status.
+**TI-7.** The data source for intake is all support topics regardless of outcome status (unreplied, resolved, and replied-open), since intake measures when topics are created, not their current state.
 
 **TI-8.** The chart is a line chart. A continuous line communicates volume trends — rises and falls over time — more clearly than discrete bars, especially when zero-count periods are included.
 
@@ -185,7 +185,7 @@ The Volume page is added as a new navigation option in `App`. The `Page` type is
 | `computeIntakeBuckets` — empty input returns empty array | TI-14 | Empty state. |
 | `computeIntakeBuckets` — does not mutate input array | TI-1 | Pure function contract. |
 
-Test location: `tests/dashboard/topic-intake.unit.test.ts`
+Test location: `backend/api/contract_test.go`, `backend/domain/*_test.go`
 
 ### Manual verification
 

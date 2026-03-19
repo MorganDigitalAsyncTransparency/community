@@ -1,8 +1,8 @@
 // Spec: specs/dashboard/queue-visibility.md
 // Tests: tests/dashboard/queue-visibility.unit.test.ts
 
-import type { Topic } from "../mock/data";
-import { formatAge, topicUrl } from "./topicFormatting";
+import type { UntaggedTopic } from "../api/types";
+import { formatAge } from "./topicFormatting";
 import { useTableSort, type SortDirection } from "./useTableSort";
 
 type SortColumn = "topic" | "categoryName" | "age";
@@ -14,10 +14,10 @@ const DEFAULT_DIRECTIONS: Record<SortColumn, SortDirection> = {
 };
 
 function sortTopics(
-  topics: Topic[],
+  topics: UntaggedTopic[],
   column: SortColumn,
   direction: SortDirection,
-): Topic[] {
+): UntaggedTopic[] {
   const sorted = [...topics];
   const dir = direction === "asc" ? 1 : -1;
 
@@ -37,7 +37,7 @@ function sortTopics(
 }
 
 interface UntaggedTableProps {
-  topics: Topic[];
+  topics: UntaggedTopic[];
 }
 
 export function UntaggedTable({ topics }: UntaggedTableProps) {
@@ -74,7 +74,7 @@ export function UntaggedTable({ topics }: UntaggedTableProps) {
         {sorted.map((topic) => (
           <tr key={topic.id} className="untagged-row">
             <td className="untagged-cell-topic">
-              <a href={topicUrl(topic.id)} className="topic-link" target="_blank" rel="noreferrer">
+              <a href={topic.topicUrl} className="topic-link" target="_blank" rel="noreferrer">
                 {topic.title}
               </a>
             </td>

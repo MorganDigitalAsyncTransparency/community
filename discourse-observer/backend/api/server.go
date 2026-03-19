@@ -20,6 +20,15 @@ type Server struct {
 	Now            func() time.Time
 }
 
+// MonitoredTags returns a set of tag names from the tag config.
+func (s *Server) MonitoredTags() map[string]bool {
+	m := make(map[string]bool, len(s.TagConfig.Tags))
+	for tag := range s.TagConfig.Tags {
+		m[tag] = true
+	}
+	return m
+}
+
 // RegisterRoutes adds all /api/v1/ routes to the mux.
 func (s *Server) RegisterRoutes(mux *http.ServeMux) {
 	mux.HandleFunc("GET /api/v1/queue/summary", s.handleQueueSummary)

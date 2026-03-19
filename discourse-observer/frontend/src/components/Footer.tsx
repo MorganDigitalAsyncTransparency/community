@@ -4,7 +4,7 @@
 
 interface FooterProps {
   version: string;
-  lastSyncedAt: string;
+  lastSyncedAt: string | null;
 }
 
 function formatSyncTime(isoString: string): string {
@@ -20,7 +20,11 @@ export function Footer({ version, lastSyncedAt }: FooterProps) {
       <div className="footer-inner">
         <span>{version}</span>
         <span>&middot;</span>
-        <span>Last synced {formatSyncTime(lastSyncedAt)}</span>
+        <span>
+          {lastSyncedAt
+            ? `Last synced ${formatSyncTime(lastSyncedAt)}`
+            : "Not yet synced"}
+        </span>
         <span>&middot;</span>
         <a
           className="footer-link"

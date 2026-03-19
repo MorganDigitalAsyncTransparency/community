@@ -118,7 +118,7 @@ Pure logic with well-defined boundary conditions. A defect in `filterByPeriod` w
 | `filterByPeriod` does not mutate input array | TF-3 | Safety property. |
 | `filterByPeriod` returns empty array for empty input | TF-13 | Confirms empty-state delegation works correctly. |
 
-Test location: `tests/dashboard/time-period-filter.unit.test.ts`
+Test location: `backend/api/contract_test.go`, `backend/domain/*_test.go`
 
 ### Manual verification
 

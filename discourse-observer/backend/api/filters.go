@@ -75,12 +75,18 @@ func applyTimeFilters(topics []model.Topic, f ParsedFilters, now time.Time) []mo
 }
 
 // applyTagFilter applies the tag filter to topics.
-func applyTagFilter(topics []model.Topic, f ParsedFilters) []model.Topic {
-	return domain.FilterByTag(topics, f.Tag)
+// When a specific tag is requested, only that tag's topics are returned.
+// When no tag is specified, only topics with at least one monitored tag
+// are returned (AC-10).
+func applyTagFilter(topics []model.Topic, f ParsedFilters, monitored map[string]bool) []model.Topic {
+	if f.Tag != "" {
+		return domain.FilterByTag(topics, f.Tag)
+	}
+	return domain.FilterByMonitoredTags(topics, monitored)
 }
 
 // applyAllFilters applies both time and tag filters.
-func applyAllFilters(topics []model.Topic, f ParsedFilters, now time.Time) []model.Topic {
+func applyAllFilters(topics []model.Topic, f ParsedFilters, now time.Time, monitored map[string]bool) []model.Topic {
 	topics = applyTimeFilters(topics, f, now)
-	return applyTagFilter(topics, f)
+	return applyTagFilter(topics, f, monitored)
 }

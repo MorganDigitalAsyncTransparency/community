@@ -23,13 +23,19 @@ func main() {
 		log.Fatalf("failed to load distribution buckets: %v", err)
 	}
 
+	// Pin "now" to the mock data anchor date so relative calculations
+	// (oldest unreplied, stalled days, etc.) produce stable results
+	// regardless of when the server starts. Remove this when real
+	// Discourse data replaces the mock dataset.
+	mockNow := time.Date(2026, 3, 19, 12, 0, 0, 0, time.UTC)
+
 	srv := &api.Server{
 		Topics:         mock.Topics(),
 		TagConfig:      tagConfig,
 		ResolvedTags:   domain.ResolveAllTags(&tagConfig),
 		BucketCeilings: buckets.BucketCeilingsHours,
 		Version:        "0.1.0",
-		Now:            time.Now,
+		Now:            func() time.Time { return mockNow },
 	}
 
 	mux := http.NewServeMux()

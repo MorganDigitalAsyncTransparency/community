@@ -14,7 +14,7 @@ func (s *Server) handleSLOViolations(w http.ResponseWriter, r *http.Request) {
 		respondError(w, http.StatusBadRequest, err.Error())
 		return
 	}
-	topics := applyAllFilters(s.Topics, f, s.Now())
+	topics := applyAllFilters(s.Topics, f, s.Now(), s.MonitoredTags())
 	groups := domain.FindViolations(topics, s.ResolvedTags, s.Now())
 
 	type violation struct {
@@ -51,7 +51,7 @@ func (s *Server) handleSLOCompliance(w http.ResponseWriter, r *http.Request) {
 		respondError(w, http.StatusBadRequest, err.Error())
 		return
 	}
-	topics := applyAllFilters(s.Topics, f, s.Now())
+	topics := applyAllFilters(s.Topics, f, s.Now(), s.MonitoredTags())
 	compliance := domain.ComputeCompliance(topics, s.ResolvedTags, s.Now())
 
 	type item struct {

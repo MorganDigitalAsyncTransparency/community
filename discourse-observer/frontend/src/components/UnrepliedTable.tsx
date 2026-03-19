@@ -1,8 +1,8 @@
 // Spec: specs/dashboard/queue-visibility.md
 // Tests: tests/dashboard/queue-visibility.unit.test.ts
 
-import type { Topic } from "../mock/data";
-import { formatAge, formatTags, topicUrl } from "./topicFormatting";
+import type { UnrepliedTopic } from "../api/types";
+import { formatAge, formatTags } from "./topicFormatting";
 import { useTableSort, type SortDirection } from "./useTableSort";
 
 type SortColumn = "topic" | "tags" | "age";
@@ -14,10 +14,10 @@ const DEFAULT_DIRECTIONS: Record<SortColumn, SortDirection> = {
 };
 
 function sortTopics(
-  topics: Topic[],
+  topics: UnrepliedTopic[],
   column: SortColumn,
   direction: SortDirection,
-): Topic[] {
+): UnrepliedTopic[] {
   const sorted = [...topics];
   const dir = direction === "asc" ? 1 : -1;
 
@@ -37,7 +37,7 @@ function sortTopics(
 }
 
 interface UnrepliedTableProps {
-  topics: Topic[];
+  topics: UnrepliedTopic[];
 }
 
 export function UnrepliedTable({ topics }: UnrepliedTableProps) {
@@ -74,7 +74,7 @@ export function UnrepliedTable({ topics }: UnrepliedTableProps) {
         {sorted.map((topic) => (
           <tr key={topic.id} className="unreplied-row">
             <td className="unreplied-cell-topic">
-              <a href={topicUrl(topic.id)} className="topic-link" target="_blank" rel="noreferrer">
+              <a href={topic.topicUrl} className="topic-link" target="_blank" rel="noreferrer">
                 {topic.title}
               </a>
             </td>

@@ -14,7 +14,7 @@ func (s *Server) handleActivityHeatmap(w http.ResponseWriter, r *http.Request) {
 		respondError(w, http.StatusBadRequest, err.Error())
 		return
 	}
-	topics := applyAllFilters(s.Topics, f, s.Now())
+	topics := applyAllFilters(s.Topics, f, s.Now(), s.MonitoredTags())
 	heatmap := domain.BuildHeatmap(topics)
 
 	type cell struct {

@@ -260,7 +260,7 @@ Cell background: `rgba(59, 130, 246, α)` where α = `count / maxCount`. When co
 | `TIMEZONE_LIST` — no duplicate entries | PA-22 | Data integrity. |
 | `TIMEZONE_LIST` — every entry is a valid IANA identifier | PA-21 | Data integrity. |
 
-Test locations: `tests/dashboard/peak-activity.unit.test.ts`, `tests/dashboard/timezone-utils.unit.test.ts`
+Test locations: `backend/api/contract_test.go`, `backend/domain/*_test.go`, `tests/dashboard/timezone-utils.unit.test.ts`
 
 ### Manual verification
 

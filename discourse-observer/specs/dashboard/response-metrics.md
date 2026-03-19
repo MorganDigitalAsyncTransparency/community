@@ -124,7 +124,7 @@ Per-tag breakdown of metrics (UC-9, UC-10) is on the Distribution page — see [
 | `formatDuration` — returns `"Xd"` for ≥ 24 h, `"Xh"` for < 24 h, minimum `"1h"` | RM-13 | Pure function with boundary conditions. Wrong format would misrepresent time durations. |
 | `median` — returns middle value for odd count, truncated average of two middle values for even count | RM-14 | Pure function. Wrong median would corrupt all time-based metrics. |
 
-Test location: `tests/dashboard/response-metrics.unit.test.ts`
+Test location: `backend/api/contract_test.go`, `backend/domain/*_test.go`
 
 ### Manual verification
 

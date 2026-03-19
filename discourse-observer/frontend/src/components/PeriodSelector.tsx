@@ -1,5 +1,5 @@
 // Spec: specs/dashboard/time-period-filter.md
-// Tests: tests/dashboard/time-period-filter.unit.test.ts
+// Tests: backend/api/contract_test.go
 
 import {
   type ActivePeriod,

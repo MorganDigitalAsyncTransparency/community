@@ -4,16 +4,51 @@
 //       specs/dashboard/tag-area-filter.md, specs/dashboard/url-state.md,
 //       specs/dashboard/stalled-topics.md, specs/dashboard/peak-activity.md,
 //       specs/dashboard/response-time-distribution.md
-// Tests: tests/dashboard/queue-visibility.unit.test.ts, tests/dashboard/response-metrics.unit.test.ts,
-//        tests/dashboard/time-period-filter.unit.test.ts,
-//        tests/dashboard/tag-distribution.unit.test.ts, tests/dashboard/slo-monitoring.unit.test.ts,
-//        tests/dashboard/tag-area-filter.unit.test.ts, tests/dashboard/url-state.unit.test.ts,
-//        tests/dashboard/stalled-topics.unit.test.ts, tests/dashboard/peak-activity.unit.test.ts,
-//        tests/dashboard/response-time-distribution.unit.test.ts
+// Tests: tests/dashboard/queue-visibility.unit.test.ts, tests/dashboard/tag-area-filter.unit.test.ts,
+//        tests/dashboard/url-state.unit.test.ts, backend/api/contract_test.go
 
-import { useState } from "react";
+import { useState, useEffect, useCallback } from "react";
 import "./App.css";
-import { MOCK_DATA, type Topic } from "./mock/data";
+import type {
+  AppConfig,
+  AppStatus,
+  QueueSummary,
+  UnrepliedTopic,
+  UntaggedTopic,
+  StalledTopic,
+  MetricsSummary,
+  VolumeBucket,
+  MedianTrends,
+  MetricsDistribution,
+  TagVolume,
+  TagResolution,
+  TagBacklog,
+  WeeklyBacklog,
+  ViolationGroups,
+  TagCompliance,
+  Heatmap,
+} from "./api/types";
+import type { FilterParams } from "./api/client";
+import type { Page } from "./types";
+import {
+  fetchConfig,
+  fetchStatus,
+  fetchQueueSummary,
+  fetchUnrepliedTopics,
+  fetchUntaggedTopics,
+  fetchStalledTopics,
+  fetchMetricsSummary,
+  fetchVolume,
+  fetchMedianTrends,
+  fetchDistribution,
+  fetchTagVolume,
+  fetchTagResolution,
+  fetchTagBacklog,
+  fetchBacklogTrend,
+  fetchViolations,
+  fetchCompliance,
+  fetchHeatmap,
+} from "./api/endpoints";
 import { SummaryCards } from "./components/SummaryCards";
 import { UnrepliedTable } from "./components/UnrepliedTable";
 import { UntaggedTable } from "./components/UntaggedTable";
@@ -29,31 +64,88 @@ import { PeriodSelector } from "./components/PeriodSelector";
 import { TagSelector } from "./components/TagSelector";
 import { Sidebar } from "./components/Sidebar";
 import { Footer } from "./components/Footer";
-import tagConfigJson from "../../config/tagConfig.json";
-import distributionConfig from "../../config/distributionBuckets.json";
 import {
   type CustomRange,
   type PeriodPreset,
-  filterByPeriod,
 } from "./components/timePeriod";
-import {
-  type TagConfig,
-  filterByMonitoredTags,
-  monitoredTags,
-  tagsForArea,
-  extractSloConfig,
-  scopeSloConfig,
-  sloDefaultTags,
-  resolveAllTags,
-} from "./components/tagFilter";
-import { intakeGranularity, computeTimeRange } from "./components/intakeMetrics";
-import { computeVolumeBuckets } from "./components/volumeMetrics";
-import {
-  computeMedianFirstReplyBuckets,
-  computeMedianResolutionBuckets,
-} from "./components/medianTrendMetrics";
 import { CHART_COLOR_1, CHART_COLOR_2 } from "./components/themeColors";
 import { useUrlState } from "./components/useUrlState";
+
+// ---------------------------------------------------------------------------
+// Page data types — each page has its own data shape
+// ---------------------------------------------------------------------------
+
+interface QueueData {
+  summary: QueueSummary;
+  unreplied: UnrepliedTopic[];
+  untagged: UntaggedTopic[];
+  stalled: StalledTopic[];
+}
+
+interface ResponseMetricsData {
+  summary: MetricsSummary;
+  volume: VolumeBucket[];
+  medianTrends: MedianTrends;
+  distribution: MetricsDistribution;
+}
+
+interface DistributionData {
+  volume: TagVolume[];
+  resolution: TagResolution[];
+  backlog: TagBacklog[];
+  backlogTrend: WeeklyBacklog[];
+}
+
+interface SloData {
+  violations: ViolationGroups;
+  compliance: TagCompliance[];
+}
+
+// ---------------------------------------------------------------------------
+// Data fetchers per page
+// ---------------------------------------------------------------------------
+
+async function loadQueueData(f: FilterParams): Promise<QueueData> {
+  const [summary, unreplied, untagged, stalled] = await Promise.all([
+    fetchQueueSummary(f),
+    fetchUnrepliedTopics(f),
+    fetchUntaggedTopics(f),
+    fetchStalledTopics(f),
+  ]);
+  return { summary, unreplied, untagged, stalled };
+}
+
+async function loadResponseMetricsData(f: FilterParams): Promise<ResponseMetricsData> {
+  const [summary, volume, medianTrends, distribution] = await Promise.all([
+    fetchMetricsSummary(f),
+    fetchVolume(f),
+    fetchMedianTrends(f),
+    fetchDistribution(f),
+  ]);
+  return { summary, volume, medianTrends, distribution };
+}
+
+async function loadDistributionData(f: FilterParams): Promise<DistributionData> {
+  const [volume, resolution, backlog, backlogTrend] = await Promise.all([
+    fetchTagVolume(f),
+    fetchTagResolution(f),
+    fetchTagBacklog(f),
+    fetchBacklogTrend(f),
+  ]);
+  return { volume, resolution, backlog, backlogTrend };
+}
+
+async function loadSloData(f: FilterParams): Promise<SloData> {
+  const [violations, compliance] = await Promise.all([
+    fetchViolations(f),
+    fetchCompliance(f),
+  ]);
+  return { violations, compliance };
+}
+
+// ---------------------------------------------------------------------------
+// App
+// ---------------------------------------------------------------------------
 
 export function App() {
   const {
@@ -61,20 +153,64 @@ export function App() {
     setPage, setPeriod, setTag: setActiveTag, setArea: setActiveArea, clearAll,
   } = useUrlState();
 
-  // customDraft holds the in-progress custom range inputs.
-  // null means the custom tab is not visible. An object (possibly with empty strings)
-  // means the custom tab is open. The filter is applied only when both dates are set.
-  // US-12: draft is not persisted in the URL.
   const [customDraft, setCustomDraft] = useState<CustomRange | null>(
     activePeriod.kind === "custom" ? activePeriod.range : null,
   );
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
-  const typedTagConfig = tagConfigJson as TagConfig;
-  const monitored = monitoredTags(typedTagConfig);
-  const sloConfig = extractSloConfig(typedTagConfig);
-  const defaultSloTags = sloDefaultTags(typedTagConfig);
-  const resolvedTags = resolveAllTags(typedTagConfig);
+  // Global config and status — fetched once on mount
+  const [config, setConfig] = useState<AppConfig | null>(null);
+  const [status, setStatus] = useState<AppStatus | null>(null);
+
+  // Per-page data
+  const [queueData, setQueueData] = useState<QueueData | null>(null);
+  const [metricsData, setMetricsData] = useState<ResponseMetricsData | null>(null);
+  const [distData, setDistData] = useState<DistributionData | null>(null);
+  const [sloData, setSloData] = useState<SloData | null>(null);
+  const [heatmapData, setHeatmapData] = useState<Heatmap | null>(null);
+
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  // Fetch config and status on mount
+  useEffect(() => {
+    Promise.all([fetchConfig(), fetchStatus()])
+      .then(([cfg, st]) => { setConfig(cfg); setStatus(st); })
+      .catch((err) => setError(err.message));
+  }, []);
+
+  // Fetch page data when page or filters change
+  const loadPageData = useCallback(async (targetPage: Page, f: FilterParams) => {
+    setLoading(true);
+    setError(null);
+    try {
+      switch (targetPage) {
+        case "queue":
+          setQueueData(await loadQueueData(f));
+          break;
+        case "response-metrics":
+          setMetricsData(await loadResponseMetricsData(f));
+          break;
+        case "distribution":
+          setDistData(await loadDistributionData(f));
+          break;
+        case "slo":
+          setSloData(await loadSloData(f));
+          break;
+        case "activity":
+          setHeatmapData(await fetchHeatmap(f));
+          break;
+      }
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Failed to load data");
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    loadPageData(page, { period: activePeriod, tag: activeTag });
+  }, [page, activePeriod, activeTag, loadPageData]);
 
   function handlePresetSelect(preset: PeriodPreset) {
     setPeriod({ kind: "preset", preset });
@@ -82,7 +218,6 @@ export function App() {
   }
 
   function handleCustomOpen() {
-    // Restore the current range if already in custom mode, otherwise start empty.
     setCustomDraft(
       activePeriod.kind === "custom" ? activePeriod.range : { from: "", to: "" }
     );
@@ -95,96 +230,11 @@ export function App() {
     }
   }
 
-  // TA-4, TA-17: visible tags depend on area and tag selection.
-  // Specific tag → just that tag. "All" within area → area's tags. No area → all monitored.
-  const visibleTags = activeTag !== null
-    ? [activeTag]
-    : tagsForArea(typedTagConfig, activeArea);
-
-  const applyTagFilter = (topics: Topic[]) =>
-    filterByMonitoredTags(topics, visibleTags);
-
-  const allTopicsUnfiltered = [...MOCK_DATA.unrepliedTopics, ...MOCK_DATA.resolvedTopics];
-
-  // Period-filtered topics (before tag filter) — used for global time range.
-  const periodFiltered = {
-    unrepliedTopics: filterByPeriod(MOCK_DATA.unrepliedTopics, activePeriod),
-    resolvedTopics: filterByPeriod(MOCK_DATA.resolvedTopics, activePeriod),
-    repliedOpenTopics: filterByPeriod(MOCK_DATA.repliedOpenTopics, activePeriod),
-  };
-
-  const filteredData = {
-    ...MOCK_DATA,
-    unrepliedTopics: applyTagFilter(periodFiltered.unrepliedTopics),
-    // TA-6: untagged topics are empty when a tag is selected
-    untaggedTopics: activeTag !== null
-      ? []
-      : filterByPeriod(MOCK_DATA.untaggedTopics, activePeriod),
-    resolvedTopics: applyTagFilter(periodFiltered.resolvedTopics),
-    // ST-8: period filter applies; ST-9: tag filter applies
-    repliedOpenTopics: applyTagFilter(periodFiltered.repliedOpenTopics),
-  };
-
-  // Used by Distribution and PeakActivity (original scope: unreplied + resolved).
-  const allFilteredTopics = [
-    ...filteredData.unrepliedTopics,
-    ...filteredData.resolvedTopics,
-  ];
-
-  // Used by volume charts — includes repliedOpen for complete topic counts.
-  const allFilteredTopicsWithOpen = [
-    ...filteredData.unrepliedTopics,
-    ...filteredData.resolvedTopics,
-    ...filteredData.repliedOpenTopics,
-  ];
-
   const hasActiveFilters =
     activePeriod.kind !== "preset" ||
     activePeriod.preset !== "allTime" ||
     activeTag !== null ||
     activeArea !== null;
-
-  // Global time range from period-filtered + monitored-tag topics.
-  // Uses all monitored tags (not the active tag) so the x-axis stays
-  // consistent when switching between tags within the same period.
-  const granularity = intakeGranularity(activePeriod);
-  const allPeriodFiltered = [
-    ...periodFiltered.unrepliedTopics,
-    ...periodFiltered.resolvedTopics,
-    ...periodFiltered.repliedOpenTopics,
-  ];
-  const intakeTimeRange = computeTimeRange(
-    filterByMonitoredTags(allPeriodFiltered, monitored),
-    granularity,
-  );
-
-  // Volume chart data: 4 series bucketed by createdAt.
-  const solvedTopics = filteredData.resolvedTopics.filter((t) => t.outcome === "solved");
-  const selfClosedTopics = filteredData.resolvedTopics.filter((t) => t.outcome === "self-closed");
-  const openTopics = [...filteredData.unrepliedTopics, ...filteredData.repliedOpenTopics];
-
-  const volumeBuckets = computeVolumeBuckets(
-    {
-      allTopics: allFilteredTopicsWithOpen,
-      solvedTopics,
-      selfClosedTopics,
-      openTopics,
-    },
-    granularity,
-    intakeTimeRange,
-  );
-
-  // Median trend data: per-bucket median first reply and resolution.
-  const medianFirstReplyBuckets = computeMedianFirstReplyBuckets(
-    filteredData.resolvedTopics,
-    granularity,
-    intakeTimeRange,
-  );
-  const medianResolutionBuckets = computeMedianResolutionBuckets(
-    filteredData.resolvedTopics,
-    granularity,
-    intakeTimeRange,
-  );
 
   return (
     <div className="shell">
@@ -211,13 +261,15 @@ export function App() {
           onCustomDraftChange={handleCustomDraftChange}
         />
 
-        <TagSelector
-          config={typedTagConfig}
-          activeTag={activeTag}
-          activeArea={activeArea}
-          onTagSelect={setActiveTag}
-          onAreaSelect={setActiveArea}
-        />
+        {config && (
+          <TagSelector
+            config={config}
+            activeTag={activeTag}
+            activeArea={activeArea}
+            onTagSelect={setActiveTag}
+            onAreaSelect={setActiveArea}
+          />
+        )}
 
         {hasActiveFilters && (
           <button
@@ -234,49 +286,44 @@ export function App() {
 
       <main className="content">
         <div className="app-content">
-          {page === "queue" && (
+          {error && <p className="app-error">{error}</p>}
+          {loading && <p className="app-loading">Loading…</p>}
+
+          {page === "queue" && queueData && (
             <>
-              <SummaryCards data={filteredData} />
-
-              {/* ST-8: period filter applies; ST-9: tag filter applies; ST-12: queue page */}
-              <StalledTopics
-                topics={filteredData.repliedOpenTopics}
-                resolvedTags={resolvedTags}
-                monitoredTags={monitored}
-              />
-
+              <SummaryCards data={queueData.summary} />
+              <StalledTopics topics={queueData.stalled} />
               <section>
                 <h2 className="app-section-title">Awaiting reply</h2>
-                <UnrepliedTable topics={filteredData.unrepliedTopics} />
+                <UnrepliedTable topics={queueData.unreplied} />
               </section>
-
               <section>
                 <h2 className="app-section-title">Untagged topics</h2>
-                <UntaggedTable topics={filteredData.untaggedTopics} />
+                <UntaggedTable topics={queueData.untagged} />
               </section>
             </>
           )}
 
-          {page === "response-metrics" && (
+          {page === "response-metrics" && metricsData && (
             <>
-              <ResponseMetricsCards topics={filteredData.resolvedTopics} />
+              <ResponseMetricsCards data={metricsData.summary} />
 
               <section>
                 <h2 className="app-section-title">Topic volume</h2>
-                {volumeBuckets.length === 0 ? (
+                {metricsData.volume.length === 0 ? (
                   <p className="chart-empty">No data</p>
                 ) : (
-                  <VolumeChart data={volumeBuckets} />
+                  <VolumeChart data={metricsData.volume} />
                 )}
               </section>
 
               <section>
                 <h2 className="app-section-title">Median first reply</h2>
-                {medianFirstReplyBuckets.length === 0 ? (
+                {metricsData.medianTrends.firstReply.length === 0 ? (
                   <p className="chart-empty">No data</p>
                 ) : (
                   <MedianTrendChart
-                    data={medianFirstReplyBuckets}
+                    data={metricsData.medianTrends.firstReply}
                     color={CHART_COLOR_1}
                     name="Median first reply"
                   />
@@ -285,58 +332,47 @@ export function App() {
 
               <section>
                 <h2 className="app-section-title">Median first resolution</h2>
-                {medianResolutionBuckets.length === 0 ? (
+                {metricsData.medianTrends.resolution.length === 0 ? (
                   <p className="chart-empty">No data</p>
                 ) : (
                   <MedianTrendChart
-                    data={medianResolutionBuckets}
+                    data={metricsData.medianTrends.resolution}
                     color={CHART_COLOR_2}
                     name="Median resolution"
                   />
                 )}
               </section>
 
-              <ResponseTimeDistribution
-                topics={filteredData.resolvedTopics}
-                ceilingsHours={distributionConfig.bucketCeilingsHours}
-              />
+              <ResponseTimeDistribution data={metricsData.distribution} />
             </>
           )}
 
-          {page === "distribution" && (
-            // TD-23: allTopicsHistory and openTopicsHistory skip period filter.
-            // TA-7: tag filter applies to history — scope is a tag decision.
+          {page === "distribution" && distData && (
             <TagDistribution
-              allTopics={allFilteredTopics}
-              resolvedTopics={filteredData.resolvedTopics}
-              openTopics={filteredData.unrepliedTopics}
-              allTopicsHistory={applyTagFilter(allTopicsUnfiltered)}
-              openTopicsHistory={applyTagFilter(MOCK_DATA.unrepliedTopics)}
+              volumeRanking={distData.volume}
+              resolutionRanking={distData.resolution}
+              backlogRanking={distData.backlog}
+              weeklyBacklog={distData.backlogTrend}
             />
           )}
 
-          {page === "slo" && (
-            // SL-9, SL-18: violations and compliance use the filtered topic sets
+          {page === "slo" && sloData && (
             <SloMonitor
-              resolvedTopics={filteredData.resolvedTopics}
-              unrepliedTopics={filteredData.unrepliedTopics}
-              sloConfig={scopeSloConfig(sloConfig, visibleTags)}
-              defaultSloTags={defaultSloTags}
+              violations={sloData.violations}
+              compliance={sloData.compliance}
             />
           )}
 
-          {page === "activity" && (
-            <>
-              {/* PA-8: all topics (unreplied + resolved + repliedOpen); PA-11: period filter; PA-12: tag filter */}
-              <PeakActivity
-                topics={allFilteredTopics}
-              />
-            </>
+          {page === "activity" && heatmapData && (
+            <PeakActivity data={heatmapData} />
           )}
         </div>
       </main>
 
-      <Footer version="v0.1.0" lastSyncedAt={MOCK_DATA.lastSyncedAt} />
+      <Footer
+        version={status?.version ?? ""}
+        lastSyncedAt={status?.lastSyncedAt ?? null}
+      />
     </div>
   );
 }

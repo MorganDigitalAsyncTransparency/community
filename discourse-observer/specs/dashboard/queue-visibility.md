@@ -90,7 +90,7 @@ The dashboard view ([App.tsx](../../frontend/src/App.tsx)) composes three areas:
 
 ### Data flow
 
-All components receive data from a single `DashboardData` object. In the current prototype this object is populated from mock data ([mock/data.ts](../../frontend/src/mock/data.ts)). When the backend API is available, only the data source changes — the component interfaces remain the same.
+All components receive pre-computed data from the backend API (`/api/v1/queue/*` endpoints). The frontend is a thin rendering client — it fetches data and displays it without performing domain computations.
 
 ### What is not covered
 

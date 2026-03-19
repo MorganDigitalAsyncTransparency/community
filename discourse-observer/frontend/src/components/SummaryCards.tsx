@@ -1,8 +1,7 @@
 // Spec: specs/dashboard/queue-visibility.md
 // Tests: tests/dashboard/queue-visibility.unit.test.ts
 
-import type { DashboardData } from "../mock/data";
-import { oldestUnrepliedDays } from "./topicFormatting";
+import type { QueueSummary } from "../api/types";
 
 interface SummaryCardProps {
   label: string;
@@ -19,23 +18,24 @@ function SummaryCard({ label, value }: SummaryCardProps) {
 }
 
 interface SummaryCardsProps {
-  data: DashboardData;
+  data: QueueSummary;
 }
 
 export function SummaryCards({ data }: SummaryCardsProps) {
+  const oldest = data.oldestUnrepliedAgeDays;
   return (
     <div className="summary-cards">
       <SummaryCard
         label="Awaiting reply"
-        value={String(data.unrepliedTopics.length)}
+        value={String(data.unrepliedCount)}
       />
       <SummaryCard
         label="Untagged"
-        value={String(data.untaggedTopics.length)}
+        value={String(data.untaggedCount)}
       />
       <SummaryCard
         label="Oldest unreplied"
-        value={oldestUnrepliedDays(data.unrepliedTopics)}
+        value={oldest === null ? "–" : `${oldest}d`}
       />
     </div>
   );

@@ -2,24 +2,10 @@ import { describe, expect, it, vi, afterEach } from "vitest";
 import {
   formatAge,
   formatTags,
-  oldestUnrepliedDays,
-  topicUrl,
 } from "../../frontend/src/components/topicFormatting";
-import type { Topic } from "../../frontend/src/mock/data";
 
 const HOUR_MS = 3_600_000;
 const DAY_MS = 86_400_000;
-
-function makeTopic(overrides: Partial<Topic> & { createdAt: string }): Topic {
-  return {
-    id: 1,
-    title: "Test topic",
-    tags: [],
-    categoryName: "Support",
-    replyCount: 0,
-    ...overrides,
-  };
-}
 
 // ---------------------------------------------------------------------------
 // formatAge (QV-3, QV-13)
@@ -76,62 +62,6 @@ describe("formatAge", () => {
 
     const just23h = new Date(now - 23.5 * HOUR_MS).toISOString();
     expect(formatAge(just23h)).toBe("23h");
-  });
-});
-
-// ---------------------------------------------------------------------------
-// topicUrl (QV-2, QV-12)
-// ---------------------------------------------------------------------------
-describe("topicUrl", () => {
-  it("returns a Discourse topic URL for a given ID", () => {
-    const url = topicUrl(1041);
-    expect(url).toMatch(/\/t\/1041$/);
-  });
-
-  it("returns different URLs for different IDs", () => {
-    expect(topicUrl(100)).not.toBe(topicUrl(200));
-  });
-});
-
-// ---------------------------------------------------------------------------
-// oldestUnrepliedDays (QV-6, QV-7)
-// ---------------------------------------------------------------------------
-describe("oldestUnrepliedDays", () => {
-  afterEach(() => {
-    vi.useRealTimers();
-  });
-
-  it("returns dash for empty list", () => {
-    expect(oldestUnrepliedDays([])).toBe("–");
-  });
-
-  it("returns correct days for single topic", () => {
-    const now = new Date("2026-03-15T12:00:00Z").getTime();
-    vi.setSystemTime(now);
-
-    const topics = [makeTopic({ createdAt: new Date(now - 7 * DAY_MS).toISOString() })];
-    expect(oldestUnrepliedDays(topics)).toBe("7d");
-  });
-
-  it("returns days for the oldest topic when multiple exist", () => {
-    const now = new Date("2026-03-15T12:00:00Z").getTime();
-    vi.setSystemTime(now);
-
-    const topics = [
-      makeTopic({ id: 1, createdAt: new Date(now - 3 * DAY_MS).toISOString() }),
-      makeTopic({ id: 2, createdAt: new Date(now - 14 * DAY_MS).toISOString() }),
-      makeTopic({ id: 3, createdAt: new Date(now - 5 * DAY_MS).toISOString() }),
-    ];
-    expect(oldestUnrepliedDays(topics)).toBe("14d");
-  });
-
-  it("truncates partial days", () => {
-    const now = new Date("2026-03-15T12:00:00Z").getTime();
-    vi.setSystemTime(now);
-
-    // 2.8 days → should show 2d
-    const topics = [makeTopic({ createdAt: new Date(now - 2.8 * DAY_MS).toISOString() })];
-    expect(oldestUnrepliedDays(topics)).toBe("2d");
   });
 });
 

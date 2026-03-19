@@ -1,14 +1,8 @@
 // Spec: specs/dashboard/response-metrics.md
-// Tests: tests/dashboard/response-metrics.unit.test.ts
+// Tests: backend/api/contract_test.go
 
-import type { Topic } from "../mock/data";
-import {
-  medianFirstReplyTime,
-  medianResolutionTime,
-  outcomeCounts,
-  formatOutcomes,
-  answerRate,
-} from "./responseMetrics";
+import type { MetricsSummary } from "../api/types";
+import { formatDuration } from "./topicFormatting";
 
 interface MetricCardProps {
   label: string;
@@ -24,19 +18,28 @@ function MetricCard({ label, value }: MetricCardProps) {
   );
 }
 
-interface ResponseMetricsCardsProps {
-  topics: Topic[];
+function formatOutcomes(solved: number, selfClosed: number): string {
+  return `${solved} solved / ${selfClosed} self-closed`;
 }
 
-export function ResponseMetricsCards({ topics }: ResponseMetricsCardsProps) {
-  const outcomeDisplay = formatOutcomes(outcomeCounts(topics));
+interface ResponseMetricsCardsProps {
+  data: MetricsSummary;
+}
+
+export function ResponseMetricsCards({ data }: ResponseMetricsCardsProps) {
+  const firstReply = data.medianFirstReplyMs === null
+    ? "–" : formatDuration(data.medianFirstReplyMs);
+  const resolution = data.medianResolutionMs === null
+    ? "–" : formatDuration(data.medianResolutionMs);
+  const answerRate = data.answerRatePercent === null
+    ? "–" : `${data.answerRatePercent}%`;
 
   return (
     <div className="response-cards">
-      <MetricCard label="Median first reply" value={medianFirstReplyTime(topics)} />
-      <MetricCard label="Median resolution" value={medianResolutionTime(topics)} />
-      <MetricCard label="Outcomes" value={outcomeDisplay} />
-      <MetricCard label="Answer rate" value={answerRate(topics)} />
+      <MetricCard label="Median first reply" value={firstReply} />
+      <MetricCard label="Median resolution" value={resolution} />
+      <MetricCard label="Outcomes" value={formatOutcomes(data.solvedCount, data.selfClosedCount)} />
+      <MetricCard label="Answer rate" value={answerRate} />
     </div>
   );
 }

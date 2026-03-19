@@ -1,11 +1,8 @@
 // Spec: specs/dashboard/queue-visibility.md, specs/dashboard/response-metrics.md,
-//       specs/dashboard/response-time-trends.md, specs/dashboard/tag-distribution.md
-// Tests: tests/dashboard/queue-visibility.unit.test.ts, tests/dashboard/response-metrics.unit.test.ts
-
-import type { Topic } from "../mock/data";
+//       specs/dashboard/tag-distribution.md
+// Tests: tests/dashboard/queue-visibility.unit.test.ts
 
 const MILLISECONDS_PER_HOUR = 3_600_000;
-const MILLISECONDS_PER_DAY = 86_400_000;
 const HOURS_PER_DAY = 24;
 
 export function formatDuration(ms: number): string {
@@ -22,33 +19,11 @@ export function formatAge(isoDate: string): string {
   return formatDuration(Date.now() - new Date(isoDate).getTime());
 }
 
-export function oldestUnrepliedDays(topics: Topic[]): string {
-  if (topics.length === 0) {
-    return "–";
-  }
-
-  const oldestMs = topics.reduce(
-    (oldest, topic) => Math.min(oldest, new Date(topic.createdAt).getTime()),
-    Infinity
-  );
-
-  const days = Math.floor((Date.now() - oldestMs) / MILLISECONDS_PER_DAY);
-  return `${days}d`;
-}
-
 export function formatTags(tags: string[]): string {
   return tags.length > 0 ? tags.join(", ") : "–";
 }
 
-// Placeholder base URL — will be provided by the backend in production.
-const FORUM_BASE_URL = "https://forum.example.com";
-
-export function topicUrl(topicId: number): string {
-  return `${FORUM_BASE_URL}/t/${topicId}`;
-}
-
 // Formats a YYYY-MM-DD week-start date (UTC Monday) as a locale-aware short date.
-// Used by TagDistribution and volume/median trend charts to label weekly buckets.
 export function formatWeekLabel(isoDate: string): string {
   return new Date(isoDate + "T00:00:00Z").toLocaleDateString(undefined, {
     year: "numeric",

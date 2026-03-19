@@ -1,43 +1,27 @@
 // Spec: specs/dashboard/response-time-distribution.md
-// Tests: tests/dashboard/response-time-distribution.unit.test.ts
+// Tests: backend/api/contract_test.go
 
-import type { Topic } from "../mock/data";
+import type { MetricsDistribution } from "../api/types";
 import { DistributionChart } from "./DistributionChart";
-import {
-  bucketDurations,
-  firstReplyDurations,
-  resolutionDurations,
-} from "./distributionMetrics";
 import { CHART_COLOR_1, CHART_COLOR_2 } from "./themeColors";
 
 interface ResponseTimeDistributionProps {
-  topics: Topic[];
-  ceilingsHours: number[];
+  data: MetricsDistribution;
 }
 
 export function ResponseTimeDistribution({
-  topics,
-  ceilingsHours,
+  data,
 }: ResponseTimeDistributionProps) {
-  const firstReplyColor = CHART_COLOR_1;
-  const resolutionColor = CHART_COLOR_2;
-
-  const replyDurations = firstReplyDurations(topics);
-  const resolDurations = resolutionDurations(topics);
-
-  const replyBuckets = bucketDurations(replyDurations, ceilingsHours);
-  const resolBuckets = bucketDurations(resolDurations, ceilingsHours);
-
   return (
     <div className="rd-section">
       <section>
         <h2 className="rd-heading">First reply distribution</h2>
-        {replyDurations.length === 0 ? (
+        {data.firstReply.length === 0 ? (
           <p className="rd-empty">No data</p>
         ) : (
           <DistributionChart
-            data={replyBuckets}
-            color={firstReplyColor}
+            data={data.firstReply}
+            color={CHART_COLOR_1}
             name="Topics"
           />
         )}
@@ -45,12 +29,12 @@ export function ResponseTimeDistribution({
 
       <section>
         <h2 className="rd-heading">Resolution time distribution</h2>
-        {resolDurations.length === 0 ? (
+        {data.resolution.length === 0 ? (
           <p className="rd-empty">No data</p>
         ) : (
           <DistributionChart
-            data={resolBuckets}
-            color={resolutionColor}
+            data={data.resolution}
+            color={CHART_COLOR_2}
             name="Topics"
           />
         )}

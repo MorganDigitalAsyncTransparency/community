@@ -1,7 +1,6 @@
 // Spec: specs/dashboard/queue-visibility.md, specs/dashboard/stalled-topics.md,
 //       specs/dashboard/slo-monitoring.md
-// Tests: tests/dashboard/queue-visibility.unit.test.ts, tests/dashboard/stalled-topics.unit.test.ts,
-//        tests/dashboard/slo-monitoring.unit.test.ts
+// Tests: tests/dashboard/queue-visibility.unit.test.ts, backend/api/contract_test.go
 
 import { useState } from "react";
 

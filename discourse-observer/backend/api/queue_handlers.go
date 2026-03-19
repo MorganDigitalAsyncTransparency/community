@@ -15,13 +15,32 @@ func (s *Server) handleQueueSummary(w http.ResponseWriter, r *http.Request) {
 		respondError(w, http.StatusBadRequest, err.Error())
 		return
 	}
-	topics := applyAllFilters(s.Topics, f, s.Now())
-	result := domain.ComputeQueueSummary(topics, s.Now())
+	// Unreplied count uses monitored-tag-filtered topics
+	monitoredTopics := applyAllFilters(s.Topics, f, s.Now(), s.MonitoredTags())
+	// Untagged count uses time-only filtered topics (untagged topics have no
+	// tags, so tag filtering would exclude them — AC-30)
+	timeOnlyTopics := applyTimeFilters(s.Topics, f, s.Now())
+
+	unreplied := domain.FilterUnreplied(monitoredTopics)
+	untagged := domain.FilterUntagged(timeOnlyTopics)
+
+	var oldest *int
+	if len(unreplied) > 0 {
+		maxAge := 0
+		now := s.Now()
+		for i := range unreplied {
+			days := int(now.Sub(unreplied[i].CreatedAt).Hours() / 24)
+			if days > maxAge {
+				maxAge = days
+			}
+		}
+		oldest = &maxAge
+	}
 
 	respondJSON(w, map[string]any{
-		"unrepliedCount":         result.UnrepliedCount,
-		"untaggedCount":          result.UntaggedCount,
-		"oldestUnrepliedAgeDays": result.OldestUnrepliedDays,
+		"unrepliedCount":         len(unreplied),
+		"untaggedCount":          len(untagged),
+		"oldestUnrepliedAgeDays": oldest,
 	})
 }
 
@@ -31,7 +50,7 @@ func (s *Server) handleQueueUnreplied(w http.ResponseWriter, r *http.Request) {
 		respondError(w, http.StatusBadRequest, err.Error())
 		return
 	}
-	topics := applyAllFilters(s.Topics, f, s.Now())
+	topics := applyAllFilters(s.Topics, f, s.Now(), s.MonitoredTags())
 	unreplied := domain.FilterUnreplied(topics)
 
 	sort.Slice(unreplied, func(i, j int) bool {
@@ -99,7 +118,7 @@ func (s *Server) handleQueueStalled(w http.ResponseWriter, r *http.Request) {
 		respondError(w, http.StatusBadRequest, err.Error())
 		return
 	}
-	topics := applyAllFilters(s.Topics, f, s.Now())
+	topics := applyAllFilters(s.Topics, f, s.Now(), s.MonitoredTags())
 	stalled := domain.FindStalledTopics(topics, s.ResolvedTags, s.TagConfig.Defaults.StalledDays, s.Now())
 
 	type item struct {

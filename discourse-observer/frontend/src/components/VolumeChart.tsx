@@ -10,7 +10,7 @@ import {
   XAxis,
   YAxis,
 } from "recharts";
-import type { VolumeBucket } from "./volumeMetrics";
+import type { VolumeBucket } from "../api/types";
 import {
   CHART_COLOR_3,
   CHART_COLOR_4,
