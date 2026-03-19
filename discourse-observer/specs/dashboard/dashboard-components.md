@@ -8,7 +8,7 @@ These components implement the visual layer for the requirements defined in [que
 
 ## Data types
 
-Components consume the `DashboardData` and `Topic` interfaces defined in the mock data layer. These types will later be provided by the backend API; until then, mock data is used.
+Components consume TypeScript interfaces that mirror the backend API response shapes defined in [api-contract.md](../api/api-contract.md). Type definitions live in `frontend/src/api/types.ts`.
 
 ---
 
@@ -429,4 +429,4 @@ All time displays — both topic age and response time metrics — use a single 
 
 - Pure function components. No React hooks. Exceptions: `App` uses `useUrlState` for page, active period, active tag, and active area (persisted in URL query parameters — see [url-state.md](url-state.md)) and `useState` for custom range draft and mobile sidebar visibility state, as it is the application shell — not a display component. `Sidebar` uses `useState` for collapsed state — this state is local to the sidebar and does not affect other components. `UnrepliedTable`, `UntaggedTable`, `StalledTopics`, and `SloMonitor` (via its `ViolationTable` and `ComplianceTable` sub-components) use the shared `useTableSort` hook for sort column and direction — this state is local to each table and does not affect other components. `PeakActivity` uses `useState` for timezone selections, picker visibility, and cookie consent state — this state is local to the heatmap and does not affect other components. `TimezonePicker` uses `useState` for the search input — this is local input state that does not affect other components.
 - Each component file stays under 200 lines.
-- Types are imported from the mock data module.
+- Types are imported from `frontend/src/api/types.ts`.
