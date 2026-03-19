@@ -1,5 +1,5 @@
 // Spec: docs/decisions/0006-analytical-storage.md
-// Tests: backend/pipeline_test.go
+// Tests: backend/pipeline_test.go, backend/api/contract_test.go
 package storage
 
 import (
@@ -7,6 +7,7 @@ import (
 	"database/sql"
 	"encoding/json"
 	"fmt"
+	"strings"
 	"time"
 
 	"github.com/code-community/discourse-observer/backend/model"
@@ -78,16 +79,49 @@ func (s *SQLiteStore) StoreTopics(ctx context.Context, topics []model.Topic) err
 
 // LoadTopics reads all topics from the database, ordered by ID.
 func (s *SQLiteStore) LoadTopics(ctx context.Context) ([]model.Topic, error) {
-	rows, err := s.db.QueryContext(ctx, `
-		SELECT id, title, created_at, category_name, tags, reply_count,
-		       outcome, first_reply_at, resolved_at, last_activity_at, topic_url
-		FROM topics ORDER BY id
-	`)
+	return s.QueryTopics(ctx, model.QueryOpts{})
+}
+
+// QueryTopics reads topics filtered by the given options.
+// Time bounds filter on created_at. Tag filters using json_each on the
+// tags JSON array. Returns topics ordered by ID.
+func (s *SQLiteStore) QueryTopics(ctx context.Context, opts model.QueryOpts) ([]model.Topic, error) {
+	var (
+		where []string
+		args  []any
+	)
+
+	if opts.From != nil {
+		where = append(where, "created_at >= ?")
+		args = append(args, opts.From.Format(time.RFC3339))
+	}
+	if opts.To != nil {
+		where = append(where, "created_at <= ?")
+		args = append(args, opts.To.Format(time.RFC3339))
+	}
+	if opts.Tag != "" {
+		where = append(where, "EXISTS (SELECT 1 FROM json_each(tags) WHERE json_each.value = ?)")
+		args = append(args, opts.Tag)
+	}
+
+	query := `SELECT id, title, created_at, category_name, tags, reply_count,
+	                 outcome, first_reply_at, resolved_at, last_activity_at, topic_url
+	          FROM topics`
+	if len(where) > 0 {
+		query += " WHERE " + strings.Join(where, " AND ")
+	}
+	query += " ORDER BY id"
+
+	rows, err := s.db.QueryContext(ctx, query, args...)
 	if err != nil {
 		return nil, err
 	}
 	defer func() { _ = rows.Close() }()
 
+	return scanTopics(rows)
+}
+
+func scanTopics(rows *sql.Rows) ([]model.Topic, error) {
 	var topics []model.Topic
 	for rows.Next() {
 		var (

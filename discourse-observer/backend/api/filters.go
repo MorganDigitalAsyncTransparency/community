@@ -66,27 +66,49 @@ func parseFilters(r *http.Request, cfg *model.TagConfig) (ParsedFilters, error) 
 	return f, nil
 }
 
-// applyTimeFilters applies period or date range filters to topics.
-func applyTimeFilters(topics []model.Topic, f ParsedFilters, now time.Time) []model.Topic {
+// resolveQueryOpts converts parsed filters into QueryOpts with concrete
+// time bounds suitable for database queries. Period is resolved to an
+// absolute from/to range using now. Tag is passed through.
+func resolveQueryOpts(f ParsedFilters, now time.Time) model.QueryOpts {
+	opts := model.QueryOpts{Tag: f.Tag}
+
 	if f.From != nil && f.To != nil {
-		return domain.FilterByDateRange(topics, *f.From, *f.To)
+		from := *f.From
+		to := f.To.Add(24*time.Hour - time.Millisecond) // end of day inclusive
+		opts.From = &from
+		opts.To = &to
+		return opts
 	}
-	return domain.FilterByPeriod(topics, f.Period, now)
+
+	days := periodToDays(f.Period)
+	if days > 0 {
+		from := now.AddDate(0, 0, -days)
+		opts.From = &from
+	}
+	return opts
 }
 
-// applyTagFilter applies the tag filter to topics.
-// When a specific tag is requested, only that tag's topics are returned.
-// When no tag is specified, only topics with at least one monitored tag
-// are returned (AC-10).
+// periodToDays returns the number of lookback days for a period.
+// Returns 0 for "all" (no time bound).
+func periodToDays(period string) int {
+	switch period {
+	case "7d":
+		return 7
+	case "30d":
+		return 30
+	case "1y":
+		return 365
+	default:
+		return 0
+	}
+}
+
+// applyTagFilter applies in-memory tag filtering to topics already loaded
+// from the store. When no tag is specified in the query opts, only topics
+// with at least one monitored tag are included (AC-10).
 func applyTagFilter(topics []model.Topic, f ParsedFilters, monitored map[string]bool) []model.Topic {
 	if f.Tag != "" {
-		return domain.FilterByTag(topics, f.Tag)
+		return topics // already filtered by tag in the SQL query
 	}
 	return domain.FilterByMonitoredTags(topics, monitored)
-}
-
-// applyAllFilters applies both time and tag filters.
-func applyAllFilters(topics []model.Topic, f ParsedFilters, now time.Time, monitored map[string]bool) []model.Topic {
-	topics = applyTimeFilters(topics, f, now)
-	return applyTagFilter(topics, f, monitored)
 }

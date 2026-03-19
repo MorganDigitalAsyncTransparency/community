@@ -14,7 +14,12 @@ func (s *Server) handleActivityHeatmap(w http.ResponseWriter, r *http.Request) {
 		respondError(w, http.StatusBadRequest, err.Error())
 		return
 	}
-	topics := applyAllFilters(s.Topics, f, s.Now(), s.MonitoredTags())
+	topics, err := s.Store.QueryTopics(r.Context(), resolveQueryOpts(f, s.Now()))
+	if err != nil {
+		respondError(w, http.StatusInternalServerError, "query failed")
+		return
+	}
+	topics = applyTagFilter(topics, f, s.MonitoredTags())
 	heatmap := domain.BuildHeatmap(topics)
 
 	type cell struct {

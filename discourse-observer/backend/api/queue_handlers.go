@@ -15,11 +15,26 @@ func (s *Server) handleQueueSummary(w http.ResponseWriter, r *http.Request) {
 		respondError(w, http.StatusBadRequest, err.Error())
 		return
 	}
+
+	opts := resolveQueryOpts(f, s.Now())
+
 	// Unreplied count uses monitored-tag-filtered topics
-	monitoredTopics := applyAllFilters(s.Topics, f, s.Now(), s.MonitoredTags())
+	monitoredTopics, err := s.Store.QueryTopics(r.Context(), opts)
+	if err != nil {
+		respondError(w, http.StatusInternalServerError, "query failed")
+		return
+	}
+	monitoredTopics = applyTagFilter(monitoredTopics, f, s.MonitoredTags())
+
 	// Untagged count uses time-only filtered topics (untagged topics have no
 	// tags, so tag filtering would exclude them — AC-30)
-	timeOnlyTopics := applyTimeFilters(s.Topics, f, s.Now())
+	noTagOpts := opts
+	noTagOpts.Tag = ""
+	timeOnlyTopics, err := s.Store.QueryTopics(r.Context(), noTagOpts)
+	if err != nil {
+		respondError(w, http.StatusInternalServerError, "query failed")
+		return
+	}
 
 	unreplied := domain.FilterUnreplied(monitoredTopics)
 	untagged := domain.FilterUntagged(timeOnlyTopics)
@@ -50,7 +65,12 @@ func (s *Server) handleQueueUnreplied(w http.ResponseWriter, r *http.Request) {
 		respondError(w, http.StatusBadRequest, err.Error())
 		return
 	}
-	topics := applyAllFilters(s.Topics, f, s.Now(), s.MonitoredTags())
+	topics, err := s.Store.QueryTopics(r.Context(), resolveQueryOpts(f, s.Now()))
+	if err != nil {
+		respondError(w, http.StatusInternalServerError, "query failed")
+		return
+	}
+	topics = applyTagFilter(topics, f, s.MonitoredTags())
 	unreplied := domain.FilterUnreplied(topics)
 
 	sort.Slice(unreplied, func(i, j int) bool {
@@ -87,7 +107,11 @@ func (s *Server) handleQueueUntagged(w http.ResponseWriter, r *http.Request) {
 	}
 	// Tag filter does not apply to untagged endpoint (AC-30)
 	f.Tag = ""
-	topics := applyTimeFilters(s.Topics, f, s.Now())
+	topics, err := s.Store.QueryTopics(r.Context(), resolveQueryOpts(f, s.Now()))
+	if err != nil {
+		respondError(w, http.StatusInternalServerError, "query failed")
+		return
+	}
 	untagged := domain.FilterUntagged(topics)
 
 	sort.Slice(untagged, func(i, j int) bool {
@@ -118,7 +142,12 @@ func (s *Server) handleQueueStalled(w http.ResponseWriter, r *http.Request) {
 		respondError(w, http.StatusBadRequest, err.Error())
 		return
 	}
-	topics := applyAllFilters(s.Topics, f, s.Now(), s.MonitoredTags())
+	topics, err := s.Store.QueryTopics(r.Context(), resolveQueryOpts(f, s.Now()))
+	if err != nil {
+		respondError(w, http.StatusInternalServerError, "query failed")
+		return
+	}
+	topics = applyTagFilter(topics, f, s.MonitoredTags())
 	stalled := domain.FindStalledTopics(topics, s.ResolvedTags, s.TagConfig.Defaults.StalledDays, s.Now())
 
 	type item struct {

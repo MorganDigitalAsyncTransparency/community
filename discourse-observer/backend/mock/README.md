@@ -4,7 +4,7 @@ Hardcoded topic fixtures for development and testing.
 
 ## Responsibility
 
-Provides a realistic set of 44 topics covering all API endpoint scenarios: unreplied, resolved (solved and self-closed), replied-open, untagged, stalled, and multi-tag topics. Topics span a range of creation dates to exercise period filtering and time bucketing.
+Provides a realistic set of topics covering all API endpoint scenarios: unreplied, resolved (solved and self-closed), replied-open, untagged, stalled, and multi-tag topics. Topics span a range of creation dates to exercise period filtering and time bucketing.
 
 ## Does not
 
@@ -16,6 +16,6 @@ Provides a realistic set of 44 topics covering all API endpoint scenarios: unrep
 
 - `backend/model/` — Topic type
 
-## Future
+## Current usage
 
-This package will be removed when the data pipeline and SQLite analytical store ([ADR 0006](../../docs/decisions/0006-analytical-storage.md)) are implemented. At that point, API handlers will query the store instead of reading mock data.
+API handlers now query SQLite directly. This package remains as a test fixture provider: it is used by the mock Discourse server (`discourse/mockserver/`) for pipeline integration tests and by API contract tests (seeded into a temporary SQLite database). It is not imported at runtime.

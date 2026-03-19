@@ -8,14 +8,11 @@ This guide explains how to configure, start, and access the discourse-observer d
 make start
 ```
 
-This single command handles the full onboarding flow:
+This single command handles the full onboarding flow: installs dependencies, creates config files, runs verification, builds containers, and opens the dashboard.
 
-1. **Installs dependencies** — npm packages (root + frontend), golangci-lint, mkdocs-material, git hooks
-2. **Creates config files** — copies `.env.example` → `.env` and `config/tagConfig.example.json` → `config/tagConfig.json` (if they don't exist)
-3. **Verifies** — runs all linters and tests
-4. **Builds and launches** — builds Docker containers, starts them, opens the dashboard
+No Discourse forum is needed to get started. The default `.env` has no API token, so `make start` automatically seeds mock topics into a local SQLite database. The dashboard opens fully populated with realistic test data.
 
-Edit `.env` with your Discourse credentials and `config/tagConfig.json` with your tag, area, SLO, and stalled-topic configuration before the first run.
+To connect to a real forum later, edit `.env` with your Discourse credentials (see [Configure for a real forum](#configure-for-a-real-forum)). The next `make start` detects the token and skips seeding.
 
 After code changes, use `make restart` to rebuild and relaunch.
 
@@ -42,7 +39,7 @@ The following tools are needed. Go and Node.js are only required for local devel
 | **[Go 1.26+](https://go.dev/dl/)** | `choco install golang` | `brew install go` | [go.dev/dl](https://go.dev/dl/) (distro packages are often outdated) |
 | **[Node.js 24+](https://nodejs.org/)** | `choco install nodejs-lts` | `brew install node` | `sudo apt install nodejs npm` (Debian) / `sudo dnf install nodejs npm` (Fedora) |
 
-You also need a Discourse forum API token (read-only is sufficient).
+To connect to a real Discourse forum you also need an API token (read-only is sufficient). This is not required for local development with mock data.
 
 ### VS Code extensions
 
@@ -64,15 +61,13 @@ This project uses shell scripts and `make`, which require a Unix-compatible shel
 
 New terminal panels will then run commands like `make start` and `sh scripts/setup.sh` directly.
 
-## Configure
+## Configure for a real forum
 
-Copy the example environment file and fill in your values:
+`make start` works out of the box with mock data. This section is only needed when you want to connect to a real Discourse forum.
 
-```sh
-cp .env.example .env
-```
+### Discourse credentials
 
-Edit `.env`:
+Edit `.env` (created automatically by `make start` from `.env.example`):
 
 ```sh
 DISCOURSE_BASE_URL=https://your-forum.example.com
@@ -80,17 +75,13 @@ DISCOURSE_API_TOKEN=your-api-token-here
 DISCOURSE_API_USER=nickname
 ```
 
+When `DISCOURSE_API_TOKEN` has a value, `make start` skips mock seeding and the backend fetches from your forum instead.
+
 The `.env` file is gitignored and will not be committed.
 
 ### Tag configuration
 
-Copy the example configuration and customize it for your forum:
-
-```sh
-cp config/tagConfig.example.json config/tagConfig.json
-```
-
-Edit `config/tagConfig.json` to define your monitored tags, area groupings, SLO thresholds, and stalled-topic settings — all in a single file. The file has four sections:
+Edit `config/tagConfig.json` (created automatically from the example file) to define your monitored tags, area groupings, SLO thresholds, and stalled-topic settings. The file has four sections:
 
 - **`defaults`** — fallback values for `stalledDays`, `area`, and `slo`. Applied to tags that don't override them. Tags using defaults are marked in the UI so viewers know the values are not explicitly agreed.
 - **`areas`** — named groups with a `primaryTag` for display ordering.
@@ -100,7 +91,7 @@ The file is gitignored.
 
 ## Build and start
 
-Make sure you have completed the [Configure](#configure) step first — `docker compose` will fail if `.env` is missing.
+If connecting to a real forum, complete the [Configure for a real forum](#configure-for-a-real-forum) step first. For mock data, no configuration is needed — `make start` handles everything.
 
 ```sh
 make build   # build both containers
@@ -119,7 +110,7 @@ docker compose up -d
 After starting, confirm the stack is healthy:
 
 ```sh
-curl http://localhost:3000/api/health   # should return {"status":"ok"}
+curl http://localhost:3000/api/v1/status   # should return {"lastSyncedAt":...,"version":"..."}
 ```
 
 Open <http://localhost:3000> in a browser to see the dashboard.
@@ -163,7 +154,7 @@ Browser ──:3000──▸ nginx (frontend)
 
 - **Frontend container** — nginx serves the React build and proxies API requests to the backend. This is the only container exposed to the host.
 - **Backend container** — Go service that polls Discourse and serves the API. Not directly accessible from outside Docker.
-- **Data volume** — NDJSON files and the SQLite database are stored in a Docker volume that survives container restarts.
+- **Data directory** — the SQLite database (`data/analytics.db`) is bind-mounted from the project's `data/` directory, shared between host and container.
 
 ## Rebuild after code changes
 
@@ -177,7 +168,8 @@ This stops the running containers, rebuilds changed layers, starts everything ag
 
 | Command | What it does |
 |---|---|
-| `make start` | One-command onboarding: setup, verify, configure, build, launch, open browser |
+| `make start` | One-command onboarding: setup, verify, configure, build, launch, open browser (auto-seeds mock data if no API token) |
+| `make seed` | Populate SQLite with mock topics for development |
 | `make restart` | Verify, rebuild, and relaunch after code changes |
 | `make verify` | Run all linters and tests |
 | `make lint` | Run all linters (Go + markdown + frontend) |
