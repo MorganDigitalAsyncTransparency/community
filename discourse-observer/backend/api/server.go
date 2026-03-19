@@ -1,0 +1,47 @@
+// Spec: specs/api/api-contract.md (AC-1)
+// Tests: backend/api/contract_test.go
+package api
+
+import (
+	"net/http"
+	"time"
+
+	"github.com/code-community/discourse-observer/backend/model"
+)
+
+// Server holds shared state for all API handlers.
+type Server struct {
+	Topics         []model.Topic
+	TagConfig      model.TagConfig
+	ResolvedTags   map[string]model.ResolvedTag
+	BucketCeilings []int
+	Version        string
+	LastSyncedAt   *time.Time
+	Now            func() time.Time
+}
+
+// RegisterRoutes adds all /api/v1/ routes to the mux.
+func (s *Server) RegisterRoutes(mux *http.ServeMux) {
+	mux.HandleFunc("GET /api/v1/queue/summary", s.handleQueueSummary)
+	mux.HandleFunc("GET /api/v1/queue/unreplied", s.handleQueueUnreplied)
+	mux.HandleFunc("GET /api/v1/queue/untagged", s.handleQueueUntagged)
+	mux.HandleFunc("GET /api/v1/queue/stalled", s.handleQueueStalled)
+
+	mux.HandleFunc("GET /api/v1/metrics/summary", s.handleMetricsSummary)
+	mux.HandleFunc("GET /api/v1/metrics/volume", s.handleMetricsVolume)
+	mux.HandleFunc("GET /api/v1/metrics/median-trends", s.handleMetricsMedianTrends)
+	mux.HandleFunc("GET /api/v1/metrics/distribution", s.handleMetricsDistribution)
+
+	mux.HandleFunc("GET /api/v1/distribution/volume", s.handleDistributionVolume)
+	mux.HandleFunc("GET /api/v1/distribution/resolution", s.handleDistributionResolution)
+	mux.HandleFunc("GET /api/v1/distribution/backlog", s.handleDistributionBacklog)
+	mux.HandleFunc("GET /api/v1/distribution/backlog-trend", s.handleDistributionBacklogTrend)
+
+	mux.HandleFunc("GET /api/v1/slo/violations", s.handleSLOViolations)
+	mux.HandleFunc("GET /api/v1/slo/compliance", s.handleSLOCompliance)
+
+	mux.HandleFunc("GET /api/v1/activity/heatmap", s.handleActivityHeatmap)
+
+	mux.HandleFunc("GET /api/v1/config", s.handleConfig)
+	mux.HandleFunc("GET /api/v1/status", s.handleStatus)
+}
