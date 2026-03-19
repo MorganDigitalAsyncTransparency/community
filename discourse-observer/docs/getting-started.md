@@ -8,9 +8,18 @@ This guide explains how to configure, start, and access the discourse-observer d
 make start
 ```
 
-This copies `.env.example` to `.env` and `config/tagConfig.example.json` to `config/tagConfig.json` (if needed), builds the containers, starts them, and opens the dashboard. Edit `.env` with your Discourse credentials and `config/tagConfig.json` with your tag, area, SLO, and stalled-topic configuration before the first run.
+This single command handles the full onboarding flow:
+
+1. **Installs dependencies** — npm packages (root + frontend), golangci-lint, mkdocs-material, git hooks
+2. **Creates config files** — copies `.env.example` → `.env` and `config/tagConfig.example.json` → `config/tagConfig.json` (if they don't exist)
+3. **Verifies** — runs all linters and tests
+4. **Builds and launches** — builds Docker containers, starts them, opens the dashboard
+
+Edit `.env` with your Discourse credentials and `config/tagConfig.json` with your tag, area, SLO, and stalled-topic configuration before the first run.
 
 After code changes, use `make restart` to rebuild and relaunch.
+
+If you only want to install dependencies without launching, run `make setup` separately.
 
 The rest of this guide covers prerequisites, configuration, and how the stack works.
 
@@ -24,18 +33,26 @@ sh scripts/setup.sh
 
 If you already have `make` installed, you can use `make check` instead.
 
-The following tools are needed:
+The following tools are needed. Go and Node.js are only required for local development outside Docker.
 
-1. **GNU Make**
-   - **Windows:** `choco install make` ([Chocolatey](https://chocolatey.org/)) or `winget install ezwinports.make`
-   - **macOS:** included with Xcode Command Line Tools (`xcode-select --install`)
-   - **Linux (Debian/Ubuntu):** `sudo apt install make`
-   - **Linux (Fedora):** `sudo dnf install make`
-2. [Docker Desktop](https://docs.docker.com/desktop/) — includes Docker Engine, Docker Compose, BuildKit, and the CLI. On Linux you can alternatively install [Docker Engine](https://docs.docker.com/engine/install/) with the [Compose plugin](https://docs.docker.com/compose/install/) and [Buildx plugin](https://docs.docker.com/build/install-buildx/) separately.
-3. [Go 1.26+](https://go.dev/dl/) — only needed for local development outside Docker.
-4. [Node.js 24+](https://nodejs.org/) (includes npm) — only needed for local development outside Docker.
+| Tool | Windows | macOS | Linux |
+|------|---------|-------|-------|
+| **[GNU Make](https://www.gnu.org/software/make/)** | `choco install make` | included with Xcode CLT (`xcode-select --install`) | `sudo apt install make` (Debian) / `sudo dnf install make` (Fedora) |
+| **[Docker Desktop](https://docs.docker.com/desktop/)** | `choco install docker-desktop` | `brew install --cask docker` | [Docker Engine](https://docs.docker.com/engine/install/) + [Compose plugin](https://docs.docker.com/compose/install/) |
+| **[Go 1.26+](https://go.dev/dl/)** | `choco install golang` | `brew install go` | [go.dev/dl](https://go.dev/dl/) (distro packages are often outdated) |
+| **[Node.js 24+](https://nodejs.org/)** | `choco install nodejs-lts` | `brew install node` | `sudo apt install nodejs npm` (Debian) / `sudo dnf install nodejs npm` (Fedora) |
 
 You also need a Discourse forum API token (read-only is sufficient).
+
+### VS Code extensions
+
+The repository includes a `.vscode/extensions.json` with recommended extensions. VS Code will prompt you to install them when you open the project. The recommendations include:
+
+- **Go** — Go language support, debugging, and linting
+- **ESLint** — JavaScript/TypeScript linting (frontend)
+- **Stylelint** — CSS linting (frontend)
+- **markdownlint** — Markdown linting (documentation)
+- **Docker** — Dockerfile and Compose support
 
 ### VS Code terminal setup
 
@@ -160,7 +177,7 @@ This stops the running containers, rebuilds changed layers, starts everything ag
 
 | Command | What it does |
 |---|---|
-| `make start` | One-command onboarding: verify, configure, build, launch, open browser |
+| `make start` | One-command onboarding: setup, verify, configure, build, launch, open browser |
 | `make restart` | Verify, rebuild, and relaunch after code changes |
 | `make verify` | Run all linters and tests |
 | `make lint` | Run all linters (Go + markdown + frontend) |
@@ -170,5 +187,5 @@ This stops the running containers, rebuilds changed layers, starts everything ag
 | `make down` | Stop containers |
 | `make check` | Check that prerequisites are installed |
 | `make setup` | Install dependencies and configure git hooks |
-| `make docs` | Serve documentation locally with live-reload |
+| `make docs` | Build and serve documentation locally (re-run to pick up changes) |
 | `make open` | Open dashboard in browser |

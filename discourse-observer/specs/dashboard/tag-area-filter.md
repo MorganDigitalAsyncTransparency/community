@@ -116,16 +116,14 @@ Tags are resolved at runtime by merging each entry with `defaults`. A `ResolvedT
 
 ### Filter functions
 
-Defined in `tagFilter.ts`:
+Filtering and tag resolution are implemented in the backend:
 
-- `monitoredTags(config)` — returns the keys of `config.tags`.
-- `filterByTag(topics, tag)` — returns topics whose `tags` array includes the given tag. When `tag` is `null`, returns all topics unchanged.
-- `filterByMonitoredTags(topics, monitored)` — returns topics that carry at least one monitored tag.
-- `tagsForArea(config, area)` — returns tags whose resolved `area` matches, with the primary tag first (from the matching `areas` entry) and the rest sorted alphabetically. For the default area (no `areas` entry), tags sort alphabetically with no primary. When `area` is `null`, returns all monitored tags sorted alphabetically.
-- `allAreas(config)` — returns the list of named areas plus the default area (if any tags use it). The default area appears last.
-- `resolveTag(entry, defaults)` / `resolveAllTags(config)` — applies defaults and tracks provenance.
-- `extractSloConfig(config)` / `sloDefaultTags(config)` — extracts SLO thresholds for all tags and identifies which use defaults.
-- `scopeSloConfig(full, visibleTags)` — filters a full `SloConfig` to include only tags in the `visibleTags` list. Used to scope SLO monitoring to the active area/tag selection so that the compliance table only shows tags relevant to the current filter.
+- `FilterByTag(topics, tag)` — returns topics whose `tags` array includes the given tag. When tag is empty, returns all topics unchanged. Defined in [filter.go](../../backend/domain/filter.go).
+- `FilterByMonitoredTags(topics, monitored)` — returns topics that carry at least one monitored tag. Defined in [filter.go](../../backend/domain/filter.go).
+- `MonitoredTags()` — returns the set of configured tag names. Defined in [server.go](../../backend/api/server.go).
+- `resolveTag(spec, defaults)` / `ResolveAllTags(config)` — applies defaults and tracks provenance. Defined in [resolveconfig.go](../../backend/domain/resolveconfig.go).
+
+Tag and area selection, area ordering, and SLO config scoping are handled by the backend API layer in [filters.go](../../backend/api/filters.go). The frontend sends `tag` and `area` query parameters and receives pre-filtered data.
 
 ### Component
 
@@ -152,10 +150,10 @@ Child component interfaces are unchanged — they continue to receive already-fi
 | Component | File | Requirements |
 |-----------|------|-------------|
 | `TagSelector` | [TagSelector.tsx](../../frontend/src/components/TagSelector.tsx) | TA-1 — tag selection; TA-9 – TA-14 — area navigation; TA-18 — placement; TA-21 — active indicators |
-| `filterByTag` | [tagFilter.ts](../../frontend/src/components/tagFilter.ts) | TA-5 — match semantics; TA-6 — untagged excluded |
-| `filterByMonitoredTags` | [tagFilter.ts](../../frontend/src/components/tagFilter.ts) | TA-17 — monitored tag scope |
-| `monitoredTags` | [tagFilter.ts](../../frontend/src/components/tagFilter.ts) | TA-17 — extract monitored set |
-| `tagsForArea` | [tagFilter.ts](../../frontend/src/components/tagFilter.ts) | TA-12, TA-13 — tag ordering |
+| `FilterByTag` | [filter.go](../../backend/domain/filter.go) | TA-5 — match semantics; TA-6 — untagged excluded |
+| `FilterByMonitoredTags` | [filter.go](../../backend/domain/filter.go) | TA-17 — monitored tag scope |
+| `MonitoredTags` | [server.go](../../backend/api/server.go) | TA-17 — extract monitored set |
+| `applyTagFilter` | [filters.go](../../backend/api/filters.go) | TA-12, TA-13 — tag ordering via API query params |
 | `App` | [App.tsx](../../frontend/src/App.tsx) | TA-2 — default aggregation; TA-3, TA-4 — filter composition; TA-7 — trend scoping; TA-8 — persistence; TA-19 — defaults |
 
 ---

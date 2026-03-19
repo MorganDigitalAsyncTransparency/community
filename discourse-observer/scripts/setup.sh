@@ -49,13 +49,31 @@ make_hint() {
 docker_hint() {
   case "$OS" in
     debian|fedora|linux) echo "https://docs.docker.com/engine/install/" ;;
-    macos|windows)       echo "https://docs.docker.com/desktop/" ;;
-    *)                   echo "https://docs.docker.com/get-docker/" ;;
+    macos)   echo "brew install --cask docker  OR  https://docs.docker.com/desktop/" ;;
+    windows) echo "choco install docker-desktop  OR  https://docs.docker.com/desktop/" ;;
+    *)       echo "https://docs.docker.com/get-docker/" ;;
   esac
 }
 
-go_hint() { echo "https://go.dev/dl/"; }
-node_hint() { echo "https://nodejs.org/"; }
+go_hint() {
+  case "$OS" in
+    debian|linux) echo "https://go.dev/dl/" ;;
+    fedora)  echo "sudo dnf install golang  OR  https://go.dev/dl/" ;;
+    macos)   echo "brew install go  OR  https://go.dev/dl/" ;;
+    windows) echo "choco install golang  OR  https://go.dev/dl/" ;;
+    *)       echo "https://go.dev/dl/" ;;
+  esac
+}
+
+node_hint() {
+  case "$OS" in
+    debian)  echo "sudo apt install nodejs npm  OR  https://nodejs.org/" ;;
+    fedora)  echo "sudo dnf install nodejs npm  OR  https://nodejs.org/" ;;
+    macos)   echo "brew install node  OR  https://nodejs.org/" ;;
+    windows) echo "choco install nodejs-lts  OR  https://nodejs.org/" ;;
+    *)       echo "https://nodejs.org/" ;;
+  esac
+}
 
 # --- Check a command exists ---
 
@@ -100,6 +118,12 @@ printf "\n${BOLD}Checking development tools (needed for lint/test)...${RESET}\n"
 check_dev "go" "$(go_hint)"
 check_dev "node" "$(node_hint)"
 
+if command -v golangci-lint >/dev/null 2>&1; then
+  pass "golangci-lint"
+else
+  warn "golangci-lint" "run 'make setup' to install, or: go install github.com/golangci/golangci-lint/v2/cmd/golangci-lint@latest"
+fi
+
 # --- .env file ---
 
 printf "\n${BOLD}Checking configuration...${RESET}\n"
@@ -134,7 +158,7 @@ fi
 
 printf "\n"
 if [ "$required_ok" = true ] && [ "$dev_ok" = true ]; then
-  printf "${GREEN}All tools found.${RESET} Run ${BOLD}make start${RESET} to launch.\n"
+  printf "${GREEN}All tools found.${RESET} Run ${BOLD}make setup${RESET} to install dependencies, then ${BOLD}make start${RESET} to launch.\n"
 elif [ "$required_ok" = true ]; then
   printf "${YELLOW}Required tools OK.${RESET} Some development tools are missing (see above).\n"
   printf "You can run ${BOLD}make start${RESET} now, but ${BOLD}make lint${RESET} and ${BOLD}make test${RESET} need the missing tools.\n"
