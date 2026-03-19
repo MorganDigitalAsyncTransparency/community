@@ -20,9 +20,10 @@ COPY config/ config/
 RUN CGO_ENABLED=0 go build -o /app/discourse-observer ./backend
 
 # -- runtime stage --
-FROM alpine:3
-RUN apk add --no-cache ca-certificates
+FROM alpine:3.19
+
 WORKDIR /app
+COPY --from=build /etc/ssl/certs/ca-certificates.crt /etc/ssl/certs/
 COPY --from=build /app/discourse-observer .
 COPY config/ config/
 RUN mkdir -p /app/data
