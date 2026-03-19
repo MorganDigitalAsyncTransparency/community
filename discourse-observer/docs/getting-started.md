@@ -40,8 +40,15 @@ The following tools are needed:
    - **macOS:** included with Xcode Command Line Tools (`xcode-select --install`)
    - **Linux (Debian/Ubuntu):** `sudo apt install make`
    - **Linux (Fedora):** `sudo dnf install make`
-2. [Docker Desktop](https://docs.docker.com/desktop/) — includes Docker Engine, Docker Compose, BuildKit, and the CLI. On Linux you can alternatively install [Docker Engine](https://docs.docker.com/engine/install/) with the [Compose plugin](https://docs.docker.com/compose/install/) and [Buildx plugin](https://docs.docker.com/build/install-buildx/) separately.
+2. **[Docker Desktop](https://docs.docker.com/desktop/)** — includes Docker Engine, Docker Compose, BuildKit, and the CLI.
+   - **Windows:** `choco install docker-desktop` ([Chocolatey](https://chocolatey.org/)) or download from [docker.com](https://docs.docker.com/desktop/setup/install/windows-install/)
+   - **macOS:** `brew install --cask docker` ([Homebrew](https://brew.sh/)) or download from [docker.com](https://docs.docker.com/desktop/setup/install/mac-install/)
+   - **Linux:** install [Docker Engine](https://docs.docker.com/engine/install/) with the [Compose plugin](https://docs.docker.com/compose/install/) and [Buildx plugin](https://docs.docker.com/build/install-buildx/)
 3. **[Go 1.26+](https://go.dev/dl/)** — only needed for local development outside Docker.
+   - **Windows:** `choco install golang` ([Chocolatey](https://chocolatey.org/)) or download from [go.dev](https://go.dev/dl/)
+   - **macOS:** `brew install go` ([Homebrew](https://brew.sh/)) or download from [go.dev](https://go.dev/dl/)
+   - **Linux (Debian/Ubuntu):** download from [go.dev](https://go.dev/dl/) (distro packages are often outdated)
+   - **Linux (Fedora):** `sudo dnf install golang` or download from [go.dev](https://go.dev/dl/)
 4. **Node.js 24+** (includes npm) — only needed for local development outside Docker.
    - **Windows:** `choco install nodejs-lts` ([Chocolatey](https://chocolatey.org/)) or download from [nodejs.org](https://nodejs.org/)
    - **macOS:** `brew install node` ([Homebrew](https://brew.sh/)) or download from [nodejs.org](https://nodejs.org/)

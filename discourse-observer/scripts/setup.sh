@@ -49,12 +49,21 @@ make_hint() {
 docker_hint() {
   case "$OS" in
     debian|fedora|linux) echo "https://docs.docker.com/engine/install/" ;;
-    macos|windows)       echo "https://docs.docker.com/desktop/" ;;
-    *)                   echo "https://docs.docker.com/get-docker/" ;;
+    macos)   echo "brew install --cask docker  OR  https://docs.docker.com/desktop/" ;;
+    windows) echo "choco install docker-desktop  OR  https://docs.docker.com/desktop/" ;;
+    *)       echo "https://docs.docker.com/get-docker/" ;;
   esac
 }
 
-go_hint() { echo "https://go.dev/dl/"; }
+go_hint() {
+  case "$OS" in
+    debian|linux) echo "https://go.dev/dl/" ;;
+    fedora)  echo "sudo dnf install golang  OR  https://go.dev/dl/" ;;
+    macos)   echo "brew install go  OR  https://go.dev/dl/" ;;
+    windows) echo "choco install golang  OR  https://go.dev/dl/" ;;
+    *)       echo "https://go.dev/dl/" ;;
+  esac
+}
 
 node_hint() {
   case "$OS" in
