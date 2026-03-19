@@ -1,4 +1,4 @@
-.PHONY: check setup lint lint-go lint-md lint-frontend test verify docs build up down start restart open seed
+.PHONY: check setup lint lint-go lint-md lint-frontend test verify docs build up down start restart open seed qa
 
 ## Check — verify prerequisites are installed
 check:
@@ -49,8 +49,11 @@ up:
 down:
 	docker compose down --timeout 10 --remove-orphans
 
-## Start — one-command onboarding: setup, configure, build, launch, open browser
-start: setup .env config/tagConfig.json verify build up open
+## Start — one-command onboarding: setup, configure, seed, build, launch, open browser
+start: setup .env config/tagConfig.json verify seed build up open
+
+## QA — seed mock data, build, and launch (skips setup/verify)
+qa: seed build up open
 
 .env:
 	cp .env.example .env
