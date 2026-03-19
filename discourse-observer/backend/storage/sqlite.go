@@ -1,0 +1,159 @@
+// Spec: docs/decisions/0006-analytical-storage.md
+// Tests: backend/pipeline_test.go
+package storage
+
+import (
+	"context"
+	"database/sql"
+	"encoding/json"
+	"fmt"
+	"time"
+
+	"github.com/code-community/discourse-observer/backend/model"
+
+	_ "modernc.org/sqlite"
+)
+
+// SQLiteStore persists normalized topics to a SQLite database.
+type SQLiteStore struct {
+	db *sql.DB
+}
+
+// NewSQLiteStore opens (or creates) a SQLite database at path and
+// runs schema migrations.
+func NewSQLiteStore(path string) (*SQLiteStore, error) {
+	db, err := sql.Open("sqlite", path)
+	if err != nil {
+		return nil, fmt.Errorf("open sqlite: %w", err)
+	}
+	if err := migrate(db); err != nil {
+		db.Close()
+		return nil, fmt.Errorf("migrate: %w", err)
+	}
+	return &SQLiteStore{db: db}, nil
+}
+
+// StoreTopics upserts topics into the database. Existing rows with the
+// same ID are replaced, making the operation idempotent.
+func (s *SQLiteStore) StoreTopics(ctx context.Context, topics []model.Topic) error {
+	tx, err := s.db.BeginTx(ctx, nil)
+	if err != nil {
+		return err
+	}
+	defer tx.Rollback()
+
+	stmt, err := tx.PrepareContext(ctx, `
+		INSERT OR REPLACE INTO topics
+			(id, title, created_at, category_name, tags, reply_count,
+			 outcome, first_reply_at, resolved_at, last_activity_at, topic_url)
+		VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+	`)
+	if err != nil {
+		return err
+	}
+	defer stmt.Close()
+
+	for _, t := range topics {
+		tags, _ := json.Marshal(t.Tags)
+		_, err := stmt.ExecContext(ctx,
+			t.ID,
+			t.Title,
+			t.CreatedAt.Format(time.RFC3339),
+			t.CategoryName,
+			string(tags),
+			t.ReplyCount,
+			t.Outcome,
+			formatTime(t.FirstReplyAt),
+			formatTime(t.ResolvedAt),
+			formatTime(t.LastActivityAt),
+			t.TopicURL,
+		)
+		if err != nil {
+			return fmt.Errorf("insert topic %d: %w", t.ID, err)
+		}
+	}
+	return tx.Commit()
+}
+
+// LoadTopics reads all topics from the database, ordered by ID.
+func (s *SQLiteStore) LoadTopics(ctx context.Context) ([]model.Topic, error) {
+	rows, err := s.db.QueryContext(ctx, `
+		SELECT id, title, created_at, category_name, tags, reply_count,
+		       outcome, first_reply_at, resolved_at, last_activity_at, topic_url
+		FROM topics ORDER BY id
+	`)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	var topics []model.Topic
+	for rows.Next() {
+		var (
+			t                                  model.Topic
+			createdAt, tags                    string
+			firstReply, resolved, lastActivity sql.NullString
+		)
+		err := rows.Scan(
+			&t.ID, &t.Title, &createdAt, &t.CategoryName, &tags,
+			&t.ReplyCount, &t.Outcome,
+			&firstReply, &resolved, &lastActivity, &t.TopicURL,
+		)
+		if err != nil {
+			return nil, err
+		}
+
+		t.CreatedAt, _ = time.Parse(time.RFC3339, createdAt)
+		if err := json.Unmarshal([]byte(tags), &t.Tags); err != nil {
+			t.Tags = []string{}
+		}
+		t.FirstReplyAt = parseNullTime(firstReply)
+		t.ResolvedAt = parseNullTime(resolved)
+		t.LastActivityAt = parseNullTime(lastActivity)
+
+		topics = append(topics, t)
+	}
+	return topics, rows.Err()
+}
+
+// Close closes the database connection.
+func (s *SQLiteStore) Close() error {
+	return s.db.Close()
+}
+
+func migrate(db *sql.DB) error {
+	_, err := db.Exec(`
+		CREATE TABLE IF NOT EXISTS topics (
+			id               INTEGER PRIMARY KEY,
+			title            TEXT    NOT NULL,
+			created_at       TEXT    NOT NULL,
+			category_name    TEXT    NOT NULL DEFAULT '',
+			tags             TEXT    NOT NULL DEFAULT '[]',
+			reply_count      INTEGER NOT NULL DEFAULT 0,
+			outcome          TEXT    NOT NULL DEFAULT '',
+			first_reply_at   TEXT,
+			resolved_at      TEXT,
+			last_activity_at TEXT,
+			topic_url        TEXT    NOT NULL DEFAULT ''
+		)
+	`)
+	return err
+}
+
+func formatTime(t *time.Time) any {
+	if t == nil {
+		return nil
+	}
+	return t.Format(time.RFC3339)
+}
+
+func parseNullTime(ns sql.NullString) *time.Time {
+	if !ns.Valid || ns.String == "" {
+		return nil
+	}
+	t, err := time.Parse(time.RFC3339, ns.String)
+	if err != nil {
+		return nil
+	}
+	return &t
+}
