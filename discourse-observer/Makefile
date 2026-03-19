@@ -49,8 +49,8 @@ up:
 down:
 	docker compose down --timeout 10 --remove-orphans
 
-## Start — one-command onboarding: setup, configure, seed, build, launch, open browser
-start: setup .env config/tagConfig.json verify seed build up open
+## Start — one-command onboarding: setup, configure, build, launch, open browser
+start: setup .env config/tagConfig.json verify build up open
 
 ## QA — seed mock data, build, and launch (skips setup/verify)
 qa: seed build up open

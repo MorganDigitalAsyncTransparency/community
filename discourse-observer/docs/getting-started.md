@@ -17,6 +17,16 @@ This single command handles the full onboarding flow:
 
 Edit `.env` with your Discourse credentials and `config/tagConfig.json` with your tag, area, SLO, and stalled-topic configuration before the first run.
 
+### Quick start with test data
+
+To launch the dashboard with mock data (no Discourse credentials needed):
+
+```sh
+make qa
+```
+
+This seeds 44 realistic topics into a local SQLite database, builds the containers, and opens the dashboard. Useful during development to see all pages populated without connecting to a real forum.
+
 After code changes, use `make restart` to rebuild and relaunch.
 
 If you only want to install dependencies without launching, run `make setup` separately.
@@ -163,7 +173,7 @@ Browser ──:3000──▸ nginx (frontend)
 
 - **Frontend container** — nginx serves the React build and proxies API requests to the backend. This is the only container exposed to the host.
 - **Backend container** — Go service that polls Discourse and serves the API. Not directly accessible from outside Docker.
-- **Data volume** — NDJSON files and the SQLite database are stored in a Docker volume that survives container restarts.
+- **Data directory** — the SQLite database (`data/analytics.db`) is bind-mounted from the project's `data/` directory, shared between host and container.
 
 ## Rebuild after code changes
 
@@ -178,6 +188,8 @@ This stops the running containers, rebuilds changed layers, starts everything ag
 | Command | What it does |
 |---|---|
 | `make start` | One-command onboarding: setup, verify, configure, build, launch, open browser |
+| `make qa` | Seed mock data, build, and launch — no Discourse credentials needed |
+| `make seed` | Populate SQLite with 44 mock topics for development |
 | `make restart` | Verify, rebuild, and relaunch after code changes |
 | `make verify` | Run all linters and tests |
 | `make lint` | Run all linters (Go + markdown + frontend) |
