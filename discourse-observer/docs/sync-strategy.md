@@ -46,7 +46,7 @@ Every sync cycle follows the same base sequence:
 
 On first run the database is empty and there is no stored watermark. The observer performs a full crawl.
 
-### Flow
+### Initial sync flow
 
 1. Fetch `/categories.json` → store category map.
 2. Set `page = 0`.
@@ -72,7 +72,7 @@ The default delay of 20 seconds yields ~3 requests per minute — well below Dis
 
 After the initial sync, subsequent runs only need to fetch topics that changed since the last watermark.
 
-### Flow
+### Delta sync flow
 
 1. Load the stored high-water mark (`last_bumped_at`).
 2. Fetch `/categories.json` → update category map.
@@ -113,7 +113,7 @@ A topic's current state (tags, category, title) is visible in `/latest.json`. Bu
 
 Revision version numbering starts at 2 (version 1 is the original post). The `last_revision` field indicates the highest version available.
 
-### Flow
+### Detail sync flow
 
 1. Wait for the scheduler to detect a low-activity window (see [Scheduling](#scheduling)).
 2. Select topics that need detail enrichment — either never detail-synced, or where `bumped_at` is newer than the last detail sync.
