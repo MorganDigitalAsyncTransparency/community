@@ -37,7 +37,7 @@ The following tools are needed. Go and Node.js are only required for local devel
 
 | Tool | Windows | macOS | Linux |
 |------|---------|-------|-------|
-| **GNU Make** | `choco install make` | included with Xcode CLT (`xcode-select --install`) | `sudo apt install make` (Debian) / `sudo dnf install make` (Fedora) |
+| **[GNU Make](https://www.gnu.org/software/make/)** | `choco install make` | included with Xcode CLT (`xcode-select --install`) | `sudo apt install make` (Debian) / `sudo dnf install make` (Fedora) |
 | **[Docker Desktop](https://docs.docker.com/desktop/)** | `choco install docker-desktop` | `brew install --cask docker` | [Docker Engine](https://docs.docker.com/engine/install/) + [Compose plugin](https://docs.docker.com/compose/install/) |
 | **[Go 1.26+](https://go.dev/dl/)** | `choco install golang` | `brew install go` | [go.dev/dl](https://go.dev/dl/) (distro packages are often outdated) |
 | **[Node.js 24+](https://nodejs.org/)** | `choco install nodejs-lts` | `brew install node` | `sudo apt install nodejs npm` (Debian) / `sudo dnf install nodejs npm` (Fedora) |
