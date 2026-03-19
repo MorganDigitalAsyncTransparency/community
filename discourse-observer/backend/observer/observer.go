@@ -49,8 +49,8 @@ func (o *Observer) Run(ctx context.Context) error {
 	}
 
 	topics := make([]model.Topic, len(raws))
-	for i, raw := range raws {
-		topics[i] = Normalize(raw, catMap, o.baseURL)
+	for i := range raws {
+		topics[i] = Normalize(&raws[i], catMap, o.baseURL)
 	}
 
 	if err := o.store.StoreTopics(ctx, topics); err != nil {
@@ -60,7 +60,7 @@ func (o *Observer) Run(ctx context.Context) error {
 }
 
 // Normalize transforms a raw Discourse topic into a domain Topic.
-func Normalize(raw model.RawTopic, categories map[int]string, baseURL string) model.Topic {
+func Normalize(raw *model.RawTopic, categories map[int]string, baseURL string) model.Topic {
 	outcome := deriveOutcome(raw)
 
 	t := model.Topic{
@@ -96,7 +96,7 @@ func Normalize(raw model.RawTopic, categories map[int]string, baseURL string) mo
 	return t
 }
 
-func deriveOutcome(raw model.RawTopic) string {
+func deriveOutcome(raw *model.RawTopic) string {
 	if raw.HasAcceptedAnswer {
 		return "solved"
 	}

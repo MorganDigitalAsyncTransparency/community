@@ -73,18 +73,19 @@ func buildCategories(topics []model.Topic) []model.RawCategory {
 	seen := map[string]int{}
 	var cats []model.RawCategory
 	nextID := 1
-	for _, t := range topics {
-		if t.CategoryName == "" {
+	for i := range topics {
+		name := topics[i].CategoryName
+		if name == "" {
 			continue
 		}
-		if _, ok := seen[t.CategoryName]; ok {
+		if _, ok := seen[name]; ok {
 			continue
 		}
-		seen[t.CategoryName] = nextID
+		seen[name] = nextID
 		cats = append(cats, model.RawCategory{
 			ID:   nextID,
-			Name: t.CategoryName,
-			Slug: slugify(t.CategoryName),
+			Name: name,
+			Slug: slugify(name),
 		})
 		nextID++
 	}
@@ -99,32 +100,33 @@ func convertTopics(topics []model.Topic, cats []model.RawCategory) []model.RawTo
 	}
 
 	raw := make([]model.RawTopic, len(topics))
-	for i, t := range topics {
+	for i := range topics {
+		tp := &topics[i]
 		raw[i] = model.RawTopic{
-			ID:            t.ID,
-			Title:         t.Title,
-			Slug:          slugify(t.Title),
-			CreatedAt:     t.CreatedAt,
-			CategoryID:    catMap[t.CategoryName],
-			Tags:          t.Tags,
-			ReplyCount:    t.ReplyCount,
-			PostsCount:    t.ReplyCount + 1,
-			LastPostedAt:  t.LastActivityAt,
-			BumpedAt:      t.LastActivityAt,
-			FirstReplyAt:  t.FirstReplyAt,
+			ID:           tp.ID,
+			Title:        tp.Title,
+			Slug:         slugify(tp.Title),
+			CreatedAt:    tp.CreatedAt,
+			CategoryID:   catMap[tp.CategoryName],
+			Tags:         tp.Tags,
+			ReplyCount:   tp.ReplyCount,
+			PostsCount:   tp.ReplyCount + 1,
+			LastPostedAt: tp.LastActivityAt,
+			BumpedAt:     tp.LastActivityAt,
+			FirstReplyAt: tp.FirstReplyAt,
 		}
 		if raw[i].Tags == nil {
 			raw[i].Tags = []string{}
 		}
 
-		switch t.Outcome {
+		switch tp.Outcome {
 		case "solved":
 			raw[i].HasAcceptedAnswer = true
 			raw[i].Closed = true
-			raw[i].AcceptedAnswerAt = t.ResolvedAt
+			raw[i].AcceptedAnswerAt = tp.ResolvedAt
 		case "self-closed":
 			raw[i].Closed = true
-			raw[i].ClosedAt = t.ResolvedAt
+			raw[i].ClosedAt = tp.ResolvedAt
 		}
 	}
 	return raw

@@ -27,7 +27,7 @@ func NewSQLiteStore(path string) (*SQLiteStore, error) {
 		return nil, fmt.Errorf("open sqlite: %w", err)
 	}
 	if err := migrate(db); err != nil {
-		db.Close()
+		_ = db.Close()
 		return nil, fmt.Errorf("migrate: %w", err)
 	}
 	return &SQLiteStore{db: db}, nil
@@ -40,7 +40,7 @@ func (s *SQLiteStore) StoreTopics(ctx context.Context, topics []model.Topic) err
 	if err != nil {
 		return err
 	}
-	defer tx.Rollback()
+	defer func() { _ = tx.Rollback() }()
 
 	stmt, err := tx.PrepareContext(ctx, `
 		INSERT OR REPLACE INTO topics
@@ -51,25 +51,26 @@ func (s *SQLiteStore) StoreTopics(ctx context.Context, topics []model.Topic) err
 	if err != nil {
 		return err
 	}
-	defer stmt.Close()
+	defer func() { _ = stmt.Close() }()
 
-	for _, t := range topics {
-		tags, _ := json.Marshal(t.Tags)
+	for i := range topics {
+		tp := &topics[i]
+		tags, _ := json.Marshal(tp.Tags)
 		_, err := stmt.ExecContext(ctx,
-			t.ID,
-			t.Title,
-			t.CreatedAt.Format(time.RFC3339),
-			t.CategoryName,
+			tp.ID,
+			tp.Title,
+			tp.CreatedAt.Format(time.RFC3339),
+			tp.CategoryName,
 			string(tags),
-			t.ReplyCount,
-			t.Outcome,
-			formatTime(t.FirstReplyAt),
-			formatTime(t.ResolvedAt),
-			formatTime(t.LastActivityAt),
-			t.TopicURL,
+			tp.ReplyCount,
+			tp.Outcome,
+			formatTime(tp.FirstReplyAt),
+			formatTime(tp.ResolvedAt),
+			formatTime(tp.LastActivityAt),
+			tp.TopicURL,
 		)
 		if err != nil {
-			return fmt.Errorf("insert topic %d: %w", t.ID, err)
+			return fmt.Errorf("insert topic %d: %w", tp.ID, err)
 		}
 	}
 	return tx.Commit()
@@ -85,7 +86,7 @@ func (s *SQLiteStore) LoadTopics(ctx context.Context) ([]model.Topic, error) {
 	if err != nil {
 		return nil, err
 	}
-	defer rows.Close()
+	defer func() { _ = rows.Close() }()
 
 	var topics []model.Topic
 	for rows.Next() {

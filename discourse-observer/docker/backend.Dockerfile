@@ -7,8 +7,8 @@
 # and serves the internal API on port 8080.
 # It is not exposed externally — nginx proxies /api/ requests to it.
 #
-# CGO_ENABLED will need to be 1 once SQLite is added (ADR 0006).
-# Until then, pure-Go build with CGO disabled.
+# SQLite is provided by modernc.org/sqlite (pure Go, no CGO needed).
+# CGO_ENABLED=0 produces a static binary.
 
 # -- build stage --
 FROM golang:1.26-alpine AS build

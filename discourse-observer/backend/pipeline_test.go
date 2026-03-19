@@ -23,7 +23,7 @@ func TestPipelineEndToEnd(t *testing.T) {
 	if err != nil {
 		t.Fatalf("create store: %v", err)
 	}
-	defer store.Close()
+	defer func() { _ = store.Close() }()
 
 	client := discourse.NewClient(srv.URL, "", "")
 	obs := observer.New(client, store, srv.URL)
@@ -99,7 +99,7 @@ func TestPipelineIdempotent(t *testing.T) {
 	if err != nil {
 		t.Fatalf("create store: %v", err)
 	}
-	defer store.Close()
+	defer func() { _ = store.Close() }()
 
 	client := discourse.NewClient(srv.URL, "", "")
 	obs := observer.New(client, store, srv.URL)
@@ -130,7 +130,7 @@ func TestPipelineTopicURLs(t *testing.T) {
 	if err != nil {
 		t.Fatalf("create store: %v", err)
 	}
-	defer store.Close()
+	defer func() { _ = store.Close() }()
 
 	client := discourse.NewClient(srv.URL, "", "")
 	obs := observer.New(client, store, srv.URL)
