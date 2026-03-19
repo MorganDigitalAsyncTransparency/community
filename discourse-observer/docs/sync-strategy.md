@@ -33,7 +33,7 @@ Three sync modes serve different purposes:
 |------|---------|-------|------|
 | **Initial** | Populate an empty database | ~3 req/min | First run |
 | **Delta** | Fetch recent changes | ~30 req/min | Every 15 min during operation |
-| **Detail** | Enrich topics with revision history | ~3 req/min | Automatically during low activity |
+| **Detail** | Fetch revision history (tag changes, category moves, title edits) | ~3 req/min | Automatically during low activity |
 
 Every sync cycle follows the same base sequence:
 
@@ -98,19 +98,31 @@ On a moderately active forum (~50 topic changes per working day), delta sync fet
 
 ## Detail sync
 
-`/latest.json` returns summary data per topic — enough for tracking activity, but not enough for understanding *when* tag changes, category moves, or edits happened. That detail lives in the topic revision history, available via `/t/{id}.json`.
+`/latest.json` returns summary data per topic — enough for tracking activity, but not enough for understanding *when* tag changes, category moves, or title edits happened. That detail lives in the post revision history.
 
-Detail sync fills this gap by enriching stored topics during low-activity periods.
+### Why revisions matter
+
+A topic's current state (tags, category, title) is visible in `/latest.json`. But the *transitions* — when a tag was added, when a topic was moved between categories, when the title was edited — are only visible through revision history. These transitions are essential for understanding support workflows: how topics move through triage, escalation, and resolution.
+
+### Data sources
+
+| Endpoint | Data | Usage |
+|----------|------|-------|
+| `/t/{id}.json` | Full topic metadata, post IDs, `version` count per post | Identify which topics have revisions to fetch |
+| `/posts/{post_id}/revisions/{version}.json` | Per-revision diff: `title_changes`, `tags_changes`, `category_id` changes, `body_changes`, `created_at` | Extract when each change happened |
+
+Revision version numbering starts at 2 (version 1 is the original post). The `last_revision` field indicates the highest version available.
 
 ### Flow
 
 1. Wait for the scheduler to detect a low-activity window (see [Scheduling](#scheduling)).
-2. Select topics that need detail enrichment — either never detail-synced, or not detail-synced recently.
+2. Select topics that need detail enrichment — either never detail-synced, or where `bumped_at` is newer than the last detail sync.
 3. For each selected topic:
-   a. Fetch `/t/{id}.json`.
-   b. Extract revision history, tag change timestamps, category move timestamps.
-   c. Update the stored topic with the enriched data.
-   d. Wait the configured delay (default 20 seconds).
+   a. Fetch `/t/{id}.json` to get the first post ID and its `version` count.
+   b. If `version > 1`: fetch `/posts/{post_id}/revisions/{v}.json` for each revision (v = 2 through `last_revision`).
+   c. Extract and store: tag change timestamps, category move timestamps, title change timestamps.
+   d. Mark the topic as detail-synced with the current timestamp.
+   e. Wait the configured delay (default 20 seconds) between requests.
 4. Stop when the activity window ends or all selected topics are enriched.
 
 ### Prioritization

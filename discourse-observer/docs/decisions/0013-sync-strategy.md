@@ -27,6 +27,9 @@ This ADR decides how the observer will:
 | Rate limit signal | HTTP 429 with `Retry-After` header |
 | `bumped_at` | Updated on new reply, title edit, manual bump, some staff actions. Reliable indicator of "topic was modified" |
 | Categories | `/categories.json` — not paginated, returns all categories in one request |
+| Topic detail | `/t/{id}.json` — returns full topic data including post IDs, timestamps, and metadata not present in list views |
+| Post revisions | `/posts/{post_id}/revisions/{version}.json` — returns diff for a specific revision. Includes title changes, body changes, tag changes, and category changes. Version numbering starts at 2 (version 1 is the original). Fields: `created_at`, `current_revision`, `last_revision`, `version_count`, `body_changes`, `title_changes`, `tags_changes` |
+| Webhooks | Discourse can push `topic` events (including tag changes) to an external URL. Alternative to polling for real-time change detection. Requires configuring a webhook on the Discourse server |
 | Bulk alternatives | None built-in. Data Explorer plugin is available on the target server |
 
 ### Key numbers
@@ -80,7 +83,7 @@ This is the only approach that works with a vanilla Discourse instance, does not
 
 - **Initial sync:** Paginate `/latest.json?page=0,1,2,...` until `more_topics_url` is absent. Throttle to ~3 requests per minute (~1 request every 20 seconds). Store topics via existing upsert. Track progress (last completed page) for resume.
 - **Delta sync:** Same endpoint, same pagination. Stop when every topic on a page has `bumped_at` ≤ the stored high-water mark. On a typical day this means 1–3 pages. Uses a shorter delay between requests (configurable, default 2 seconds) since delta sync is brief and low-volume.
-- **Detail sync:** During detected low-activity periods, perform a background full crawl to enrich stored topics with detail data (revision history, tag change timestamps) that `/latest.json` does not include. Uses `/t/{id}.json` for topics that lack detail data or haven't been detail-synced recently.
+- **Detail sync:** During detected low-activity periods, fetch revision history for topics via `/t/{id}.json` (to discover post IDs and version counts) and `/posts/{post_id}/revisions/{v}.json` (to extract tag change timestamps, category move timestamps, and title edit timestamps). These transitions are not visible in `/latest.json` but are essential for understanding support workflows.
 - **Watermark:** After each successful sync cycle, persist `max(bumped_at)` from all fetched topics as the high-water mark.
 - **Categories:** Fetch `/categories.json` once per sync cycle (single request, not paginated).
 
