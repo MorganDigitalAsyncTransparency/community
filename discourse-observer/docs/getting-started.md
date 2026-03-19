@@ -15,17 +15,7 @@ This single command handles the full onboarding flow:
 3. **Verifies** — runs all linters and tests
 4. **Builds and launches** — builds Docker containers, starts them, opens the dashboard
 
-Edit `.env` with your Discourse credentials and `config/tagConfig.json` with your tag, area, SLO, and stalled-topic configuration before the first run.
-
-### Quick start with test data
-
-To launch the dashboard with mock data (no Discourse credentials needed):
-
-```sh
-make qa
-```
-
-This seeds 44 realistic topics into a local SQLite database, builds the containers, and opens the dashboard. Useful during development to see all pages populated without connecting to a real forum.
+Edit `.env` with your Discourse credentials and `config/tagConfig.json` with your tag, area, SLO, and stalled-topic configuration before the first run. If `DISCOURSE_API_TOKEN` is left empty, `make start` automatically seeds 44 mock topics so the dashboard works without a real forum.
 
 After code changes, use `make restart` to rebuild and relaunch.
 
@@ -187,8 +177,7 @@ This stops the running containers, rebuilds changed layers, starts everything ag
 
 | Command | What it does |
 |---|---|
-| `make start` | One-command onboarding: setup, verify, configure, build, launch, open browser |
-| `make qa` | Seed mock data, build, and launch — no Discourse credentials needed |
+| `make start` | One-command onboarding: setup, verify, configure, build, launch, open browser (auto-seeds mock data if no API token) |
 | `make seed` | Populate SQLite with 44 mock topics for development |
 | `make restart` | Verify, rebuild, and relaunch after code changes |
 | `make verify` | Run all linters and tests |
