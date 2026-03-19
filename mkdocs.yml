@@ -14,6 +14,9 @@ exclude_docs: |
   backend/model/README.md
   backend/observer/README.md
   backend/storage/README.md
+  backend/api/README.md
+  backend/domain/README.md
+  backend/mock/README.md
   docs/decisions/template.md
   tests/README.md
 

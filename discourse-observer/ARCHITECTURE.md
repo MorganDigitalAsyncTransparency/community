@@ -23,11 +23,24 @@ Discourse Forum (external)
   backend/storage/        — persists raw observations (NDJSON files)
 ```
 
+API serving:
+
+```text
+  backend/api/           — HTTP handlers, routing, filter parsing, JSON responses
+        │ domain types
+        ▼
+  backend/domain/        — pure calculation functions (medians, bucketing, SLO, heatmap)
+        │ model types
+        ▼
+  backend/model/         — shared domain types
+```
+
 Cross-cutting:
 
 ```text
   backend/model/   — shared domain types, used by all modules above
   backend/config/  — forum-specific configuration, provided at startup
+  backend/mock/    — hardcoded topic fixtures for development and testing
 ```
 
 ### Dependency direction
@@ -37,6 +50,9 @@ The arrows above show *data flow*, not *import dependencies*. Imports follow dep
 - `model` has no imports. It is the innermost layer.
 - `observer` imports only `model`. It defines interfaces (`FetchClient`, `StorageBackend`) for the adapters.
 - `discourse` and `storage` import `model`. They implement the interfaces defined by `observer`. At runtime they are injected into the observer — the observer never imports them.
+- `domain` imports only `model`. It contains pure calculation functions with no framework or I/O dependencies.
+- `api` imports `domain` and `model`. It handles HTTP concerns (routing, JSON, filter parsing) and delegates computation to `domain`.
+- `mock` imports only `model`. It provides hardcoded topic fixtures for development and testing.
 - `config` has no imports. Config values are read at startup and passed into module constructors.
 
 ## Layer responsibilities
@@ -69,6 +85,18 @@ The config module has no imports. Config values are provided to other modules at
 
 An abstraction point for persisting raw observations. This module defines how observations are stored and retrieved. The storage format is NDJSON files (decided in [ADR 0005](docs/decisions/0005-storage-format.md)). An in-memory implementation may be added for testing. Derived analytical data is held in a separate SQLite store (decided in [ADR 0006](docs/decisions/0006-analytical-storage.md)) and is not part of this module.
 
+### backend/api/
+
+HTTP handlers for all `/api/v1/` endpoints defined in the [API contract](specs/api/api-contract.md). Responsible for routing, query parameter parsing and validation, filter application, and JSON response encoding. Delegates all computation to `backend/domain/`. Does not contain business logic.
+
+### backend/domain/
+
+Pure calculation functions implementing domain aggregates: medians, time bucketing, histogram distribution, tag rankings, SLO violation detection, compliance computation, and heatmap generation. These functions receive pre-filtered topic slices and return computed results. No HTTP, I/O, or framework dependencies.
+
+### backend/mock/
+
+Hardcoded topic fixtures used as the data source during development. Provides a realistic set of topics covering all endpoint scenarios (unreplied, resolved, stalled, untagged, multi-tag). Will be replaced by the SQLite analytical store when the data pipeline is implemented.
+
 ## Terminology
 
 These terms have specific meanings in this project. Other documentation uses them consistently with these definitions.
@@ -91,7 +119,7 @@ A React/TypeScript frontend exists in `frontend/` and renders a multi-page dashb
 
 The API contract is specified in [specs/api/api-contract.md](specs/api/api-contract.md). It defines domain aggregate endpoints that serve pre-computed data to the frontend and future consumers (MCP servers, CLI tools). The responsibility model — why the backend computes aggregates rather than serving raw data — is recorded in [ADR 0012](docs/decisions/0012-api-responsibility-model.md).
 
-The API is not yet implemented. When it is, it will query the SQLite analytical store ([ADR 0006](docs/decisions/0006-analytical-storage.md)) and return domain-meaningful aggregates (medians, rankings, compliance rates, distributions) in machine-readable units.
+The API is implemented in `backend/api/` with domain calculations in `backend/domain/`. It currently serves mock data from `backend/mock/`. When the data pipeline is complete, the mock data source will be replaced by queries against the SQLite analytical store ([ADR 0006](docs/decisions/0006-analytical-storage.md)).
 
 ### Event / History model
 
