@@ -223,7 +223,7 @@ Serves: UC-10.
 
 ### Endpoint: Tag distribution — backlog
 
-**AC-22.** `GET /api/v1/distribution/backlog` — Returns tags ranked by open (unreplied) topic count.
+**AC-22.** `GET /api/v1/distribution/backlog` — Returns tags ranked by unreplied topic count.
 
 Response: array of objects (sorted by count descending, then tag ascending), each with:
 
@@ -345,6 +345,8 @@ This endpoint is not filtered.
 **AC-30.** The `tag` filter (AC-10) applies to all endpoints except AC-14 (untagged topics have no tags), AC-27 (configuration), and AC-28 (status).
 
 **AC-31.** The `period`/`from`/`to` filters (AC-8, AC-9) apply to all endpoints except AC-23 (full history), AC-27 (configuration), and AC-28 (status).
+
+**AC-32.** "Open" has context-dependent meaning: in the volume endpoint (AC-17), "open" means topics with no outcome (unreplied + replied-open). In the backlog endpoint (AC-22), it means unreplied topics only. Endpoint response field descriptions are authoritative.
 
 ---
 
