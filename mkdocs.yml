@@ -18,6 +18,7 @@ exclude_docs: |
   backend/domain/README.md
   backend/mock/README.md
   docs/decisions/template.md
+  docs/test-reports/
   tests/README.md
 
 theme:
