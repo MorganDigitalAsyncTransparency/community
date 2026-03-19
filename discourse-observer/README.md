@@ -42,7 +42,7 @@ discourse-observer/
 
 ## Current status
 
-The core data pipeline is implemented and tested. The Discourse API client, observer, and SQLite storage work end-to-end: fetch topics from a Discourse-compatible API, normalize them to domain types, and persist to SQLite. A mock server provides test data so no real Discourse instance is needed for development. The HTTP API layer still serves mock data; wiring it to read from SQLite is the next step.
+The core data pipeline is implemented and tested. The Discourse API client, observer, and SQLite storage work end-to-end: fetch topics from a Discourse-compatible API, normalize them to domain types, and persist to SQLite. The HTTP API layer reads from the same SQLite database, with time and tag filters pushed to SQL. A mock server provides test data so no real Discourse instance is needed for development.
 
 ## Getting started
 
