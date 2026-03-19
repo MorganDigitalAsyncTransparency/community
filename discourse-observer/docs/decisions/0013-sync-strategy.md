@@ -27,7 +27,7 @@ This ADR decides how the observer will:
 | Rate limit signal | HTTP 429 with `Retry-After` header |
 | `bumped_at` | Updated on new reply, title edit, manual bump, some staff actions. Reliable indicator of "topic was modified" |
 | Categories | `/categories.json` — not paginated, returns all categories in one request |
-| Bulk alternatives | None built-in. Data Explorer plugin exists but requires server-side installation |
+| Bulk alternatives | None built-in. Data Explorer plugin is available on the target server |
 
 ### Key numbers
 
@@ -64,11 +64,11 @@ Iterate through topic IDs sequentially, fetching each topic individually.
 
 ### D. Data Explorer plugin
 
-Install the Data Explorer plugin on the Discourse server and run custom SQL queries via API.
+Use the Data Explorer plugin (available on the target server) to run custom SQL queries via API.
 
 **Pros:** Maximum flexibility — exact fields, exact filters, arbitrary page sizes.
 
-**Cons:** Requires installing a plugin on the target server, which we do not control. Adds an external dependency. Not available on all Discourse deployments.
+**Cons:** Ties the observer to a specific plugin — deployments without Data Explorer cannot use it. Requires maintaining raw SQL queries that must track Discourse schema changes. The plugin's own rate limit is strict (2 req/10s). Adds coupling to Discourse internals that the standard API abstracts away.
 
 ## Decision
 
@@ -99,7 +99,7 @@ This is the only approach that works with a vanilla Discourse instance, does not
 
 - **Search (B):** Result caps, incomplete data, and higher server load make it unsuitable for both initial and delta sync.
 - **Topic-by-ID (C):** 5 000+ individual requests is unacceptable for a resource-constrained server.
-- **Data Explorer (D):** Requires server-side plugin installation we cannot guarantee.
+- **Data Explorer (D):** Couples the observer to a plugin and Discourse's internal schema. Strict rate limit (2 req/10s). Not portable to deployments without the plugin.
 
 ## Consequences
 
