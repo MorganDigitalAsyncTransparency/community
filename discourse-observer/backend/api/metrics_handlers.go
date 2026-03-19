@@ -14,7 +14,12 @@ func (s *Server) handleMetricsSummary(w http.ResponseWriter, r *http.Request) {
 		respondError(w, http.StatusBadRequest, err.Error())
 		return
 	}
-	topics := applyAllFilters(s.Topics, f, s.Now(), s.MonitoredTags())
+	topics, err := s.Store.QueryTopics(r.Context(), resolveQueryOpts(f, s.Now()))
+	if err != nil {
+		respondError(w, http.StatusInternalServerError, "query failed")
+		return
+	}
+	topics = applyTagFilter(topics, f, s.MonitoredTags())
 	result := domain.ComputeMetricsSummary(topics)
 
 	respondJSON(w, map[string]any{
@@ -32,7 +37,12 @@ func (s *Server) handleMetricsVolume(w http.ResponseWriter, r *http.Request) {
 		respondError(w, http.StatusBadRequest, err.Error())
 		return
 	}
-	topics := applyAllFilters(s.Topics, f, s.Now(), s.MonitoredTags())
+	topics, err := s.Store.QueryTopics(r.Context(), resolveQueryOpts(f, s.Now()))
+	if err != nil {
+		respondError(w, http.StatusInternalServerError, "query failed")
+		return
+	}
+	topics = applyTagFilter(topics, f, s.MonitoredTags())
 	granularity := domain.Granularity(f.Period, f.From, f.To)
 	start, end := domain.ComputeTimeRange(topics, granularity)
 	buckets := domain.ComputeVolumeBuckets(topics, granularity, start, end)
@@ -66,7 +76,12 @@ func (s *Server) handleMetricsMedianTrends(w http.ResponseWriter, r *http.Reques
 		respondError(w, http.StatusBadRequest, err.Error())
 		return
 	}
-	topics := applyAllFilters(s.Topics, f, s.Now(), s.MonitoredTags())
+	topics, err := s.Store.QueryTopics(r.Context(), resolveQueryOpts(f, s.Now()))
+	if err != nil {
+		respondError(w, http.StatusInternalServerError, "query failed")
+		return
+	}
+	topics = applyTagFilter(topics, f, s.MonitoredTags())
 	granularity := domain.Granularity(f.Period, f.From, f.To)
 	start, end := domain.ComputeTimeRange(topics, granularity)
 
@@ -104,7 +119,12 @@ func (s *Server) handleMetricsDistribution(w http.ResponseWriter, r *http.Reques
 		respondError(w, http.StatusBadRequest, err.Error())
 		return
 	}
-	topics := applyAllFilters(s.Topics, f, s.Now(), s.MonitoredTags())
+	topics, err := s.Store.QueryTopics(r.Context(), resolveQueryOpts(f, s.Now()))
+	if err != nil {
+		respondError(w, http.StatusInternalServerError, "query failed")
+		return
+	}
+	topics = applyTagFilter(topics, f, s.MonitoredTags())
 
 	frDurations := domain.FirstReplyDurations(topics)
 	resDurations := domain.ResolutionDurations(topics)

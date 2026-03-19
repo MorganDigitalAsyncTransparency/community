@@ -15,7 +15,12 @@ func (s *Server) handleDistributionVolume(w http.ResponseWriter, r *http.Request
 		respondError(w, http.StatusBadRequest, err.Error())
 		return
 	}
-	topics := applyAllFilters(s.Topics, f, s.Now(), s.MonitoredTags())
+	topics, err := s.Store.QueryTopics(r.Context(), resolveQueryOpts(f, s.Now()))
+	if err != nil {
+		respondError(w, http.StatusInternalServerError, "query failed")
+		return
+	}
+	topics = applyTagFilter(topics, f, s.MonitoredTags())
 	ranking := domain.TagVolumeRanking(topics)
 
 	type item struct {
@@ -35,7 +40,12 @@ func (s *Server) handleDistributionResolution(w http.ResponseWriter, r *http.Req
 		respondError(w, http.StatusBadRequest, err.Error())
 		return
 	}
-	topics := applyAllFilters(s.Topics, f, s.Now(), s.MonitoredTags())
+	topics, err := s.Store.QueryTopics(r.Context(), resolveQueryOpts(f, s.Now()))
+	if err != nil {
+		respondError(w, http.StatusInternalServerError, "query failed")
+		return
+	}
+	topics = applyTagFilter(topics, f, s.MonitoredTags())
 	ranking := domain.TagResolutionRanking(topics)
 
 	type item struct {
@@ -56,7 +66,12 @@ func (s *Server) handleDistributionBacklog(w http.ResponseWriter, r *http.Reques
 		respondError(w, http.StatusBadRequest, err.Error())
 		return
 	}
-	topics := applyAllFilters(s.Topics, f, s.Now(), s.MonitoredTags())
+	topics, err := s.Store.QueryTopics(r.Context(), resolveQueryOpts(f, s.Now()))
+	if err != nil {
+		respondError(w, http.StatusInternalServerError, "query failed")
+		return
+	}
+	topics = applyTagFilter(topics, f, s.MonitoredTags())
 	ranking := domain.TagBacklogRanking(topics)
 
 	type item struct {
@@ -77,15 +92,15 @@ func (s *Server) handleDistributionBacklogTrend(w http.ResponseWriter, r *http.R
 		respondError(w, http.StatusBadRequest, err.Error())
 		return
 	}
-	topics := applyTagFilter(s.Topics, f, s.MonitoredTags())
 
-	// Open topics = unreplied + replied-open (no outcome)
-	var openTopics []domain.WeeklyBacklog
-	_ = openTopics
-
-	allTopics := topics
-	var open []domain.VolumeBucket
-	_ = open
+	// Only tag filter — no time bounds
+	tagOnlyOpts := model.QueryOpts{Tag: f.Tag}
+	topics, err := s.Store.QueryTopics(r.Context(), tagOnlyOpts)
+	if err != nil {
+		respondError(w, http.StatusInternalServerError, "query failed")
+		return
+	}
+	topics = applyTagFilter(topics, f, s.MonitoredTags())
 
 	// Separate open from resolved for weekly backlog computation
 	unrepliedTopics := domain.FilterUnreplied(topics)
@@ -94,7 +109,7 @@ func (s *Server) handleDistributionBacklogTrend(w http.ResponseWriter, r *http.R
 	openAll = append(openAll, unrepliedTopics...)
 	openAll = append(openAll, repliedOpen...)
 
-	trend := domain.ComputeWeeklyBacklog(allTopics, openAll)
+	trend := domain.ComputeWeeklyBacklog(topics, openAll)
 	if trend == nil {
 		trend = []domain.WeeklyBacklog{}
 	}

@@ -14,7 +14,12 @@ func (s *Server) handleSLOViolations(w http.ResponseWriter, r *http.Request) {
 		respondError(w, http.StatusBadRequest, err.Error())
 		return
 	}
-	topics := applyAllFilters(s.Topics, f, s.Now(), s.MonitoredTags())
+	topics, err := s.Store.QueryTopics(r.Context(), resolveQueryOpts(f, s.Now()))
+	if err != nil {
+		respondError(w, http.StatusInternalServerError, "query failed")
+		return
+	}
+	topics = applyTagFilter(topics, f, s.MonitoredTags())
 	groups := domain.FindViolations(topics, s.ResolvedTags, s.Now())
 
 	type violation struct {
@@ -51,7 +56,12 @@ func (s *Server) handleSLOCompliance(w http.ResponseWriter, r *http.Request) {
 		respondError(w, http.StatusBadRequest, err.Error())
 		return
 	}
-	topics := applyAllFilters(s.Topics, f, s.Now(), s.MonitoredTags())
+	topics, err := s.Store.QueryTopics(r.Context(), resolveQueryOpts(f, s.Now()))
+	if err != nil {
+		respondError(w, http.StatusInternalServerError, "query failed")
+		return
+	}
+	topics = applyTagFilter(topics, f, s.MonitoredTags())
 	compliance := domain.ComputeCompliance(topics, s.ResolvedTags, s.Now())
 
 	type item struct {
