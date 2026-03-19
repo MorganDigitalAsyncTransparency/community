@@ -1,19 +1,26 @@
 // Contract tests verify API response shapes match specs/api/api-contract.md.
+// Tests use a SQLite database seeded with known test data from mock.Topics().
 package api
 
 import (
+	"context"
 	"encoding/json"
 	"net/http"
 	"net/http/httptest"
+	"os"
+	"path/filepath"
 	"testing"
 	"time"
 
 	"github.com/code-community/discourse-observer/backend/domain"
 	"github.com/code-community/discourse-observer/backend/mock"
 	"github.com/code-community/discourse-observer/backend/model"
+	"github.com/code-community/discourse-observer/backend/storage"
 )
 
-func testServer() (ts *httptest.Server, srv *Server) {
+func testServer(t *testing.T) (ts *httptest.Server, srv *Server) {
+	t.Helper()
+
 	cfg := model.TagConfig{
 		Defaults: model.TagDefaults{
 			StalledDays: 7,
@@ -37,11 +44,24 @@ func testServer() (ts *httptest.Server, srv *Server) {
 			"plugin":         {SLO: &model.SLOThresholds{FirstReplyHours: 8, ResolutionHours: 72, InactivityHours: 48}},
 		},
 	}
+
+	dbPath := filepath.Join(t.TempDir(), "test.db")
+	store, err := storage.NewSQLiteStore(dbPath)
+	if err != nil {
+		t.Fatalf("create test db: %v", err)
+	}
+	t.Cleanup(func() { _ = store.Close() })
+
+	topics := mock.Topics()
+	if err := store.StoreTopics(context.Background(), topics); err != nil {
+		t.Fatalf("seed test db: %v", err)
+	}
+
 	now := time.Date(2026, 3, 18, 12, 0, 0, 0, time.UTC)
 	synced := now.Add(-2 * time.Hour)
 
 	srv = &Server{
-		Topics:         mock.Topics(),
+		Store:          store,
 		TagConfig:      cfg,
 		ResolvedTags:   domain.ResolveAllTags(&cfg),
 		BucketCeilings: []int{1, 4, 12, 24, 48, 96, 168},
@@ -54,6 +74,45 @@ func testServer() (ts *httptest.Server, srv *Server) {
 	srv.RegisterRoutes(mux)
 	return httptest.NewServer(mux), srv
 }
+
+// testServerFromFile creates a test server backed by a pre-existing SQLite
+// database file, if available. Used for integration testing against real data.
+func testServerFromFile(t *testing.T, dbPath string) (ts *httptest.Server, srv *Server) {
+	t.Helper()
+	if _, err := os.Stat(dbPath); err != nil {
+		t.Skipf("database not found: %s", dbPath)
+	}
+
+	cfg := model.TagConfig{
+		Defaults: model.TagDefaults{
+			StalledDays: 7,
+			Area:        "Other",
+			SLO:         model.SLOThresholds{FirstReplyHours: 24, ResolutionHours: 336, InactivityHours: 48},
+		},
+		Tags: map[string]model.TagSpec{},
+	}
+	store, err := storage.NewSQLiteStore(dbPath)
+	if err != nil {
+		t.Fatalf("open db: %v", err)
+	}
+	t.Cleanup(func() { _ = store.Close() })
+
+	srv = &Server{
+		Store:          store,
+		TagConfig:      cfg,
+		ResolvedTags:   domain.ResolveAllTags(&cfg),
+		BucketCeilings: []int{1, 4, 12, 24, 48, 96, 168},
+		Version:        "0.1.0",
+		Now:            func() time.Time { return time.Now().UTC() },
+	}
+
+	mux := http.NewServeMux()
+	srv.RegisterRoutes(mux)
+	return httptest.NewServer(mux), srv
+}
+
+// Silence unused-function lint for testServerFromFile
+var _ = testServerFromFile
 
 func intP(v int) *int { return &v }
 
@@ -88,7 +147,7 @@ func decodeArray(t *testing.T, resp *http.Response) []any {
 
 // AC-6: Content-Type
 func TestContentType(t *testing.T) {
-	ts, _ := testServer()
+	ts, _ := testServer(t)
 	defer ts.Close()
 	resp := get(t, ts, "/api/v1/status")
 	ct := resp.Header.Get("Content-Type")
@@ -99,7 +158,7 @@ func TestContentType(t *testing.T) {
 
 // AC-7: Error response structure
 func TestErrorResponse(t *testing.T) {
-	ts, _ := testServer()
+	ts, _ := testServer(t)
 	defer ts.Close()
 	resp := get(t, ts, "/api/v1/queue/summary?period=invalid")
 	if resp.StatusCode != 400 {
@@ -113,7 +172,7 @@ func TestErrorResponse(t *testing.T) {
 
 // AC-12: Queue summary shape
 func TestQueueSummaryShape(t *testing.T) {
-	ts, _ := testServer()
+	ts, _ := testServer(t)
 	defer ts.Close()
 	data := decodeJSON(t, get(t, ts, "/api/v1/queue/summary"))
 
@@ -126,7 +185,7 @@ func TestQueueSummaryShape(t *testing.T) {
 
 // AC-13: Unreplied topics shape and sort
 func TestUnrepliedShape(t *testing.T) {
-	ts, _ := testServer()
+	ts, _ := testServer(t)
 	defer ts.Close()
 	items := decodeArray(t, get(t, ts, "/api/v1/queue/unreplied"))
 	if len(items) == 0 {
@@ -142,7 +201,7 @@ func TestUnrepliedShape(t *testing.T) {
 
 // AC-14: Untagged topics shape
 func TestUntaggedShape(t *testing.T) {
-	ts, _ := testServer()
+	ts, _ := testServer(t)
 	defer ts.Close()
 	items := decodeArray(t, get(t, ts, "/api/v1/queue/untagged"))
 	if len(items) == 0 {
@@ -158,7 +217,7 @@ func TestUntaggedShape(t *testing.T) {
 
 // AC-15: Stalled topics shape
 func TestStalledShape(t *testing.T) {
-	ts, _ := testServer()
+	ts, _ := testServer(t)
 	defer ts.Close()
 	items := decodeArray(t, get(t, ts, "/api/v1/queue/stalled"))
 	if len(items) == 0 {
@@ -174,7 +233,7 @@ func TestStalledShape(t *testing.T) {
 
 // AC-16: Metrics summary shape
 func TestMetricsSummaryShape(t *testing.T) {
-	ts, _ := testServer()
+	ts, _ := testServer(t)
 	defer ts.Close()
 	data := decodeJSON(t, get(t, ts, "/api/v1/metrics/summary"))
 	for _, field := range []string{"medianFirstReplyMs", "medianResolutionMs", "solvedCount", "selfClosedCount", "answerRatePercent"} {
@@ -186,7 +245,7 @@ func TestMetricsSummaryShape(t *testing.T) {
 
 // AC-17: Volume trend shape
 func TestVolumeShape(t *testing.T) {
-	ts, _ := testServer()
+	ts, _ := testServer(t)
 	defer ts.Close()
 	items := decodeArray(t, get(t, ts, "/api/v1/metrics/volume"))
 	if len(items) == 0 {
@@ -202,7 +261,7 @@ func TestVolumeShape(t *testing.T) {
 
 // AC-18: Median trends shape
 func TestMedianTrendsShape(t *testing.T) {
-	ts, _ := testServer()
+	ts, _ := testServer(t)
 	defer ts.Close()
 	data := decodeJSON(t, get(t, ts, "/api/v1/metrics/median-trends"))
 	for _, key := range []string{"firstReply", "resolution"} {
@@ -228,7 +287,7 @@ func TestMedianTrendsShape(t *testing.T) {
 
 // AC-19: Distribution shape
 func TestDistributionShape(t *testing.T) {
-	ts, _ := testServer()
+	ts, _ := testServer(t)
 	defer ts.Close()
 	data := decodeJSON(t, get(t, ts, "/api/v1/metrics/distribution"))
 	for _, key := range []string{"firstReply", "resolution"} {
@@ -248,7 +307,7 @@ func TestDistributionShape(t *testing.T) {
 
 // AC-20: Tag volume shape
 func TestTagVolumeShape(t *testing.T) {
-	ts, _ := testServer()
+	ts, _ := testServer(t)
 	defer ts.Close()
 	items := decodeArray(t, get(t, ts, "/api/v1/distribution/volume"))
 	if len(items) == 0 {
@@ -264,7 +323,7 @@ func TestTagVolumeShape(t *testing.T) {
 
 // AC-21: Tag resolution shape
 func TestTagResolutionShape(t *testing.T) {
-	ts, _ := testServer()
+	ts, _ := testServer(t)
 	defer ts.Close()
 	items := decodeArray(t, get(t, ts, "/api/v1/distribution/resolution"))
 	if len(items) == 0 {
@@ -284,7 +343,7 @@ func TestTagResolutionShape(t *testing.T) {
 
 // AC-22: Tag backlog shape
 func TestTagBacklogShape(t *testing.T) {
-	ts, _ := testServer()
+	ts, _ := testServer(t)
 	defer ts.Close()
 	items := decodeArray(t, get(t, ts, "/api/v1/distribution/backlog"))
 	if len(items) == 0 {
@@ -300,7 +359,7 @@ func TestTagBacklogShape(t *testing.T) {
 
 // AC-23: Backlog trend shape
 func TestBacklogTrendShape(t *testing.T) {
-	ts, _ := testServer()
+	ts, _ := testServer(t)
 	defer ts.Close()
 	items := decodeArray(t, get(t, ts, "/api/v1/distribution/backlog-trend"))
 	if len(items) == 0 {
@@ -316,7 +375,7 @@ func TestBacklogTrendShape(t *testing.T) {
 
 // AC-24: SLO violations shape
 func TestSLOViolationsShape(t *testing.T) {
-	ts, _ := testServer()
+	ts, _ := testServer(t)
 	defer ts.Close()
 	data := decodeJSON(t, get(t, ts, "/api/v1/slo/violations"))
 	for _, key := range []string{"firstReply", "resolution", "inactivity"} {
@@ -338,7 +397,7 @@ func TestSLOViolationsShape(t *testing.T) {
 
 // AC-25: SLO compliance shape
 func TestSLOComplianceShape(t *testing.T) {
-	ts, _ := testServer()
+	ts, _ := testServer(t)
 	defer ts.Close()
 	items := decodeArray(t, get(t, ts, "/api/v1/slo/compliance"))
 	if len(items) == 0 {
@@ -360,7 +419,7 @@ func TestSLOComplianceShape(t *testing.T) {
 
 // AC-26: Heatmap shape
 func TestHeatmapShape(t *testing.T) {
-	ts, _ := testServer()
+	ts, _ := testServer(t)
 	defer ts.Close()
 	data := decodeJSON(t, get(t, ts, "/api/v1/activity/heatmap"))
 	if _, ok := data["maxCount"]; !ok {
@@ -384,7 +443,7 @@ func TestHeatmapShape(t *testing.T) {
 
 // AC-27: Config shape
 func TestConfigShape(t *testing.T) {
-	ts, _ := testServer()
+	ts, _ := testServer(t)
 	defer ts.Close()
 	data := decodeJSON(t, get(t, ts, "/api/v1/config"))
 	for _, field := range []string{"areas", "tags", "defaults", "distributionBucketCeilings"} {
@@ -411,7 +470,7 @@ func TestConfigShape(t *testing.T) {
 
 // AC-28: Status shape
 func TestStatusShape(t *testing.T) {
-	ts, _ := testServer()
+	ts, _ := testServer(t)
 	defer ts.Close()
 	data := decodeJSON(t, get(t, ts, "/api/v1/status"))
 	for _, field := range []string{"lastSyncedAt", "version"} {
@@ -423,7 +482,7 @@ func TestStatusShape(t *testing.T) {
 
 // AC-5: Empty dataset returns normal structure
 func TestEmptyDatasetNotFoundNotReturned(t *testing.T) {
-	ts, _ := testServer()
+	ts, _ := testServer(t)
 	defer ts.Close()
 	// Filter to a tag with no unreplied topics in a very short window
 	resp := get(t, ts, "/api/v1/queue/summary?tag=search&period=7d")
@@ -437,7 +496,7 @@ func TestEmptyDatasetNotFoundNotReturned(t *testing.T) {
 
 // AC-11: Invalid filter values
 func TestInvalidFilters(t *testing.T) {
-	ts, _ := testServer()
+	ts, _ := testServer(t)
 	defer ts.Close()
 
 	tests := []struct {
@@ -461,7 +520,7 @@ func TestInvalidFilters(t *testing.T) {
 
 // AC-2: Only GET allowed
 func TestOnlyGetAllowed(t *testing.T) {
-	ts, _ := testServer()
+	ts, _ := testServer(t)
 	defer ts.Close()
 	resp, err := http.Post(ts.URL+"/api/v1/status", "application/json", http.NoBody)
 	if err != nil {
