@@ -10,7 +10,7 @@ make start
 
 This single command handles the full onboarding flow: installs dependencies, creates config files, runs verification, builds containers, and opens the dashboard.
 
-No Discourse forum is needed to get started. The default `.env` has no API token, so `make start` automatically seeds 44 mock topics into a local SQLite database. The dashboard opens fully populated with realistic test data.
+No Discourse forum is needed to get started. The default `.env` has no API token, so `make start` automatically seeds mock topics into a local SQLite database. The dashboard opens fully populated with realistic test data.
 
 To connect to a real forum later, edit `.env` with your Discourse credentials (see [Configure for a real forum](#configure-for-a-real-forum)). The next `make start` detects the token and skips seeding.
 
@@ -169,7 +169,7 @@ This stops the running containers, rebuilds changed layers, starts everything ag
 | Command | What it does |
 |---|---|
 | `make start` | One-command onboarding: setup, verify, configure, build, launch, open browser (auto-seeds mock data if no API token) |
-| `make seed` | Populate SQLite with 44 mock topics for development |
+| `make seed` | Populate SQLite with mock topics for development |
 | `make restart` | Verify, rebuild, and relaunch after code changes |
 | `make verify` | Run all linters and tests |
 | `make lint` | Run all linters (Go + markdown + frontend) |
