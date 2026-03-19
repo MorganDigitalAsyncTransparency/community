@@ -9,8 +9,8 @@ import (
 
 	"github.com/code-community/discourse-observer/backend/api"
 	"github.com/code-community/discourse-observer/backend/domain"
-	"github.com/code-community/discourse-observer/backend/mock"
 	"github.com/code-community/discourse-observer/backend/model"
+	"github.com/code-community/discourse-observer/backend/storage"
 )
 
 func main() {
@@ -23,19 +23,23 @@ func main() {
 		log.Fatalf("failed to load distribution buckets: %v", err)
 	}
 
-	// Pin "now" to the mock data anchor date so relative calculations
-	// (oldest unreplied, stalled days, etc.) produce stable results
-	// regardless of when the server starts. Remove this when real
-	// Discourse data replaces the mock dataset.
-	mockNow := time.Date(2026, 3, 19, 12, 0, 0, 0, time.UTC)
+	dbPath := os.Getenv("OBSERVER_DB")
+	if dbPath == "" {
+		dbPath = "data/analytics.db"
+	}
+	store, err := storage.NewSQLiteStore(dbPath)
+	if err != nil {
+		log.Fatalf("failed to open database: %v", err)
+	}
+	defer func() { _ = store.Close() }()
 
 	srv := &api.Server{
-		Topics:         mock.Topics(),
+		Store:          store,
 		TagConfig:      tagConfig,
 		ResolvedTags:   domain.ResolveAllTags(&tagConfig),
 		BucketCeilings: buckets.BucketCeilingsHours,
 		Version:        "0.1.0",
-		Now:            func() time.Time { return mockNow },
+		Now:            func() time.Time { return time.Now().UTC() },
 	}
 
 	mux := http.NewServeMux()
@@ -44,7 +48,7 @@ func main() {
 
 	log.Println("backend listening on :8080")
 	if err := http.ListenAndServe(":8080", mux); err != nil {
-		log.Fatal(err)
+		log.Printf("server stopped: %v", err)
 	}
 }
 
