@@ -23,8 +23,8 @@ The codebase currently uses UTC for all display. This was not a deliberate archi
 - [time-period-filter.md](../../specs/dashboard/time-period-filter.md) TF-8: *"UTC boundaries are used because topic timestamps are stored in UTC, making the filter consistent and predictable regardless of the user's timezone."*
 - [peak-activity.md](../../specs/dashboard/peak-activity.md) PA-5: *"Topics are assigned to (day, hour) slots based on their `createdAt` timestamp interpreted in UTC."*
 - [topicFormatting.ts](../../frontend/src/components/topicFormatting.ts): `formatWeekLabel` and `formatDayLabel` explicitly pass `timeZone: "UTC"` to `toLocaleDateString`.
-- [trendMetrics.ts](../../frontend/src/components/trendMetrics.ts): `mondayOf` uses `getUTCDay()` and `setUTCDate()`.
-- [intakeMetrics.ts](../../frontend/src/components/intakeMetrics.ts): `dayOf` uses `toISOString().slice(0, 10)`, which is inherently UTC.
+- [trend.go](../../backend/domain/trend.go) (formerly `trendMetrics.ts`): week bucketing uses UTC Monday boundaries.
+- [bucket.go](../../backend/domain/bucket.go) (formerly `intakeMetrics.ts`): daily bucketing uses UTC date boundaries.
 - [App.tsx](../../frontend/src/App.tsx): `formatSyncTime` uses `toLocaleString()` without an explicit timezone — this is the only place that implicitly uses the browser's local timezone.
 
 Duration calculations (`formatDuration`, `formatAge`) are timezone-neutral since they operate on millisecond differences.
