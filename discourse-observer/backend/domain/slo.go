@@ -29,6 +29,7 @@ type ViolationGroups struct {
 }
 
 // FindViolations identifies topics exceeding SLO thresholds.
+// Each violation type uses the strictest threshold for that specific metric.
 func FindViolations(
 	topics []model.Topic,
 	resolved map[string]model.ResolvedTag,
@@ -37,61 +38,58 @@ func FindViolations(
 	var groups ViolationGroups
 
 	for i := range topics {
-		tag, slo, isDefault := strictestSLO(topics[i].Tags, resolved)
-		if tag == "" {
+		if !hasMonitoredTag(topics[i].Tags, resolved) {
 			continue
 		}
-		firstReplyThresholdMs := int64(slo.FirstReplyHours) * 3_600_000
-		resolutionThresholdMs := int64(slo.ResolutionHours) * 3_600_000
-		inactivityThresholdMs := int64(slo.InactivityHours) * 3_600_000
 
-		if topics[i].Outcome != "" || topics[i].FirstReplyAt != nil {
-			// Resolved or replied: check first-reply SLO
-			var actualFirstReply int64
-			if topics[i].FirstReplyAt != nil {
-				actualFirstReply = topics[i].FirstReplyAt.Sub(topics[i].CreatedAt).Milliseconds()
-			} else if topics[i].Outcome == "" {
-				actualFirstReply = now.Sub(topics[i].CreatedAt).Milliseconds()
-			}
-			if topics[i].FirstReplyAt != nil && actualFirstReply > firstReplyThresholdMs {
+		// First-reply violations (resolved topics with firstReplyAt)
+		if topics[i].FirstReplyAt != nil {
+			actual := topics[i].FirstReplyAt.Sub(topics[i].CreatedAt).Milliseconds()
+			tag, thresholdMs, isDefault := strictestForMetric(topics[i].Tags, resolved, metricFirstReply)
+			if tag != "" && actual > thresholdMs {
 				groups.FirstReply = append(groups.FirstReply, Violation{
 					TopicID: topics[i].ID, TopicTitle: topics[i].Title, TopicURL: topics[i].TopicURL,
-					Tag: tag, ThresholdMs: firstReplyThresholdMs,
-					ActualMs: actualFirstReply, ExcessMs: actualFirstReply - firstReplyThresholdMs,
+					Tag: tag, ThresholdMs: thresholdMs,
+					ActualMs: actual, ExcessMs: actual - thresholdMs,
 					ThresholdIsDefault: isDefault,
 				})
 			}
 		}
 
+		// Unreplied topics: check first-reply and inactivity
 		if topics[i].Outcome == "" && topics[i].ReplyCount == 0 {
-			// Unreplied: check first-reply and inactivity
 			elapsed := now.Sub(topics[i].CreatedAt).Milliseconds()
-			if elapsed > firstReplyThresholdMs {
+
+			tag, thresholdMs, isDefault := strictestForMetric(topics[i].Tags, resolved, metricFirstReply)
+			if tag != "" && elapsed > thresholdMs {
 				groups.FirstReply = append(groups.FirstReply, Violation{
 					TopicID: topics[i].ID, TopicTitle: topics[i].Title, TopicURL: topics[i].TopicURL,
-					Tag: tag, ThresholdMs: firstReplyThresholdMs,
-					ActualMs: elapsed, ExcessMs: elapsed - firstReplyThresholdMs,
+					Tag: tag, ThresholdMs: thresholdMs,
+					ActualMs: elapsed, ExcessMs: elapsed - thresholdMs,
 					ThresholdIsDefault: isDefault,
 				})
 			}
-			if elapsed > inactivityThresholdMs {
+
+			tag, thresholdMs, isDefault = strictestForMetric(topics[i].Tags, resolved, metricInactivity)
+			if tag != "" && elapsed > thresholdMs {
 				groups.Inactivity = append(groups.Inactivity, Violation{
 					TopicID: topics[i].ID, TopicTitle: topics[i].Title, TopicURL: topics[i].TopicURL,
-					Tag: tag, ThresholdMs: inactivityThresholdMs,
-					ActualMs: elapsed, ExcessMs: elapsed - inactivityThresholdMs,
+					Tag: tag, ThresholdMs: thresholdMs,
+					ActualMs: elapsed, ExcessMs: elapsed - thresholdMs,
 					ThresholdIsDefault: isDefault,
 				})
 			}
 		}
 
+		// Resolution violations
 		if topics[i].ResolvedAt != nil {
-			// Check resolution SLO
-			actualResolution := topics[i].ResolvedAt.Sub(topics[i].CreatedAt).Milliseconds()
-			if actualResolution > resolutionThresholdMs {
+			actual := topics[i].ResolvedAt.Sub(topics[i].CreatedAt).Milliseconds()
+			tag, thresholdMs, isDefault := strictestForMetric(topics[i].Tags, resolved, metricResolution)
+			if tag != "" && actual > thresholdMs {
 				groups.Resolution = append(groups.Resolution, Violation{
 					TopicID: topics[i].ID, TopicTitle: topics[i].Title, TopicURL: topics[i].TopicURL,
-					Tag: tag, ThresholdMs: resolutionThresholdMs,
-					ActualMs: actualResolution, ExcessMs: actualResolution - resolutionThresholdMs,
+					Tag: tag, ThresholdMs: thresholdMs,
+					ActualMs: actual, ExcessMs: actual - thresholdMs,
 					ThresholdIsDefault: isDefault,
 				})
 			}
@@ -202,29 +200,55 @@ func ComputeCompliance(
 	return result
 }
 
-func strictestSLO(
+type sloMetric int
+
+const (
+	metricFirstReply sloMetric = iota
+	metricResolution
+	metricInactivity
+)
+
+func hasMonitoredTag(tags []string, resolved map[string]model.ResolvedTag) bool {
+	for _, tag := range tags {
+		if _, ok := resolved[tag]; ok {
+			return true
+		}
+	}
+	return false
+}
+
+// strictestForMetric returns the tag with the lowest threshold for a specific metric.
+func strictestForMetric(
 	tags []string,
 	resolved map[string]model.ResolvedTag,
-) (string, model.SLOThresholds, bool) {
+	metric sloMetric,
+) (tag string, thresholdMs int64, isDefault bool) {
 	bestTag := ""
-	var bestSLO model.SLOThresholds
+	var bestMs int64
 	bestIsDefault := true
-	bestTotal := -1
 
-	for _, tag := range tags {
-		rt, ok := resolved[tag]
+	for _, t := range tags {
+		rt, ok := resolved[t]
 		if !ok {
 			continue
 		}
-		total := rt.SLO.FirstReplyHours + rt.SLO.ResolutionHours + rt.SLO.InactivityHours
-		if bestTotal < 0 || total < bestTotal {
-			bestTag = tag
-			bestSLO = rt.SLO
+		var hours int
+		switch metric {
+		case metricFirstReply:
+			hours = rt.SLO.FirstReplyHours
+		case metricResolution:
+			hours = rt.SLO.ResolutionHours
+		case metricInactivity:
+			hours = rt.SLO.InactivityHours
+		}
+		ms := int64(hours) * 3_600_000
+		if bestTag == "" || ms < bestMs {
+			bestTag = t
+			bestMs = ms
 			bestIsDefault = rt.SLOIsDefault
-			bestTotal = total
 		}
 	}
-	return bestTag, bestSLO, bestIsDefault
+	return bestTag, bestMs, bestIsDefault
 }
 
 func sortViolations(violations []Violation) {
