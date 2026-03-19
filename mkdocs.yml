@@ -35,6 +35,7 @@ nav:
       - Design Strategy: docs/design-strategy.md
       - Documentation Strategy: docs/documentation-strategy.md
       - API Strategy: docs/api-strategy.md
+      - Sync Strategy: docs/sync-strategy.md
   - Specifications:
       - Use Cases: specs/use-cases.md
       - Single Forum Scope: specs/single-forum-scope.md
@@ -78,6 +79,7 @@ nav:
       - "0010: Timezone Strategy": docs/decisions/0010-timezone-strategy.md
       - "0011: Dashboard Layout and Theme": docs/decisions/0011-dashboard-layout-and-theme.md
       - "0012: API Responsibility Model": docs/decisions/0012-api-responsibility-model.md
+      - "0013: Sync Strategy": docs/decisions/0013-sync-strategy.md
 
 markdown_extensions:
   - toc:
