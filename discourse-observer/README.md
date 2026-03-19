@@ -50,11 +50,11 @@ This project is at the **foundation stage**. The structure, documentation, and a
 make start
 ```
 
-This copies `.env.example` to `.env` (if needed), builds and starts the containers, and opens the dashboard at <http://localhost:3000>. Edit `.env` with your Discourse credentials before the first run.
+This single command installs dependencies, creates config files from examples, runs verification, builds and starts the containers, and opens the dashboard at <http://localhost:3000>. Edit `.env` with your Discourse credentials before the first run.
 
 After code changes, use `make restart` to rebuild and relaunch.
 
-See [docs/getting-started.md](docs/getting-started.md) for prerequisites, configuration details, and troubleshooting.
+See **[docs/getting-started.md](docs/getting-started.md)** for prerequisites (Make, Docker, Go, Node.js), configuration details, VS Code setup, and troubleshooting.
 
 ### Project orientation
 

@@ -8,9 +8,18 @@ This guide explains how to configure, start, and access the discourse-observer d
 make start
 ```
 
-This copies `.env.example` to `.env` and `config/tagConfig.example.json` to `config/tagConfig.json` (if needed), builds the containers, starts them, and opens the dashboard. Edit `.env` with your Discourse credentials and `config/tagConfig.json` with your tag, area, SLO, and stalled-topic configuration before the first run.
+This single command handles the full onboarding flow:
+
+1. **Installs dependencies** — npm packages (root + frontend), golangci-lint, mkdocs-material, git hooks
+2. **Creates config files** — copies `.env.example` → `.env` and `config/tagConfig.example.json` → `config/tagConfig.json` (if they don't exist)
+3. **Verifies** — runs all linters and tests
+4. **Builds and launches** — builds Docker containers, starts them, opens the dashboard
+
+Edit `.env` with your Discourse credentials and `config/tagConfig.json` with your tag, area, SLO, and stalled-topic configuration before the first run.
 
 After code changes, use `make restart` to rebuild and relaunch.
+
+If you only want to install dependencies without launching, run `make setup` separately.
 
 The rest of this guide covers prerequisites, configuration, and how the stack works.
 
@@ -33,9 +42,23 @@ The following tools are needed:
    - **Linux (Fedora):** `sudo dnf install make`
 2. [Docker Desktop](https://docs.docker.com/desktop/) — includes Docker Engine, Docker Compose, BuildKit, and the CLI. On Linux you can alternatively install [Docker Engine](https://docs.docker.com/engine/install/) with the [Compose plugin](https://docs.docker.com/compose/install/) and [Buildx plugin](https://docs.docker.com/build/install-buildx/) separately.
 3. [Go 1.26+](https://go.dev/dl/) — only needed for local development outside Docker.
-4. [Node.js 24+](https://nodejs.org/) (includes npm) — only needed for local development outside Docker.
+4. **Node.js 24+** (includes npm) — only needed for local development outside Docker.
+   - **Windows:** `choco install nodejs-lts` ([Chocolatey](https://chocolatey.org/)) or download from [nodejs.org](https://nodejs.org/)
+   - **macOS:** `brew install node` ([Homebrew](https://brew.sh/)) or download from [nodejs.org](https://nodejs.org/)
+   - **Linux (Debian/Ubuntu):** `sudo apt install nodejs npm` or download from [nodejs.org](https://nodejs.org/)
+   - **Linux (Fedora):** `sudo dnf install nodejs npm` or download from [nodejs.org](https://nodejs.org/)
 
 You also need a Discourse forum API token (read-only is sufficient).
+
+### VS Code extensions
+
+The repository includes a `.vscode/extensions.json` with recommended extensions. VS Code will prompt you to install them when you open the project. The recommendations include:
+
+- **Go** — Go language support, debugging, and linting
+- **ESLint** — JavaScript/TypeScript linting (frontend)
+- **Stylelint** — CSS linting (frontend)
+- **markdownlint** — Markdown linting (documentation)
+- **Docker** — Dockerfile and Compose support
 
 ### VS Code terminal setup
 
@@ -160,7 +183,7 @@ This stops the running containers, rebuilds changed layers, starts everything ag
 
 | Command | What it does |
 |---|---|
-| `make start` | One-command onboarding: verify, configure, build, launch, open browser |
+| `make start` | One-command onboarding: setup, verify, configure, build, launch, open browser |
 | `make restart` | Verify, rebuild, and relaunch after code changes |
 | `make verify` | Run all linters and tests |
 | `make lint` | Run all linters (Go + markdown + frontend) |

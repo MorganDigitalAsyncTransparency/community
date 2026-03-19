@@ -1,0 +1,9 @@
+{
+  "recommendations": [
+    "golang.go",
+    "dbaeumer.vscode-eslint",
+    "stylelint.vscode-stylelint",
+    "davidanson.vscode-markdownlint",
+    "ms-azuretools.vscode-docker"
+  ]
+}
