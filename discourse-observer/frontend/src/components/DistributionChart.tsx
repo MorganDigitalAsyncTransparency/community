@@ -1,5 +1,5 @@
 // Spec: specs/dashboard/response-time-distribution.md
-// Tests: tests/dashboard/response-time-distribution.unit.test.ts
+// Tests: backend/api/contract_test.go
 
 import {
   Bar,

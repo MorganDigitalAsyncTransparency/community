@@ -1,5 +1,5 @@
 // Spec: specs/dashboard/peak-activity.md
-// Tests: tests/dashboard/peak-activity.unit.test.ts
+// Tests: backend/api/contract_test.go
 
 import { useState } from "react";
 import type { Heatmap } from "../api/types";

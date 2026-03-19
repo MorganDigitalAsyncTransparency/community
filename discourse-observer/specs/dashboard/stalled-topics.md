@@ -187,7 +187,7 @@ CSS class prefix: `stalled-` for all elements specific to this component.
 | `daysSinceLastActivity` — falls back to createdAt when lastActivityAt absent | ST-3 | Fallback behavior. |
 | `formatStalledTag` — returns first monitored tag or "–" | ST-7 | Tag display. |
 
-Test location: `tests/dashboard/stalled-topics.unit.test.ts`
+Test location: `backend/api/contract_test.go`, `backend/domain/*_test.go`
 
 ### Manual verification
 

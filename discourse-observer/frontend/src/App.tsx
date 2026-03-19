@@ -4,12 +4,8 @@
 //       specs/dashboard/tag-area-filter.md, specs/dashboard/url-state.md,
 //       specs/dashboard/stalled-topics.md, specs/dashboard/peak-activity.md,
 //       specs/dashboard/response-time-distribution.md
-// Tests: tests/dashboard/queue-visibility.unit.test.ts, tests/dashboard/response-metrics.unit.test.ts,
-//        tests/dashboard/time-period-filter.unit.test.ts,
-//        tests/dashboard/tag-distribution.unit.test.ts, tests/dashboard/slo-monitoring.unit.test.ts,
-//        tests/dashboard/tag-area-filter.unit.test.ts, tests/dashboard/url-state.unit.test.ts,
-//        tests/dashboard/stalled-topics.unit.test.ts, tests/dashboard/peak-activity.unit.test.ts,
-//        tests/dashboard/response-time-distribution.unit.test.ts
+// Tests: tests/dashboard/queue-visibility.unit.test.ts, tests/dashboard/tag-area-filter.unit.test.ts,
+//        tests/dashboard/url-state.unit.test.ts, backend/api/contract_test.go
 
 import { useState, useEffect, useCallback } from "react";
 import "./App.css";

@@ -1,5 +1,5 @@
 // Spec: specs/dashboard/stalled-topics.md
-// Tests: tests/dashboard/stalled-topics.unit.test.ts
+// Tests: backend/api/contract_test.go
 
 import type { StalledTopic } from "../api/types";
 import { useTableSort, type SortDirection } from "./useTableSort";

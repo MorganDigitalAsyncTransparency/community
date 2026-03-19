@@ -1,5 +1,5 @@
 // Spec: specs/dashboard/response-metrics.md
-// Tests: tests/dashboard/response-metrics.unit.test.ts
+// Tests: backend/api/contract_test.go
 
 import type { MetricsSummary } from "../api/types";
 import { formatDuration } from "./topicFormatting";

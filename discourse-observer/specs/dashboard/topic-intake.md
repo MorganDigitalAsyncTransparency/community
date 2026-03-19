@@ -185,7 +185,7 @@ The Volume page is added as a new navigation option in `App`. The `Page` type is
 | `computeIntakeBuckets` — empty input returns empty array | TI-14 | Empty state. |
 | `computeIntakeBuckets` — does not mutate input array | TI-1 | Pure function contract. |
 
-Test location: `tests/dashboard/topic-intake.unit.test.ts`
+Test location: `backend/api/contract_test.go`, `backend/domain/*_test.go`
 
 ### Manual verification
 

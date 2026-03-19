@@ -1,9 +1,6 @@
 /*
  * Spec: specs/dashboard/dashboard-components.md
- * Tests: tests/dashboard/queue-visibility.unit.test.ts, tests/dashboard/response-metrics.unit.test.ts,
- *        tests/dashboard/response-time-trends.unit.test.ts, tests/dashboard/slo-monitoring.unit.test.ts,
- *        tests/dashboard/stalled-topics.unit.test.ts, tests/dashboard/peak-activity.unit.test.ts,
- *        tests/dashboard/response-time-distribution.unit.test.ts
+ * Tests: tests/dashboard/queue-visibility.unit.test.ts, backend/api/contract_test.go
  *
  * All visual values reference CSS custom properties from theme.css.
  * See docs/design-strategy.md for variable semantics and contrast pairs.

@@ -136,7 +136,7 @@ For the chart: `weeklyTrendsChartData` transforms `WeeklyTrend[]` into `TrendCha
 | `computeWeeklyTrends` — Sunday and Monday on the week boundary land in different buckets | RT-2 | Ensures the Sunday/Monday split is correct. |
 | `computeWeeklyTrends` — does not mutate the input array | RT-1 | Pure function contract. |
 
-Test location: `tests/dashboard/response-time-trends.unit.test.ts`
+Test location: `backend/api/contract_test.go`, `backend/domain/*_test.go`
 
 ### Chart data tests
 
@@ -149,7 +149,7 @@ Test location: `tests/dashboard/response-time-trends.unit.test.ts`
 | `weeklyTrendsChartData` — day durations convert correctly (e.g. "3d" → 72) | RT-14 | Duration format conversion accuracy. |
 | `weeklyTrendsChartData` — hour durations convert correctly (e.g. "12h" → 12) | RT-14 | Duration format conversion accuracy. |
 
-Test location: `tests/dashboard/response-time-trends.unit.test.ts`
+Test location: `backend/api/contract_test.go`, `backend/domain/*_test.go`
 
 ### Manual verification
 

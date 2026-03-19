@@ -1,5 +1,5 @@
 // Spec: specs/dashboard/slo-monitoring.md
-// Tests: tests/dashboard/slo-monitoring.unit.test.ts
+// Tests: backend/api/contract_test.go
 
 import type { ViolationGroups, Violation, TagCompliance } from "../api/types";
 import { formatDuration } from "./topicFormatting";

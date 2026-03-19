@@ -151,7 +151,7 @@ The period selector applies to the volume ranking, the resolution time ranking, 
 | `computeWeeklyBacklog` — only weeks with at least one topic are shown | TD-22 | Empty weeks must not produce phantom rows. |
 | `computeWeeklyBacklog` — does not mutate either input array | TD-17 | Pure function contract. |
 
-Test location: `tests/dashboard/tag-distribution.unit.test.ts`
+Test location: `backend/api/contract_test.go`, `backend/domain/*_test.go`
 
 ### Manual verification
 

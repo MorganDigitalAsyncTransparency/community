@@ -1,5 +1,5 @@
 // Spec: specs/dashboard/tag-distribution.md
-// Tests: tests/dashboard/tag-distribution.unit.test.ts
+// Tests: backend/api/contract_test.go
 
 import type { TagVolume, TagResolution, TagBacklog, WeeklyBacklog } from "../api/types";
 import { formatDuration, formatWeekLabel } from "./topicFormatting";

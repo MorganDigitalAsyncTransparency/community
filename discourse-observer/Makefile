@@ -70,3 +70,4 @@ open:
 	|| start http://localhost:3000 2>/dev/null \
 	|| true
 	@echo "Dashboard running at http://localhost:3000 (opening in browser...)"
+	@echo "API health check at http://localhost:3000/api/v1/status"
