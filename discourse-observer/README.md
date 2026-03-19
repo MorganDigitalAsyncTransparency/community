@@ -42,7 +42,7 @@ discourse-observer/
 
 ## Current status
 
-This project is at the **foundation stage**. The structure, documentation, and architecture boundaries are in place. Implementation of the Discourse client, observer logic, and data model will follow as next steps.
+The core data pipeline is implemented and tested. The Discourse API client, observer, and SQLite storage work end-to-end: fetch topics from a Discourse-compatible API, normalize them to domain types, and persist to SQLite. A mock server provides test data so no real Discourse instance is needed for development. The HTTP API layer still serves mock data; wiring it to read from SQLite is the next step.
 
 ## Getting started
 

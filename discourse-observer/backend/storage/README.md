@@ -6,13 +6,11 @@ This module provides an abstraction for persisting observed data.
 
 The storage module defines how observations are saved and retrieved. It acts as a boundary between the observation logic and whatever persistence mechanism is used.
 
-## Current status
+## Current implementation
 
-This module is not yet implemented. The abstraction point exists so that the observer can be built against a storage interface without coupling to a specific backend.
+`SQLiteStore` in `sqlite.go` persists normalized topics to a SQLite database using `modernc.org/sqlite` (pure Go, no CGO). It implements the `StorageBackend` interface defined by `observer/`. Topics are upserted by ID, making the pipeline idempotent. Schema migrations run on startup.
 
-## Planned approach
-
-The initial implementation will use SQLite (decided in [ADR 0002](../../docs/decisions/0002-technology-choices.md)). An in-memory implementation may be added for testing. The abstraction allows swapping to a more capable backend (PostgreSQL, cloud storage, a time-series database) later without changing the observer or model layers.
+The abstraction allows swapping to a different backend (PostgreSQL, in-memory for testing) without changing the observer or model layers.
 
 ## Boundaries
 
