@@ -1,14 +1,41 @@
 // Spec: specs/dashboard/tag-area-filter.md
 // Tests: tests/dashboard/tag-area-filter.unit.test.ts
 
-import { type TagConfig, tagsForArea, allAreas } from "./tagFilter";
+import type { AppConfig } from "../api/types";
 
 interface TagSelectorProps {
-  config: TagConfig;
+  config: AppConfig;
   activeTag: string | null;
   activeArea: string | null;
   onTagSelect: (tag: string | null) => void;
   onAreaSelect: (area: string | null) => void;
+}
+
+function tagsForArea(config: AppConfig, area: string | null): string[] {
+  const allTags = Object.keys(config.tags).sort();
+  if (area === null) return allTags;
+
+  const areaEntry = config.areas.find((a) => a.name === area);
+  const matching = allTags.filter((tag) => config.tags[tag].area === area);
+
+  if (areaEntry && matching.includes(areaEntry.primaryTag)) {
+    const rest = matching.filter((t) => t !== areaEntry.primaryTag);
+    return [areaEntry.primaryTag, ...rest];
+  }
+
+  return matching;
+}
+
+function allAreas(config: AppConfig): string[] {
+  const named = config.areas.map((a) => a.name);
+  const defaultArea = config.defaults.area;
+  const hasDefault = Object.values(config.tags).some((t) => t.area === defaultArea);
+
+  if (hasDefault && !named.includes(defaultArea)) {
+    return [...named, defaultArea];
+  }
+
+  return named;
 }
 
 export function TagSelector({
@@ -57,3 +84,6 @@ export function TagSelector({
     </div>
   );
 }
+
+// Re-export for use by App.tsx
+export { tagsForArea, allAreas };

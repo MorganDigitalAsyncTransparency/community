@@ -1,40 +1,22 @@
 // Spec: specs/dashboard/tag-distribution.md
 // Tests: tests/dashboard/tag-distribution.unit.test.ts
 
-import type { Topic } from "../mock/data";
-import { formatWeekLabel } from "./topicFormatting";
-import {
-  tagVolumeRanking,
-  tagResolutionRanking,
-  tagBacklogRanking,
-  computeWeeklyBacklog,
-} from "./tagMetrics";
+import type { TagVolume, TagResolution, TagBacklog, WeeklyBacklog } from "../api/types";
+import { formatDuration, formatWeekLabel } from "./topicFormatting";
 
 interface TagDistributionProps {
-  // Filtered unreplied + resolved combined — UC-9 volume ranking
-  allTopics: Topic[];
-  // Filtered resolved topics — UC-10 resolution time ranking
-  resolvedTopics: Topic[];
-  // Filtered unreplied topics — UC-11 per-tag open count
-  openTopics: Topic[];
-  // TD-23: unfiltered unreplied + resolved — UC-11 weekly trend spans all history
-  allTopicsHistory: Topic[];
-  // TD-23: unfiltered unreplied — UC-11 weekly trend spans all history
-  openTopicsHistory: Topic[];
+  volumeRanking: TagVolume[];
+  resolutionRanking: TagResolution[];
+  backlogRanking: TagBacklog[];
+  weeklyBacklog: WeeklyBacklog[];
 }
 
 export function TagDistribution({
-  allTopics,
-  resolvedTopics,
-  openTopics,
-  allTopicsHistory,
-  openTopicsHistory,
+  volumeRanking,
+  resolutionRanking,
+  backlogRanking,
+  weeklyBacklog,
 }: TagDistributionProps) {
-  const volumeRanking = tagVolumeRanking(allTopics);
-  const resolutionRanking = tagResolutionRanking(resolvedTopics);
-  const backlogRanking = tagBacklogRanking(openTopics);
-  const weeklyBacklog = computeWeeklyBacklog(allTopicsHistory, openTopicsHistory);
-
   return (
     <>
       <section className="app-section">
@@ -79,7 +61,9 @@ export function TagDistribution({
                 <tr key={row.tag} className="dist-row">
                   <td className="dist-td dist-td-tag">{row.tag}</td>
                   <td className="dist-td dist-td-count">{row.resolvedCount}</td>
-                  <td className="dist-td dist-td-metric">{row.medianResolution}</td>
+                  <td className="dist-td dist-td-metric">
+                    {row.medianResolutionMs === null ? "–" : formatDuration(row.medianResolutionMs)}
+                  </td>
                 </tr>
               ))}
             </tbody>

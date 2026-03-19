@@ -2,8 +2,7 @@
 // Tests: tests/dashboard/peak-activity.unit.test.ts
 
 import { useState } from "react";
-import type { Topic } from "../mock/data";
-import { computeHeatmapData, DAY_LABELS } from "./peakActivityMetrics";
+import type { Heatmap } from "../api/types";
 import {
   utcOffsetMinutes,
   formatOffsetHour,
@@ -20,11 +19,12 @@ import { TimezonePicker } from "./TimezonePicker";
 import { CookieConsentModal } from "./CookieConsentModal";
 import { HEATMAP_BASE, TEXT_ON_ACCENT } from "./themeColors";
 
+const DAY_LABELS = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
 const HOUR_LABELS = Array.from({ length: 24 }, (_, i) => String(i));
 const MAX_TZ_ROWS = 3;
 
 interface PeakActivityProps {
-  topics: Topic[];
+  data: Heatmap;
 }
 
 type ConsentState = "pending" | "accepted" | "denied";
@@ -38,13 +38,13 @@ function initConsent(): ConsentState {
   return readConsentCookie() === "accepted" ? "accepted" : "pending";
 }
 
-export function PeakActivity({ topics }: PeakActivityProps) {
+export function PeakActivity({ data }: PeakActivityProps) {
   const [timezones, setTimezones] = useState<string[]>(initTimezones);
   const [pickerOpen, setPickerOpen] = useState(false);
   const [consentState, setConsentState] = useState<ConsentState>(initConsent);
   const [pendingTz, setPendingTz] = useState<string | null>(null);
 
-  const { cells, maxCount } = computeHeatmapData(topics);
+  const { cells, maxCount } = data;
   const heatmapBase = HEATMAP_BASE;
   const heatmapText = TEXT_ON_ACCENT;
 
@@ -93,7 +93,7 @@ export function PeakActivity({ topics }: PeakActivityProps) {
     }
   }
 
-  if (topics.length === 0) {
+  if (maxCount === 0 && cells.every((row) => row.every((c) => c.count === 0))) {
     return (
       <section className="peak-section">
         <h2 className="peak-heading">Peak activity</h2>

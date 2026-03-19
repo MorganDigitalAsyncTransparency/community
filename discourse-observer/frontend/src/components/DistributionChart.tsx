@@ -9,7 +9,7 @@ import {
   XAxis,
   YAxis,
 } from "recharts";
-import type { DistributionBucket } from "./distributionMetrics";
+import type { DistributionBucket } from "../api/types";
 
 interface DistributionChartProps {
   data: DistributionBucket[];

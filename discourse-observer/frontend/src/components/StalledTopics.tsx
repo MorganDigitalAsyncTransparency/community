@@ -1,23 +1,13 @@
 // Spec: specs/dashboard/stalled-topics.md
 // Tests: tests/dashboard/stalled-topics.unit.test.ts
 
-import type { Topic } from "../mock/data";
-import type { ResolvedTag } from "./tagFilter";
-import { topicUrl } from "./topicFormatting";
+import type { StalledTopic } from "../api/types";
 import { useTableSort, type SortDirection } from "./useTableSort";
-import {
-  filterStalledTopics,
-  daysSinceLastActivity,
-  formatStalledTag,
-  stalledThresholdForTopic,
-} from "./stalledMetrics";
 
 type SortColumn = "topic" | "tag" | "threshold" | "days";
 
 interface StalledTopicsProps {
-  topics: Topic[];
-  resolvedTags: Record<string, ResolvedTag>;
-  monitoredTags: string[];
+  topics: StalledTopic[];
 }
 
 const DEFAULT_DIRECTIONS: Record<SortColumn, SortDirection> = {
@@ -28,57 +18,31 @@ const DEFAULT_DIRECTIONS: Record<SortColumn, SortDirection> = {
 };
 
 function sortTopics(
-  topics: Topic[],
+  topics: StalledTopic[],
   column: SortColumn,
   direction: SortDirection,
-  monitored: Set<string>,
-  resolvedTags: Record<string, ResolvedTag>,
-): Topic[] {
+): StalledTopic[] {
   const sorted = [...topics];
   const dir = direction === "asc" ? 1 : -1;
 
   if (column === "topic") {
     sorted.sort((a, b) => dir * a.title.localeCompare(b.title));
   } else if (column === "tag") {
-    sorted.sort((a, b) => {
-      const aTag = formatStalledTag(a, monitored);
-      const bTag = formatStalledTag(b, monitored);
-      return dir * aTag.localeCompare(bTag);
-    });
+    sorted.sort((a, b) => dir * (a.strictestTag ?? "").localeCompare(b.strictestTag ?? ""));
   } else if (column === "threshold") {
-    sorted.sort((a, b) => {
-      const aThreshold = stalledThresholdForTopic(a, resolvedTags);
-      const bThreshold = stalledThresholdForTopic(b, resolvedTags);
-      const aDays = aThreshold ? aThreshold.days : 0;
-      const bDays = bThreshold ? bThreshold.days : 0;
-      return dir * (aDays - bDays);
-    });
+    sorted.sort((a, b) => dir * (a.thresholdDays - b.thresholdDays));
   } else {
-    sorted.sort((a, b) => {
-      const aDate = new Date(a.lastActivityAt ?? a.createdAt).getTime();
-      const bDate = new Date(b.lastActivityAt ?? b.createdAt).getTime();
-      // "asc" = oldest first (lowest date), "desc" = highest days first (also lowest date)
-      // days = now - date, so higher days = lower date
-      // For days desc (highest first): lower date first → aDate - bDate
-      // For days asc (lowest first): higher date first → bDate - aDate
-      return dir === -1 ? aDate - bDate : bDate - aDate;
-    });
+    sorted.sort((a, b) => dir * (a.daysSinceLastActivity - b.daysSinceLastActivity));
   }
 
   return sorted;
 }
 
-export function StalledTopics({
-  topics,
-  resolvedTags,
-  monitoredTags,
-}: StalledTopicsProps) {
+export function StalledTopics({ topics }: StalledTopicsProps) {
   const { sortColumn, sortDirection, handleSort, arrow } =
     useTableSort<SortColumn>("days", DEFAULT_DIRECTIONS);
 
-  const stalled = filterStalledTopics(topics, resolvedTags);
-  const monitored = new Set(monitoredTags);
-  const sorted = sortTopics(stalled, sortColumn, sortDirection, monitored, resolvedTags);
+  const sorted = sortTopics(topics, sortColumn, sortDirection);
 
   return (
     <section className="stalled-section">
@@ -116,29 +80,25 @@ export function StalledTopics({
             </tr>
           </thead>
           <tbody>
-            {sorted.map((topic) => {
-              const tagName = formatStalledTag(topic, monitored);
-              const threshold = stalledThresholdForTopic(topic, resolvedTags);
-              return (
-                <tr key={topic.id} className="stalled-row">
-                  <td className="stalled-cell-topic">
-                    <a href={topicUrl(topic.id)} className="topic-link" target="_blank" rel="noreferrer">
-                      {topic.title}
-                    </a>
-                  </td>
-                  <td className="stalled-cell-tag">{tagName}</td>
-                  <td className="stalled-cell-threshold">
-                    {threshold ? threshold.days : "–"}
-                    {threshold?.isDefault && (
-                      <span className="stalled-default-indicator"> (default)</span>
-                    )}
-                  </td>
-                  <td className="stalled-cell-days">
-                    {daysSinceLastActivity(topic)}
-                  </td>
-                </tr>
-              );
-            })}
+            {sorted.map((topic) => (
+              <tr key={topic.id} className="stalled-row">
+                <td className="stalled-cell-topic">
+                  <a href={topic.topicUrl} className="topic-link" target="_blank" rel="noreferrer">
+                    {topic.title}
+                  </a>
+                </td>
+                <td className="stalled-cell-tag">{topic.strictestTag ?? "–"}</td>
+                <td className="stalled-cell-threshold">
+                  {topic.thresholdDays}
+                  {topic.thresholdIsDefault && (
+                    <span className="stalled-default-indicator"> (default)</span>
+                  )}
+                </td>
+                <td className="stalled-cell-days">
+                  {topic.daysSinceLastActivity}
+                </td>
+              </tr>
+            ))}
           </tbody>
         </table>
       )}

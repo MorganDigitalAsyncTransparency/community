@@ -1,26 +1,17 @@
 // Spec: specs/dashboard/slo-monitoring.md
 // Tests: tests/dashboard/slo-monitoring.unit.test.ts
 
-import type { Topic } from "../mock/data";
-import {
-  findViolations,
-  computeCompliance,
-  type SloConfig,
-  type Violation,
-  type TagCompliance,
-} from "./sloMetrics";
-import { formatDuration, topicUrl } from "./topicFormatting";
+import type { ViolationGroups, Violation, TagCompliance } from "../api/types";
+import { formatDuration } from "./topicFormatting";
 import { useTableSort, type SortDirection } from "./useTableSort";
 
 interface SloMonitorProps {
-  resolvedTopics: Topic[];
-  unrepliedTopics: Topic[];
-  sloConfig: SloConfig;
-  defaultSloTags: Set<string>;
+  violations: ViolationGroups;
+  compliance: TagCompliance[];
 }
 
-function DefaultIndicator({ tag, defaultTags }: { tag: string; defaultTags: Set<string> }) {
-  if (!defaultTags.has(tag)) return null;
+function DefaultIndicator({ isDefault }: { isDefault: boolean }) {
+  if (!isDefault) return null;
   return (
     <span className="slo-default-indicator"> (default thresholds)</span>
   );
@@ -62,11 +53,9 @@ function sortViolations(
 function ViolationTable({
   violations,
   title,
-  defaultSloTags,
 }: {
   violations: Violation[];
   title: string;
-  defaultSloTags: Set<string>;
 }) {
   const { sortColumn, sortDirection, handleSort, arrow } =
     useTableSort<ViolationSortColumn>("excess", VIOLATION_DEFAULT_DIRS);
@@ -118,13 +107,13 @@ function ViolationTable({
             {sorted.map((v) => (
               <tr key={`${v.topicId}-${v.tag}`} className="slo-row">
                 <td className="slo-td">
-                  <a href={topicUrl(v.topicId)} className="topic-link" target="_blank" rel="noreferrer">
+                  <a href={v.topicUrl} className="topic-link" target="_blank" rel="noreferrer">
                     {v.topicTitle}
                   </a>
                 </td>
                 <td className="slo-td slo-td-tag">
                   {v.tag}
-                  <DefaultIndicator tag={v.tag} defaultTags={defaultSloTags} />
+                  <DefaultIndicator isDefault={v.thresholdIsDefault} />
                 </td>
                 <td className="slo-td slo-td-metric">{formatDuration(v.thresholdMs)}</td>
                 <td className="slo-td slo-td-metric">{formatDuration(v.actualMs)}</td>
@@ -171,13 +160,7 @@ function sortCompliance(
   return sorted;
 }
 
-function ComplianceTable({
-  rows,
-  defaultSloTags,
-}: {
-  rows: TagCompliance[];
-  defaultSloTags: Set<string>;
-}) {
+function ComplianceTable({ rows }: { rows: TagCompliance[] }) {
   const { sortColumn, sortDirection, handleSort, arrow } =
     useTableSort<ComplianceSortColumn>("tag", COMPLIANCE_DEFAULT_DIRS);
 
@@ -224,7 +207,7 @@ function ComplianceTable({
           <tr key={r.tag} className="slo-row">
             <td className="slo-td">
               {r.tag}
-              <DefaultIndicator tag={r.tag} defaultTags={defaultSloTags} />
+              <DefaultIndicator isDefault={r.thresholdIsDefault} />
             </td>
             <td className="slo-td slo-td-metric">
               {r.firstReplyPercent === null ? "–" : `${r.firstReplyPercent}%`}
@@ -242,35 +225,29 @@ function ComplianceTable({
   );
 }
 
-export function SloMonitor({
-  resolvedTopics,
-  unrepliedTopics,
-  sloConfig,
-  defaultSloTags,
-}: SloMonitorProps) {
-  const configuredTags = Object.keys(sloConfig);
+export function SloMonitor({ violations, compliance }: SloMonitorProps) {
+  const hasAnyViolation =
+    violations.firstReply.length > 0 ||
+    violations.resolution.length > 0 ||
+    violations.inactivity.length > 0;
+  const hasAnyCompliance = compliance.length > 0;
 
-  // SL-25: empty config
-  if (configuredTags.length === 0) {
-    return <p className="slo-empty">No SLO thresholds configured</p>;
+  if (!hasAnyViolation && !hasAnyCompliance) {
+    return <p className="slo-empty">No SLO data</p>;
   }
-
-  const now = Date.now();
-  const violations = findViolations(resolvedTopics, unrepliedTopics, sloConfig, now);
-  const compliance = computeCompliance(resolvedTopics, unrepliedTopics, sloConfig, now);
 
   return (
     <>
       <section className="app-section">
         <h2 className="app-section-title">Threshold violations</h2>
-        <ViolationTable violations={violations.firstReply} title="First reply violations" defaultSloTags={defaultSloTags} />
-        <ViolationTable violations={violations.resolution} title="Resolution violations" defaultSloTags={defaultSloTags} />
-        <ViolationTable violations={violations.inactivity} title="Inactivity violations" defaultSloTags={defaultSloTags} />
+        <ViolationTable violations={violations.firstReply} title="First reply violations" />
+        <ViolationTable violations={violations.resolution} title="Resolution violations" />
+        <ViolationTable violations={violations.inactivity} title="Inactivity violations" />
       </section>
 
       <section className="app-section">
         <h2 className="app-section-title">SLO compliance</h2>
-        <ComplianceTable rows={compliance} defaultSloTags={defaultSloTags} />
+        <ComplianceTable rows={compliance} />
       </section>
     </>
   );
