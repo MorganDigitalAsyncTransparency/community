@@ -16,13 +16,15 @@ WORKDIR /src
 COPY go.mod go.sum* ./
 RUN [ -f go.sum ] && go mod download || true
 COPY backend/ backend/
-RUN CGO_ENABLED=0 go build -o /app/discourse-observer ./backend/...
+COPY config/ config/
+RUN CGO_ENABLED=0 go build -o /app/discourse-observer ./backend
 
 # -- runtime stage --
 FROM alpine:3
 RUN apk add --no-cache ca-certificates
 WORKDIR /app
 COPY --from=build /app/discourse-observer .
+COPY config/ config/
 RUN mkdir -p /app/data
 EXPOSE 8080
 CMD ["./discourse-observer"]

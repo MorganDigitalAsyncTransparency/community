@@ -11,6 +11,9 @@ This directory contains the application source code for discourse-observer, orga
 | `model/` | Internal normalized types and domain concepts, independent of the API |
 | `config/` | Forum-specific configuration and adaptation points |
 | `storage/` | Abstraction for persisting observed data |
+| `domain/` | Pure calculation functions — medians, bucketing, SLO, heatmap, rankings |
+| `api/` | HTTP handlers for `/api/v1/` endpoints — routing, filters, JSON responses |
+| `mock/` | Hardcoded topic fixtures for development and testing |
 
 ## How layers interact
 
