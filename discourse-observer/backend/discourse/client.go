@@ -117,6 +117,10 @@ func (c *Client) getJSON(ctx context.Context, path string, dst any) error {
 	return c.getJSONRetry(ctx, path, dst, 0, 0)
 }
 
+// rateLimitFallback is the minimum wait when a 429 response lacks Retry-After
+// and no retryDelay is configured. Prevents tight retry loops.
+const rateLimitFallback = 10 * time.Second
+
 // getJSONRetry performs a GET request with retry handling for 429 and 5xx.
 func (c *Client) getJSONRetry(ctx context.Context, path string, dst any, maxRetries int, retryDelay time.Duration) error {
 	retries := 0
@@ -127,7 +131,7 @@ func (c *Client) getJSONRetry(ctx context.Context, path string, dst any, maxRetr
 		}
 
 		var httpErr *HTTPError
-		if !asHTTPError(err, &httpErr) {
+		if !errors.As(err, &httpErr) {
 			// Network error — treat like 5xx.
 			retries++
 			if retries > maxRetries {
@@ -142,8 +146,11 @@ func (c *Client) getJSONRetry(ctx context.Context, path string, dst any, maxRetr
 		switch {
 		case httpErr.StatusCode == http.StatusTooManyRequests:
 			wait := httpErr.RetryAfter
-			if wait == 0 {
+			if wait <= 0 {
 				wait = retryDelay
+			}
+			if wait <= 0 {
+				wait = rateLimitFallback
 			}
 			if err := sleepCtx(ctx, wait); err != nil {
 				return err
@@ -215,10 +222,6 @@ func newHTTPError(resp *http.Response) *HTTPError {
 		}
 	}
 	return e
-}
-
-func asHTTPError(err error, target **HTTPError) bool {
-	return errors.As(err, target)
 }
 
 // sleepCtx waits for the given duration or until ctx is canceled.

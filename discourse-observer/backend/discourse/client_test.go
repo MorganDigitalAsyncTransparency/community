@@ -58,21 +58,20 @@ func TestFetchTopicsPagesStartPage(t *testing.T) {
 
 	client := discourse.NewClient(srv.URL, "", "")
 
-	var firstPage int
-	err := client.FetchTopicsPages(context.Background(), discourse.PageConfig{StartPage: 2}, func(topics []model.RawTopic, page int) error {
-		if firstPage == 0 && page > 0 {
-			firstPage = page
-		} else if firstPage == 0 {
-			firstPage = page
-		}
+	var pagesSeen []int
+	err := client.FetchTopicsPages(context.Background(), discourse.PageConfig{StartPage: 2}, func(_ []model.RawTopic, page int) error {
+		pagesSeen = append(pagesSeen, page)
 		return nil
 	})
 	if err != nil {
 		t.Fatalf("FetchTopicsPages: %v", err)
 	}
 
-	if firstPage != 2 {
-		t.Errorf("first page = %d, want 2", firstPage)
+	if len(pagesSeen) == 0 {
+		t.Fatal("no pages seen")
+	}
+	if pagesSeen[0] != 2 {
+		t.Errorf("first page = %d, want 2", pagesSeen[0])
 	}
 }
 
@@ -148,6 +147,34 @@ func TestFetchTopicsPagesHTTP429(t *testing.T) {
 	}
 	if c := calls.Load(); c != 2 {
 		t.Errorf("server got %d calls, want 2 (1 x 429 + 1 success)", c)
+	}
+}
+
+func TestFetchTopicsPagesHTTP429FallbackDelay(t *testing.T) {
+	// When 429 has no Retry-After and retryDelay is 0, the client must not
+	// spin in a tight loop — it should use rateLimitFallback (10s).
+	// We verify by canceling the context quickly and checking that only
+	// one retry was attempted (the fallback sleep was interrupted).
+	var calls atomic.Int32
+	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		calls.Add(1)
+		w.WriteHeader(http.StatusTooManyRequests)
+	}))
+	defer srv.Close()
+
+	client := discourse.NewClient(srv.URL, "", "")
+
+	ctx, cancel := context.WithTimeout(context.Background(), 200*time.Millisecond)
+	defer cancel()
+
+	_ = client.FetchTopicsPages(ctx, discourse.PageConfig{}, func(_ []model.RawTopic, _ int) error {
+		return nil
+	})
+
+	// With a 10s fallback, only 1 call should happen before the 200ms timeout.
+	// A tight loop would produce hundreds.
+	if c := calls.Load(); c > 2 {
+		t.Errorf("server got %d calls — fallback delay not working (expected ≤ 2)", c)
 	}
 }
 
