@@ -79,13 +79,17 @@ This is the only approach that works with a vanilla Discourse instance, does not
 ### Core mechanism
 
 - **Initial sync:** Paginate `/latest.json?page=0,1,2,...` until `more_topics_url` is absent. Throttle to ~3 requests per minute (~1 request every 20 seconds). Store topics via existing upsert. Track progress (last completed page) for resume.
-- **Delta sync:** Same endpoint, same pagination. Stop when every topic on a page has `bumped_at` ≤ the stored high-water mark. On a typical day this means 1–3 pages.
+- **Delta sync:** Same endpoint, same pagination. Stop when every topic on a page has `bumped_at` ≤ the stored high-water mark. On a typical day this means 1–3 pages. Uses a shorter delay between requests (configurable, default 2 seconds) since delta sync is brief and low-volume.
+- **Detail sync:** During detected low-activity periods, perform a background full crawl to enrich stored topics with detail data (revision history, tag change timestamps) that `/latest.json` does not include. Uses `/t/{id}.json` for topics that lack detail data or haven't been detail-synced recently.
 - **Watermark:** After each successful sync cycle, persist `max(bumped_at)` from all fetched topics as the high-water mark.
 - **Categories:** Fetch `/categories.json` once per sync cycle (single request, not paginated).
 
 ### Throttling
 
-- Fixed delay between requests (configurable, default 20 seconds).
+Two speed tiers:
+
+- **Initial sync and detail sync:** 20-second delay between requests (~3 req/min). These are long-running and must stay gentle.
+- **Delta sync:** 2-second delay between requests (~30 req/min). Delta fetches 1–3 pages — the total request count is small even at higher speed.
 - On HTTP 429: respect `Retry-After` header, then resume from the same page.
 - No parallelism — sequential requests only.
 
@@ -107,7 +111,9 @@ This is the only approach that works with a vanilla Discourse instance, does not
 
 - Works with any vanilla Discourse instance — no plugins, no admin access beyond a read-only API key.
 - Initial sync completes in ~1 hour with minimal server impact (~3 req/min).
-- Delta sync is fast — typically 1–3 pages for a day's changes.
+- Delta sync is fast — typically 1–3 pages for a day's changes — and runs at higher speed since request volume is low.
+- Detail sync fills in revision history and tag change timestamps during low-activity windows, without impacting the server during peak usage.
+- Scheduling adapts to observed activity patterns rather than relying on hardcoded time windows.
 - Resume after interruption avoids re-fetching completed work.
 - Upsert storage means any sync is idempotent — safe to re-run.
 
@@ -117,3 +123,4 @@ This is the only approach that works with a vanilla Discourse instance, does not
 - Fixed page size (~30) is not configurable via the API.
 - Topics that are never bumped (very old, no activity) will be on the last pages of the initial sync — but they will be fetched eventually.
 - If a topic is bumped during initial sync, it may appear on an earlier page and a later page — harmless due to upsert, but the observer will normalize it twice.
+- Detail sync via `/t/{id}.json` is one request per topic — acceptable at low-activity throttle rates but not suitable for bulk use during peak hours.

@@ -16,14 +16,26 @@ The strategy is recorded in [ADR 0013](decisions/0013-sync-strategy.md). This do
                     │  Observer   │
                     └──────┬──────┘
                            │
-              ┌────────────┼────────────┐
-              ▼            ▼            ▼
-        /categories   /latest.json   Store
-         .json         ?page=N       (upsert)
-         (1 req)      (paginated)
+         ┌─────────────────┼─────────────────┐
+         ▼                 ▼                  ▼
+   /categories.json   /latest.json       /t/{id}.json
+     (1 req)           ?page=N            (detail)
+                      (delta/initial)   (low-activity)
+         │                 │                  │
+         └─────────────────┼──────────────────┘
+                           ▼
+                     Store (upsert)
 ```
 
-Every sync cycle follows the same sequence:
+Three sync modes serve different purposes:
+
+| Mode | Purpose | Speed | When |
+|------|---------|-------|------|
+| **Initial** | Populate an empty database | ~3 req/min | First run |
+| **Delta** | Fetch recent changes | ~30 req/min | Every 15 min during operation |
+| **Detail** | Enrich topics with revision history | ~3 req/min | Automatically during low activity |
+
+Every sync cycle follows the same base sequence:
 
 1. Fetch categories (single request).
 2. Paginate `/latest.json` — either to exhaustion (initial) or to the watermark (delta).
@@ -69,8 +81,12 @@ After the initial sync, subsequent runs only need to fetch topics that changed s
 5. Normalize and upsert topics from the page.
 6. Check: are all topics on this page older than or equal to `last_bumped_at`?
    - **Yes** → this page contains no new changes. Stop pagination.
-   - **No** → wait the configured delay, increment `page`, go to step 4.
+   - **No** → wait the delta delay (default 2 seconds), increment `page`, go to step 4.
 7. Store `max(bumped_at)` from all fetched topics as the new high-water mark.
+
+### Speed
+
+Delta sync uses a shorter delay between requests (default 2 seconds, ~30 req/min) compared to initial sync. This is safe because delta sync fetches very few pages — the total request count stays low even at higher speed.
 
 ### Why this works
 
@@ -80,19 +96,49 @@ After the initial sync, subsequent runs only need to fetch topics that changed s
 
 On a moderately active forum (~50 topic changes per working day), delta sync fetches 1–3 pages — completing in under a minute even with throttling.
 
+## Detail sync
+
+`/latest.json` returns summary data per topic — enough for tracking activity, but not enough for understanding *when* tag changes, category moves, or edits happened. That detail lives in the topic revision history, available via `/t/{id}.json`.
+
+Detail sync fills this gap by enriching stored topics during low-activity periods.
+
+### Flow
+
+1. Wait for the scheduler to detect a low-activity window (see [Scheduling](#scheduling)).
+2. Select topics that need detail enrichment — either never detail-synced, or not detail-synced recently.
+3. For each selected topic:
+   a. Fetch `/t/{id}.json`.
+   b. Extract revision history, tag change timestamps, category move timestamps.
+   c. Update the stored topic with the enriched data.
+   d. Wait the configured delay (default 20 seconds).
+4. Stop when the activity window ends or all selected topics are enriched.
+
+### Prioritization
+
+Topics are selected for detail sync in this order:
+
+1. Topics that have never been detail-synced (new topics from delta sync).
+2. Topics where `bumped_at` is newer than the last detail sync (something changed).
+3. Oldest detail-synced topics first (staleness-based refresh).
+
+### Interruptibility
+
+Detail sync is interruptible at any point — each topic is stored independently. If activity picks up or the process restarts, detail sync simply resumes from where it left off next time a low-activity window occurs.
+
 ## Scheduling
 
-### Adaptive frequency
+### Default interval
 
-Sync frequency adapts to expected activity:
+Delta sync runs every 15 minutes while the server is running. This is the base interval.
 
-| Period | Interval | Rationale |
-|--------|----------|-----------|
-| Working hours (Mon–Fri, 08–18 local) | Every 15 minutes | Most forum activity happens here |
-| Evenings (Mon–Fri, 18–22 local) | Every 30 minutes | Reduced activity |
-| Nights and weekends | Every 60 minutes | Minimal activity |
+### Learned activity patterns
 
-These intervals are configuration defaults. The actual values are set in the deployment config.
+Rather than relying on hardcoded time windows, the observer learns activity patterns from its own data. After accumulating enough sync history, it can identify:
+
+- **Peak hours** — when the most topic changes occur. Delta sync continues at the base interval.
+- **Low-activity windows** — when few or no changes are detected across several consecutive syncs. The scheduler uses these windows for detail sync.
+
+Until enough data is collected (first few days of operation), the observer uses a simple heuristic: if the last N delta syncs each returned 0 changed topics, assume low activity.
 
 ### Jitter
 
@@ -158,6 +204,10 @@ Each sync cycle logs:
 | Page error | `page`, `status_code`, `retry_attempt` |
 | Sync completed | `type`, `pages_fetched`, `topics_upserted`, `new_watermark`, `duration` |
 | Sync aborted | `type`, `page`, `reason`, `duration` |
+| Detail sync started | `topics_queued` |
+| Topic detail fetched | `topic_id`, `revisions_count`, `elapsed` |
+| Detail sync completed | `topics_enriched`, `duration` |
+| Low activity detected | `consecutive_zero_syncs` |
 
 ### Health indicators
 
@@ -188,11 +238,9 @@ All sync parameters are provided through deployment configuration (environment v
 
 | Parameter | Default | Description |
 |-----------|---------|-------------|
-| `SYNC_DELAY_SECONDS` | `20` | Delay between paginated requests |
-| `SYNC_INTERVAL_WORK` | `15m` | Sync interval during working hours |
-| `SYNC_INTERVAL_EVENING` | `30m` | Sync interval during evenings |
-| `SYNC_INTERVAL_OFF` | `60m` | Sync interval during nights/weekends |
-| `SYNC_WORK_HOURS_START` | `08` | Start of working hours (local time, 24h) |
-| `SYNC_WORK_HOURS_END` | `18` | End of working hours (local time, 24h) |
+| `SYNC_INITIAL_DELAY_SECONDS` | `20` | Delay between requests during initial and detail sync |
+| `SYNC_DELTA_DELAY_SECONDS` | `2` | Delay between requests during delta sync |
+| `SYNC_INTERVAL` | `15m` | Base interval between delta syncs |
+| `SYNC_LOW_ACTIVITY_THRESHOLD` | `3` | Consecutive zero-change syncs before declaring low activity |
 | `SYNC_MAX_RETRIES` | `3` | Max consecutive retries per page on error |
 | `SYNC_JITTER_SECONDS` | `60` | Max random jitter added to scheduled syncs |
