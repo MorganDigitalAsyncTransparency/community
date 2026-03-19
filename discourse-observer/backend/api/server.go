@@ -11,7 +11,7 @@ import (
 
 // Server holds shared state for all API handlers.
 type Server struct {
-	Topics         []model.Topic
+	Store          TopicReader
 	TagConfig      model.TagConfig
 	ResolvedTags   map[string]model.ResolvedTag
 	BucketCeilings []int
