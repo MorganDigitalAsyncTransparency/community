@@ -18,10 +18,15 @@ This module does **not**:
 
 - Interpret or analyze the data it fetches
 - Detect changes or produce observations
-- Know about internal domain types from `model/`
 - Store data or manage state
 
 It is a thin integration layer. Its job is to make reliable API calls and return the results.
+
+## Current implementation
+
+`Client` in `client.go` fetches topics (`/latest.json`) and categories (`/categories.json`) from a Discourse-compatible HTTP API. It sends `Api-Key` and `Api-Username` headers when credentials are configured. Returns `model.RawTopic` and `model.RawCategory` values.
+
+`mockserver/` provides an `httptest.Server` that serves Discourse-format JSON from the project's mock dataset. Used in pipeline integration tests.
 
 ## Design expectations
 

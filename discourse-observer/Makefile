@@ -21,7 +21,7 @@ lint-go:
 
 ## Markdown linting
 lint-md:
-	npx markdownlint "**/*.md" --ignore "**/node_modules/**"
+	npx markdownlint "**/*.md" --ignore "**/node_modules/**" --ignore "**/test-reports/**"
 
 ## Frontend linting — ESLint and Stylelint (skips if no dependencies installed)
 lint-frontend:

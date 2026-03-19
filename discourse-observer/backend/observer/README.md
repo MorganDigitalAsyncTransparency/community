@@ -21,6 +21,10 @@ This module does **not**:
 - Persist data directly (it passes observations to `storage/`)
 - Perform analytics or derive higher-level events
 
+## Current implementation
+
+`Observer` in `observer.go` coordinates one sync cycle: fetch categories, fetch topics, normalize raw data to `model.Topic`, and store. It defines two interfaces — `FetchClient` and `StorageBackend` — implemented by `discourse/` and `storage/` respectively. `Normalize` maps `model.RawTopic` fields to domain types, deriving outcome (solved/self-closed/open) from Discourse flags and constructing topic URLs.
+
 ## Design expectations
 
 - Observation logic should be composed of pure transformation functions where possible

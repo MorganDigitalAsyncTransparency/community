@@ -83,7 +83,7 @@ The config module has no imports. Config values are provided to other modules at
 
 ### backend/storage/
 
-An abstraction point for persisting raw observations. This module defines how observations are stored and retrieved. The storage format is NDJSON files (decided in [ADR 0005](docs/decisions/0005-storage-format.md)). An in-memory implementation may be added for testing. Derived analytical data is held in a separate SQLite store (decided in [ADR 0006](docs/decisions/0006-analytical-storage.md)) and is not part of this module.
+Persists normalized topics. The current implementation uses SQLite (decided in [ADR 0006](docs/decisions/0006-analytical-storage.md)) to store the pipeline output. Raw append-only NDJSON files (decided in [ADR 0005](docs/decisions/0005-storage-format.md)) are planned for a future layer. The storage interface (`StorageBackend`) is defined by `observer/` and implemented here.
 
 ### backend/api/
 
@@ -95,7 +95,7 @@ Pure calculation functions implementing domain aggregates: medians, time bucketi
 
 ### backend/mock/
 
-Hardcoded topic fixtures used as the data source during development. Provides a realistic set of topics covering all endpoint scenarios (unreplied, resolved, stalled, untagged, multi-tag). Will be replaced by the SQLite analytical store when the data pipeline is implemented.
+Hardcoded topic fixtures used as the data source during development. Provides a realistic set of topics covering all endpoint scenarios (unreplied, resolved, stalled, untagged, multi-tag). Also used by the mock Discourse server (`discourse/mockserver/`) for pipeline integration tests. The API layer still reads from `mock/`; wiring it to SQLite is the next step.
 
 ## Terminology
 
@@ -119,7 +119,7 @@ A React/TypeScript frontend exists in `frontend/` and renders a multi-page dashb
 
 The API contract is specified in [specs/api/api-contract.md](specs/api/api-contract.md). It defines domain aggregate endpoints that serve pre-computed data to the frontend and future consumers (MCP servers, CLI tools). The responsibility model — why the backend computes aggregates rather than serving raw data — is recorded in [ADR 0012](docs/decisions/0012-api-responsibility-model.md).
 
-The API is implemented in `backend/api/` with domain calculations in `backend/domain/`. It currently serves mock data from `backend/mock/`. When the data pipeline is complete, the mock data source will be replaced by queries against the SQLite analytical store ([ADR 0006](docs/decisions/0006-analytical-storage.md)).
+The API is implemented in `backend/api/` with domain calculations in `backend/domain/`. It currently serves mock data from `backend/mock/`. The data pipeline (fetch → observe → store) is implemented and tested, but the API layer has not yet been wired to read from SQLite. That integration is the next step.
 
 ### Event / History model
 
