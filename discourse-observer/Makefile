@@ -35,7 +35,7 @@ test:
 ## Verify — run all linters and tests
 verify: lint test
 
-## Docs — serve documentation locally (live-reload)
+## Docs — serve documentation locally
 docs:
 	cd .. && python -m mkdocs serve
 
