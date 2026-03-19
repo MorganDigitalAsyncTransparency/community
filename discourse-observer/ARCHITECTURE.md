@@ -20,12 +20,15 @@ Discourse Forum (external)
   backend/observer/       — normalizes, detects changes, coordinates fetch and store
         │ model types
         ▼
-  backend/storage/        — persists raw observations (NDJSON files)
+  backend/storage/        — persists normalized topics to SQLite
 ```
 
 API serving:
 
 ```text
+  backend/storage/       — queries SQLite with time/tag filters (implements TopicReader)
+        │ []model.Topic
+        ▼
   backend/api/           — HTTP handlers, routing, filter parsing, JSON responses
         │ domain types
         ▼
@@ -40,7 +43,7 @@ Cross-cutting:
 ```text
   backend/model/   — shared domain types, used by all modules above
   backend/config/  — forum-specific configuration, provided at startup
-  backend/mock/    — hardcoded topic fixtures for development and testing
+  backend/mock/    — hardcoded topic fixtures for pipeline integration tests
 ```
 
 ### Dependency direction
@@ -51,8 +54,9 @@ The arrows above show *data flow*, not *import dependencies*. Imports follow dep
 - `observer` imports only `model`. It defines interfaces (`FetchClient`, `StorageBackend`) for the adapters.
 - `discourse` and `storage` import `model`. They implement the interfaces defined by `observer`. At runtime they are injected into the observer — the observer never imports them.
 - `domain` imports only `model`. It contains pure calculation functions with no framework or I/O dependencies.
-- `api` imports `domain` and `model`. It handles HTTP concerns (routing, JSON, filter parsing) and delegates computation to `domain`.
-- `mock` imports only `model`. It provides hardcoded topic fixtures for development and testing.
+- `api` imports `domain` and `model`. It defines the `TopicReader` interface and handles HTTP concerns (routing, JSON, filter parsing). At runtime, `storage.SQLiteStore` is injected as the `TopicReader` implementation. Handlers delegate computation to `domain`.
+- `storage` also implements `api.TopicReader` (via `QueryTopics`), satisfying the interface implicitly. The `api` package never imports `storage` — the dependency is inverted through the interface.
+- `mock` imports only `model`. It provides hardcoded topic fixtures used by the mock Discourse server for pipeline integration tests.
 - `config` has no imports. Config values are read at startup and passed into module constructors.
 
 ## Layer responsibilities
@@ -83,11 +87,11 @@ The config module has no imports. Config values are provided to other modules at
 
 ### backend/storage/
 
-Persists normalized topics. The current implementation uses SQLite (decided in [ADR 0006](docs/decisions/0006-analytical-storage.md)) to store the pipeline output. Raw append-only NDJSON files (decided in [ADR 0005](docs/decisions/0005-storage-format.md)) are planned for a future layer. The storage interface (`StorageBackend`) is defined by `observer/` and implemented here.
+Persists normalized topics in SQLite (decided in [ADR 0006](docs/decisions/0006-analytical-storage.md)). Serves two consumers: the observer writes topics via `StoreTopics` (implementing `observer.StorageBackend`), and the API reads topics via `QueryTopics` (implementing `api.TopicReader`). `QueryTopics` accepts time-range and tag filters, pushing them to SQL WHERE clauses. Raw append-only NDJSON files (decided in [ADR 0005](docs/decisions/0005-storage-format.md)) are planned for a future layer.
 
 ### backend/api/
 
-HTTP handlers for all `/api/v1/` endpoints defined in the [API contract](specs/api/api-contract.md). Responsible for routing, query parameter parsing and validation, filter application, and JSON response encoding. Delegates all computation to `backend/domain/`. Does not contain business logic.
+HTTP handlers for all `/api/v1/` endpoints defined in the [API contract](specs/api/api-contract.md). Responsible for routing, query parameter parsing and validation, filter application, and JSON response encoding. Defines the `TopicReader` interface — the abstraction through which handlers load topics from the store. Each handler resolves filter parameters to `model.QueryOpts`, queries the store, then delegates computation to `backend/domain/`. Does not contain business logic.
 
 ### backend/domain/
 
@@ -95,7 +99,7 @@ Pure calculation functions implementing domain aggregates: medians, time bucketi
 
 ### backend/mock/
 
-Hardcoded topic fixtures used as the data source during development. Provides a realistic set of topics covering all endpoint scenarios (unreplied, resolved, stalled, untagged, multi-tag). Also used by the mock Discourse server (`discourse/mockserver/`) for pipeline integration tests. The API layer still reads from `mock/`; wiring it to SQLite is the next step.
+Hardcoded topic fixtures providing a realistic dataset covering all endpoint scenarios (unreplied, resolved, stalled, untagged, multi-tag). Used by the mock Discourse server (`discourse/mockserver/`) for pipeline integration tests and by API contract tests (seeded into a temporary SQLite database). The API layer does not import `mock/` at runtime — it reads from SQLite.
 
 ## Terminology
 
@@ -119,7 +123,7 @@ A React/TypeScript frontend exists in `frontend/` and renders a multi-page dashb
 
 The API contract is specified in [specs/api/api-contract.md](specs/api/api-contract.md). It defines domain aggregate endpoints that serve pre-computed data to the frontend and future consumers (MCP servers, CLI tools). The responsibility model — why the backend computes aggregates rather than serving raw data — is recorded in [ADR 0012](docs/decisions/0012-api-responsibility-model.md).
 
-The API is implemented in `backend/api/` with domain calculations in `backend/domain/`. It currently serves mock data from `backend/mock/`. The data pipeline (fetch → observe → store) is implemented and tested, but the API layer has not yet been wired to read from SQLite. That integration is the next step.
+The API is implemented in `backend/api/` with domain calculations in `backend/domain/`. Handlers read topics from SQLite via the `TopicReader` interface, with time and tag filters pushed to SQL. The data pipeline (fetch → observe → store) populates the same SQLite database that the API reads from.
 
 ### Event / History model
 
