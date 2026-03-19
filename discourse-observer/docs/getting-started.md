@@ -41,7 +41,7 @@ The following tools are needed:
    - **Linux (Debian/Ubuntu):** `sudo apt install make`
    - **Linux (Fedora):** `sudo dnf install make`
 2. [Docker Desktop](https://docs.docker.com/desktop/) — includes Docker Engine, Docker Compose, BuildKit, and the CLI. On Linux you can alternatively install [Docker Engine](https://docs.docker.com/engine/install/) with the [Compose plugin](https://docs.docker.com/compose/install/) and [Buildx plugin](https://docs.docker.com/build/install-buildx/) separately.
-3. [Go 1.26+](https://go.dev/dl/) — only needed for local development outside Docker.
+3. **[Go 1.26+](https://go.dev/dl/)** — only needed for local development outside Docker.
 4. **Node.js 24+** (includes npm) — only needed for local development outside Docker.
    - **Windows:** `choco install nodejs-lts` ([Chocolatey](https://chocolatey.org/)) or download from [nodejs.org](https://nodejs.org/)
    - **macOS:** `brew install node` ([Homebrew](https://brew.sh/)) or download from [nodejs.org](https://nodejs.org/)
