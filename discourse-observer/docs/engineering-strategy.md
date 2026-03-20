@@ -65,35 +65,7 @@ External systems (Discourse API, storage backends, future APIs) must be isolated
 
 ## 3. Testing strategy
 
-### Layers
-
-| Layer | What it tests | Speed | Priority |
-|---|---|---|---|
-| **Unit** | Model types, transformations, observer logic, change detection | Fast (<1s) | First |
-| **Adapter** | Discourse client, storage adapters against recorded responses | Fast (<5s) | Second |
-| **Contract** | API response shapes match expected schema | Fast | When API integration is built |
-| **Smoke** | Key workflow: fetch → observe → store round-trip | Medium | When storage exists |
-
-### Principles
-
-- **Test behavior, not implementation.** Assert on outputs and side effects, not internal method calls.
-- **Use fixtures and recorded responses.** No live API calls in CI.
-- **Keep tests deterministic.** No time-dependent, order-dependent, or network-dependent tests.
-- **Tests run in CI on every PR.** If tests are too slow for that, they are too slow.
-- **Test the important paths first.** Data transformation and change detection are the core value — test those heavily. Configuration loading and logging can wait.
-
-### What does NOT need heavy testing early
-
-- Config file parsing (validate manually until it stabilizes).
-- Logging and formatting.
-- CLI argument handling.
-- Exact error message wording.
-
-### Avoiding brittle tests
-
-- Do not assert on exact JSON structures when only a few fields matter.
-- Do not mock internals; mock at boundaries (API client, storage).
-- Do not test private functions directly. Test through the public interface.
+See [testing-strategy.md](testing-strategy.md) for the full testing approach: test types, conventions, the acceptance-test discipline from [ADR 0014](decisions/0014-go-test-location-and-tdd-workflow.md), and how to write fakes. For test file location and naming, see [documentation-strategy.md](documentation-strategy.md).
 
 ---
 

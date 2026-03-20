@@ -48,19 +48,11 @@ frontend/
 
 ## Test location conventions
 
-Go and frontend tests follow different location conventions, reflecting the different constraints of each toolchain. The TDD workflow (tests before implementation) applies to both — the difference is where the test files live on disk.
+Go and frontend tests follow different location conventions, reflecting the different constraints of each toolchain. The TDD workflow (tests before implementation) applies to both — the difference is where the test files live on disk. For how tests are written — test types, conventions, fakes, and the acceptance-test discipline — see [testing-strategy.md](testing-strategy.md).
 
 ### Go tests — colocated with source ([ADR 0014](decisions/0014-go-test-location-and-tdd-workflow.md))
 
 Go tests live in `backend/` alongside the source files they verify. This follows Go convention and preserves `go test ./...` discovery, IDE integration (go-to-test, coverage overlay), and access to unexported symbols for internal tests.
-
-The TDD workflow for Go uses interface-first acceptance testing:
-
-1. Define interfaces and domain types in a contracts file.
-2. Write acceptance tests against those interfaces using fakes, in an external test package (`package observer_test`). These tests compile and fail before any implementation exists.
-3. Implement concrete types until the tests pass.
-
-Acceptance tests prove use cases through behavior. Internal tests (`package storage`) may additionally verify implementation details — they are valuable but not the primary verification artifact.
 
 ### Frontend tests — in `tests/` ([ADR 0008](decisions/0008-documentation-and-traceability-strategy.md))
 
@@ -89,6 +81,7 @@ Test files use the spec filename as a **prefix**, with a suffix indicating the t
 
 | Test type | Naming pattern | Example |
 |-----------|---------------|---------|
+| Acceptance test | `<spec>_acceptance_test.go` | `initial-delta-sync_acceptance_test.go` |
 | Unit test | `<spec>_unit_test.go` | `change_detection_unit_test.go` |
 | Integration test | `<spec>_integration_test.go` | `change_detection_integration_test.go` |
 | Contract test | `<spec>_contract_test.go` | `discourse_client_contract_test.go` |
