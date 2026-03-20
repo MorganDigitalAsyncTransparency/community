@@ -50,11 +50,9 @@ The core data pipeline is implemented and tested. The Discourse API client, obse
 make start
 ```
 
-This single command installs dependencies, creates config files from examples, runs verification, builds and starts the containers, and opens the dashboard at <http://localhost:3000>. No Discourse forum is needed — mock data is seeded automatically when no API token is configured. To connect to a real forum, edit `.env` with your Discourse credentials (see [docs/getting-started.md](docs/getting-started.md)).
+This single command installs dependencies, builds and starts the containers, and opens the dashboard at <http://localhost:3000>. No Discourse forum is needed — mock data is seeded automatically.
 
-After code changes, use `make restart` to rebuild and relaunch.
-
-See **[docs/getting-started.md](docs/getting-started.md)** for prerequisites (Make, Docker, Go, Node.js), configuration details, VS Code setup, and troubleshooting.
+See **[docs/getting-started.md](docs/getting-started.md)** for prerequisites, configuration, connecting to a real forum, and how the stack works.
 
 ### Project orientation
 
