@@ -423,7 +423,28 @@ All time displays — both topic age and response time metrics — use a single 
 ### Styling
 
 - No inline styles. All styling uses CSS classes.
-- Class name prefixes: `summary-` for SummaryCards, `unreplied-` for UnrepliedTable, `untagged-` for UntaggedTable, `response-` for ResponseMetricsCards, `sidebar-` for Sidebar (including `sidebar-backdrop` and `sidebar-mobile-open`), `hamburger` for the mobile menu button, `footer-` for Footer, `period-` for PeriodSelector, `tag-` for TagSelector, `volume-chart-` for VolumeChart, `median-trend-chart-` for MedianTrendChart, `slo-` for SloMonitor, `stalled-` for StalledTopics, `peak-` for PeakActivity, `peak-tz-picker-` for TimezonePicker, `peak-consent-` for CookieConsentModal, `rd-` for ResponseTimeDistribution, `rd-chart-` for DistributionChart.
+- Class name prefixes by component:
+
+  | Prefix | Component |
+  |--------|-----------|
+  | `summary-` | SummaryCards |
+  | `unreplied-` | UnrepliedTable |
+  | `untagged-` | UntaggedTable |
+  | `response-` | ResponseMetricsCards |
+  | `sidebar-` | Sidebar (includes `sidebar-backdrop`, `sidebar-mobile-open`) |
+  | `hamburger` | Mobile menu button |
+  | `footer-` | Footer |
+  | `period-` | PeriodSelector |
+  | `tag-` | TagSelector |
+  | `volume-chart-` | VolumeChart |
+  | `median-trend-chart-` | MedianTrendChart |
+  | `slo-` | SloMonitor |
+  | `stalled-` | StalledTopics |
+  | `peak-` | PeakActivity |
+  | `peak-tz-picker-` | TimezonePicker |
+  | `peak-consent-` | CookieConsentModal |
+  | `rd-` | ResponseTimeDistribution |
+  | `rd-chart-` | DistributionChart |
 
 ### Implementation constraints
 
