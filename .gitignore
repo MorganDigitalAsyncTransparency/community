@@ -7,6 +7,14 @@
 # --- Documentation ---
 !README.md
 !CLAUDE.md
+!AGENT.md
+
+# --- Copilot ---
+!.github/copilot-instructions.md
+
+# --- Git hooks ---
+!.githooks/
+!.githooks/*
 
 # --- Config ---
 !*.yml

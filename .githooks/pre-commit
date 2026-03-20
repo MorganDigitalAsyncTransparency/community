@@ -1,0 +1,10 @@
+#!/usr/bin/env bash
+# Pre-commit hook: syncs agent rules across tool-specific files.
+
+set -euo pipefail
+
+HOOK_DIR="$(cd "$(dirname "$0")" && pwd)"
+
+if [ -x "$HOOK_DIR/sync-agent-rules" ]; then
+  "$HOOK_DIR/sync-agent-rules"
+fi

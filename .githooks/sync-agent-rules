@@ -1,0 +1,58 @@
+#!/usr/bin/env bash
+# Syncs AGENT.md, CLAUDE.md, and .github/copilot-instructions.md.
+# Called by pre-commit hook. Can also be run standalone.
+#
+# Logic:
+#   - If AGENT.md changed   → copy to CLAUDE.md and copilot-instructions.md
+#   - If a target changed   → copy back to AGENT.md, then to all targets
+#   - If multiple sources diverge → fail with an error
+
+set -euo pipefail
+
+AGENT="AGENT.md"
+CLAUDE="CLAUDE.md"
+COPILOT=".github/copilot-instructions.md"
+
+targets=("$CLAUDE" "$COPILOT")
+
+agent_staged=false
+changed_target=""
+
+is_staged() {
+  git diff --cached --name-only | grep -qx "$1"
+}
+
+if is_staged "$AGENT"; then
+  agent_staged=true
+fi
+
+for t in "${targets[@]}"; do
+  if is_staged "$t"; then
+    if [ "$agent_staged" = false ] && [ -n "$changed_target" ]; then
+      echo "ERROR: Both $changed_target and $t were modified without AGENT.md."
+      echo "Edit AGENT.md instead and run: .githooks/sync-agent-rules"
+      exit 1
+    fi
+    changed_target="$t"
+  fi
+done
+
+sync_from_agent() {
+  for t in "${targets[@]}"; do
+    mkdir -p "$(dirname "$t")"
+    cp "$AGENT" "$t"
+    git add "$t"
+  done
+}
+
+if [ "$agent_staged" = true ]; then
+  sync_from_agent
+  exit 0
+fi
+
+if [ -n "$changed_target" ]; then
+  cp "$changed_target" "$AGENT"
+  git add "$AGENT"
+  sync_from_agent
+  exit 0
+fi
