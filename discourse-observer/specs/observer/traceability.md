@@ -43,9 +43,29 @@ The observer module is the data pipeline — it fetches, normalizes, and stores 
 
 ---
 
+## Scheduling
+
+| Use case | Spec | Requirements | Verification |
+|----------|------|-------------|--------------|
+| UC-1 through UC-20 (all) | [scheduler.md](scheduler.md) | SC-1 — Config struct | `backend/scheduler/scheduler_acceptance_test.go`: `TestSyncConfigDefaults` |
+| | | SC-2 — Config loading | `backend/scheduler/scheduler_acceptance_test.go`: `TestSyncConfigFromEnv` |
+| | | SC-3 — SyncRunner interface | `backend/scheduler/scheduler_acceptance_test.go`: compile-time check |
+| | | SC-4 — Immediate first sync | `backend/scheduler/scheduler_acceptance_test.go`: `TestSchedulerRunsImmediately` |
+| | | SC-5 — Dev-mode skip | `backend/scheduler/scheduler_acceptance_test.go`: `TestSchedulerSkipsWithoutCredentials` |
+| | | SC-6 — Periodic delta sync | `backend/scheduler/scheduler_acceptance_test.go`: `TestSchedulerRunsOnInterval` |
+| | | SC-7 — Jitter | `backend/scheduler/scheduler_acceptance_test.go`: `TestSchedulerJitter` |
+| | | SC-8 — No overlapping syncs | `backend/scheduler/scheduler_acceptance_test.go`: `TestSchedulerConcurrencyGuard` |
+| | | SC-9 — Consecutive zero-change tracking | `backend/scheduler/scheduler_acceptance_test.go`: `TestSchedulerLowActivityDetection` |
+| | | SC-10 — Low-activity logging | `backend/scheduler/scheduler_acceptance_test.go`: `TestSchedulerLowActivityDetection` |
+| | | SC-11 — Sync lifecycle logging | `backend/scheduler/scheduler_acceptance_test.go`: (covered by lifecycle tests) |
+| | | SC-12 — Thread-safe sync status | `backend/scheduler/scheduler_acceptance_test.go`: `TestStatusReflectsSyncState` |
+| | | SC-13 — Graceful shutdown | `backend/scheduler/scheduler_acceptance_test.go`: `TestSchedulerGracefulShutdown` |
+| | | SC-14 — Module dependencies | `go build ./backend/...` |
+
+---
+
 ## Gaps
 
 | Gap | Status |
 |-----|--------|
 | Detail sync (revision history for tag/category transitions) | Not yet specified — planned for PR 5 |
-| Scheduling (delta sync interval, low-activity detection) | Not yet specified — planned for PR 4 |
