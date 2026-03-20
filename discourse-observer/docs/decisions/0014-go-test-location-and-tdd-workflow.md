@@ -60,7 +60,7 @@ Move all Go test files from `backend/` to `tests/observer/`, `tests/api/`, `test
 - IDE features (go-to-test, coverage, test-on-save) stop working for tests in `tests/`.
 - Creates a Go project structure that no Go developer would recognize, increasing onboarding friction.
 
-### B. Colocated Go tests with acceptance-test discipline (recommended)
+### B. Colocated Go tests with acceptance-test discipline
 
 Go tests stay in `backend/` per Go convention. The TDD workflow is preserved through a different mechanism: acceptance tests written against interfaces in external test packages (`_test`), before implementation. The documentation strategy distinguishes Go and frontend test location conventions.
 
