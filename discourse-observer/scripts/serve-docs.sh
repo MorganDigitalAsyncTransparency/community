@@ -25,7 +25,12 @@ echo ""
 # Start HTTP server in background
 python -m http.server "$PORT" -d "$SITE_DIR" -b 127.0.0.1 &
 SERVER_PID=$!
-trap 'kill $SERVER_PID 2>/dev/null' EXIT INT TERM
+cleanup() {
+    kill $SERVER_PID 2>/dev/null
+    rm -rf "$SITE_DIR"
+    echo "[docs] Cleaned up $SITE_DIR"
+}
+trap cleanup EXIT INT TERM
 
 # Poll for changes and rebuild
 STAMP=$(date +%s)
