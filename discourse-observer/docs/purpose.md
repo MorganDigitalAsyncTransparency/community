@@ -33,7 +33,7 @@ Each starts from the same foundation but adapts it for a specific forum's catego
 
 The expected evolution of this project is:
 
-1. **Foundation** (current stage) — Project structure, documentation, architecture boundaries
+1. **Foundation** — Project structure, documentation, architecture boundaries
 2. **Discourse client** — Minimal API integration to fetch topics, categories, tags
 3. **Observer logic** — Change detection, normalization, observation lifecycle
 4. **Internal model** — Normalized domain types independent of the API
@@ -42,4 +42,4 @@ The expected evolution of this project is:
 7. **Backend API** — Serving processed data to consumers
 8. **Dashboard / Reporting** — Visualizing patterns and trends
 
-Each stage builds on the previous one. The foundation stage ensures that all future stages have a clear place to land.
+Each stage builds on the previous one.
