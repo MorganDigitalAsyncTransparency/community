@@ -25,6 +25,7 @@
 !*.sh
 !*.example
 !*.conf
+!*.txt
 !Makefile
 !Dockerfile
 !*.dockerignore

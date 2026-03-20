@@ -11,6 +11,3 @@
 !*.go
 !go.mod
 !go.sum
-
-# --- Build output ---
-site/
