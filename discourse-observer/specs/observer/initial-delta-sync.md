@@ -95,16 +95,20 @@ The mock server sorts `rawTopics` by `BumpedAt` descending before serving, match
 
 ## Verification
 
-| Requirement | Method |
-|-------------|--------|
-| R1 | Compile-time: `discourse.Client` satisfies `observer.FetchClient` |
-| R2 | Compile-time: `storage.SQLiteStore` satisfies `observer.StorageBackend` |
-| R3 | Compile-time: same as R1 |
-| R4 | Automated: empty DB → `RunInitialSync` → all 44 topics stored, watermark set, last page cleared |
-| R4 | Automated: save last page = 2 → `RunInitialSync` → starts from page 2 |
-| R5 | Automated: set old watermark → `RunDeltaSync` → only recent pages fetched, watermark updated |
-| R5 | Automated: watermark matching page boundary → verify pagination stops early |
-| R6 | Automated: empty DB → `Run()` does initial → `Run()` again does delta |
-| R7 | Automated: verify SyncResult fields after each sync |
-| R8 | Automated: verify mock server topic order matches bumped_at descending |
-| R9 | Automated: build succeeds with no cross-boundary imports |
+All tests are in `backend/sync_test.go` unless otherwise noted.
+
+| Requirement | Test | Method |
+|-------------|------|--------|
+| R1 | `var _ observer.FetchClient = (*discourse.Client)(nil)` | Compile-time interface check |
+| R2 | `var _ observer.StorageBackend = (*storage.SQLiteStore)(nil)` | Compile-time interface check |
+| R3 | (same as R1) | Compile-time interface check |
+| R4 | `TestInitialSyncEndToEnd` | Empty DB → RunInitialSync → 44 topics, watermark set, last page cleared |
+| R4 | `TestInitialSyncResume` | Save last page = 5 → RunInitialSync → starts from page 6 |
+| R4 | `TestWatermarkIsMaxBumpedAt` | Watermark equals max bumped_at across all topics |
+| R5 | `TestDeltaSyncEndToEnd` | Initial sync → delta sync → watermark unchanged when no new data |
+| R5 | `TestDeltaSyncStopsAtWatermark` | Set watermark mid-dataset → verify pagination stops early |
+| R5 | `TestDeltaSyncWithoutWatermarkFails` | No watermark → RunDeltaSync returns error |
+| R6 | `TestRunAutoDetectsMode` | Empty DB → Run() does initial → Run() again does delta |
+| R7 | `TestSyncResultFields` | Mode, PagesFetched, TopicsStored, NewWatermark, Duration all populated |
+| R8 | `TestMockServerSortOrder` | All 44 topics in bumped_at descending order |
+| R9 | `go build ./backend/...` | Build succeeds with no cross-boundary imports |
