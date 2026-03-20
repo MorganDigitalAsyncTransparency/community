@@ -23,6 +23,7 @@ import (
 	"net/http/httptest"
 	"strconv"
 	"strings"
+	"time"
 
 	"github.com/code-community/discourse-observer/backend/mock"
 	"github.com/code-community/discourse-observer/backend/model"
@@ -138,6 +139,7 @@ func convertTopics(topics []model.Topic, cats []model.RawCategory) []model.RawTo
 	raw := make([]model.RawTopic, len(topics))
 	for i := range topics {
 		tp := &topics[i]
+		bump := effectiveBump(tp)
 		raw[i] = model.RawTopic{
 			ID:           tp.ID,
 			Title:        tp.Title,
@@ -147,8 +149,8 @@ func convertTopics(topics []model.Topic, cats []model.RawCategory) []model.RawTo
 			Tags:         tp.Tags,
 			ReplyCount:   tp.ReplyCount,
 			PostsCount:   tp.ReplyCount + 1,
-			LastPostedAt: tp.LastActivityAt,
-			BumpedAt:     tp.LastActivityAt,
+			LastPostedAt: bump,
+			BumpedAt:     bump,
 			FirstReplyAt: tp.FirstReplyAt,
 		}
 		if raw[i].Tags == nil {
@@ -166,6 +168,23 @@ func convertTopics(topics []model.Topic, cats []model.RawCategory) []model.RawTo
 		}
 	}
 	return raw
+}
+
+// effectiveBump returns the best approximation of Discourse's bumped_at.
+// Real Discourse always populates bumped_at; for topics with no activity it
+// equals created_at.
+func effectiveBump(tp *model.Topic) *time.Time {
+	switch {
+	case tp.LastActivityAt != nil:
+		return tp.LastActivityAt
+	case tp.ResolvedAt != nil:
+		return tp.ResolvedAt
+	case tp.FirstReplyAt != nil:
+		return tp.FirstReplyAt
+	default:
+		t := tp.CreatedAt
+		return &t
+	}
 }
 
 func slugify(s string) string {
