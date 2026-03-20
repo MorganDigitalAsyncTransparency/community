@@ -56,7 +56,7 @@ This file defines *what* the user can do and how filtering behaves. Component de
 
 **TA-12.** Within an area, the primary tag appears first. Remaining tags are sorted alphabetically. Primary tags are marked with an asterisk suffix (e.g. `api*`) in all views — both area-specific and "All areas".
 
-**TA-13.** When no area is selected, tags are sorted alphabetically across all areas.
+**TA-13.** When no area is selected, all tags are sorted alphabetically.
 
 **TA-14.** An "All areas" option is always available to return to the full tag list.
 
