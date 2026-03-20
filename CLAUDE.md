@@ -150,9 +150,9 @@ Play devil's advocate against your own changes. Inhabit each of these perspectiv
 - **Edge cases:** What inputs, states, or scenarios could break this? What was not considered?
 - **Simplicity:** Was any unnecessary complexity introduced? Could the same result be achieved with less?
 
-For each perspective, name at least one specific scenario, file, or element you actively investigated — not just the conclusion. "Nothing found" is only valid when you state what you looked at and why it is safe.
+For each perspective, name at least one specific scenario, file, or element you actively investigated — not just the conclusion. "Nothing found" is only valid when you state what you looked at and why it is safe. Finding only one minor issue after non-trivial implementation is a signal that the review was shallow — push harder before declaring it clean.
 
-If Phase 6 identifies issues, fix them and return to Phase 5. Repeat until both phases pass with nothing to fix.
+If Phase 6 identifies issues, fix them and return to Phase 5. **The re-run must be a full re-run** — the same scope and thoroughness as the original pass, not just checking the fix. A fix can introduce new inconsistencies (stale headers, broken references, missed dependents). Repeat until both phases pass with nothing to fix.
 
 **Phase 6 output — required before moving to Phase 7:**
 
