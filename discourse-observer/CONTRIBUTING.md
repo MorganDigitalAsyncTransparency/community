@@ -10,8 +10,9 @@
 ## How to contribute
 
 1. **Keep PRs small and focused.** Each pull request should do one thing. A new API method, a model change, a bug fix — not all three at once.
-2. **Write tests where practical.** Focus tests on transformation logic and observer behavior. Use deterministic inputs, not live API calls. Test behavior, not implementation details.
-3. **Document major decisions.** If your change introduces a new dependency, changes a module boundary, or makes an architectural trade-off, record it as an ADR in `docs/decisions/`. See [docs/decisions/README.md](docs/decisions/README.md) for the format.
+2. **Follow the delivery workflow for significant changes.** The phased workflow (requirements → design → validation → implementation → review → PR) is defined in the repository-level [AGENT.md](../AGENT.md).
+3. **Write tests where practical.** Focus tests on transformation logic and observer behavior. Use deterministic inputs, not live API calls. Test behavior, not implementation details.
+4. **Document major decisions.** If your change introduces a new dependency, changes a module boundary, or makes an architectural trade-off, record it as an ADR in `docs/decisions/`. See [docs/decisions/README.md](docs/decisions/README.md) for the format.
 
 ## Forum-specific assumptions
 
