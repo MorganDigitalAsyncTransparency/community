@@ -170,6 +170,16 @@ func migrate(db *sql.DB) error {
 			resolved_at      TEXT,
 			last_activity_at TEXT,
 			topic_url        TEXT    NOT NULL DEFAULT ''
+		);
+
+		CREATE TABLE IF NOT EXISTS sync_state (
+			key   TEXT PRIMARY KEY,
+			value TEXT NOT NULL
+		);
+
+		CREATE TABLE IF NOT EXISTS topic_detail_sync (
+			topic_id  INTEGER PRIMARY KEY,
+			synced_at TEXT    NOT NULL
 		)
 	`)
 	return err
