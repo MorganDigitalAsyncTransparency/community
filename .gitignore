@@ -4,6 +4,9 @@
 # Allow directory traversal
 !*/
 
+# mkdocs build output (lands here due to docs_dir: .. in mkdocs.yml)
+site/
+
 # --- Documentation ---
 !README.md
 !CLAUDE.md
