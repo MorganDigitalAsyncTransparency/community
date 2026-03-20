@@ -125,26 +125,31 @@ func TestLastPageClear(t *testing.T) {
 	}
 }
 
-func TestDetailSyncRoundTrip(t *testing.T) {
+func TestDetailSyncSortsSyncedAfterUnsynced(t *testing.T) {
 	store := newTestStore(t)
 	ctx := context.Background()
-	ts := time.Date(2026, 3, 19, 14, 0, 0, 0, time.UTC)
 
+	seedTopics(t, store, ctx, 1001, 1002)
+
+	ts := time.Date(2026, 3, 19, 14, 0, 0, 0, time.UTC)
 	if err := store.SaveDetailSync(ctx, 1001, ts); err != nil {
 		t.Fatalf("SaveDetailSync: %v", err)
 	}
-
-	// Seed a topic so TopicsNeedingDetailSync can join against it.
-	seedTopics(t, store, ctx, 1001)
 
 	ids, err := store.TopicsNeedingDetailSync(ctx, 10)
 	if err != nil {
 		t.Fatalf("TopicsNeedingDetailSync: %v", err)
 	}
-	// Topic 1001 is the only topic and it has been synced, but it still
-	// appears because there are no unsynced topics to prioritize over it.
-	if len(ids) != 1 || ids[0] != 1001 {
-		t.Errorf("TopicsNeedingDetailSync = %v, want [1001]", ids)
+	// Unsynced topic 1002 should appear before synced topic 1001.
+	want := []int{1002, 1001}
+	if len(ids) != len(want) {
+		t.Fatalf("got %v, want %v", ids, want)
+	}
+	for i := range want {
+		if ids[i] != want[i] {
+			t.Errorf("ids[%d] = %d, want %d (full: %v)", i, ids[i], want[i], ids)
+			break
+		}
 	}
 }
 

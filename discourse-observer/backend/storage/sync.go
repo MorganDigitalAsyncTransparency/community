@@ -5,6 +5,7 @@ package storage
 import (
 	"context"
 	"database/sql"
+	"strconv"
 	"time"
 )
 
@@ -37,8 +38,8 @@ func (s *SQLiteStore) LoadWatermark(ctx context.Context) (*time.Time, error) {
 // SaveLastPage records the last completed page number (for initial sync resume).
 func (s *SQLiteStore) SaveLastPage(ctx context.Context, page int) error {
 	_, err := s.db.ExecContext(ctx,
-		`INSERT OR REPLACE INTO sync_state (key, value) VALUES ('last_completed_page', CAST(? AS TEXT))`,
-		page)
+		`INSERT OR REPLACE INTO sync_state (key, value) VALUES ('last_completed_page', ?)`,
+		strconv.Itoa(page))
 	return err
 }
 
@@ -72,14 +73,15 @@ func (s *SQLiteStore) SaveDetailSync(ctx context.Context, topicID int, syncedAt 
 }
 
 // TopicsNeedingDetailSync returns topic IDs that need detail enrichment,
-// ordered by priority: never synced first, then stale (oldest synced_at).
-// Limit controls how many IDs to return.
+// ordered by priority: never synced first, then stale (oldest synced_at),
+// with ties broken by topic ID ascending. Only topics present in the
+// topics table are considered. Limit controls how many IDs to return.
 func (s *SQLiteStore) TopicsNeedingDetailSync(ctx context.Context, limit int) ([]int, error) {
 	rows, err := s.db.QueryContext(ctx, `
 		SELECT t.id
 		FROM topics t
 		LEFT JOIN topic_detail_sync d ON t.id = d.topic_id
-		ORDER BY d.synced_at IS NOT NULL, d.synced_at ASC
+		ORDER BY d.synced_at IS NOT NULL, d.synced_at ASC, t.id ASC
 		LIMIT ?`, limit)
 	if err != nil {
 		return nil, err
