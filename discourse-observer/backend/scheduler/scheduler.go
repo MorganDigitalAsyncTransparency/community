@@ -78,12 +78,12 @@ type StatusSnapshot struct {
 
 // Scheduler drives the sync lifecycle.
 type Scheduler struct {
-	runner       SyncRunner
-	cfg          config.SyncConfig
-	status       *SyncStatus
-	logger       *log.Logger
-	running      sync.Mutex
-	zeroStreak   int
+	runner     SyncRunner
+	cfg        config.SyncConfig
+	status     *SyncStatus
+	logger     *log.Logger
+	running    sync.Mutex
+	zeroStreak int
 }
 
 // New creates a Scheduler with default logging to stderr.
@@ -190,12 +190,12 @@ func (s *Scheduler) setState(state string) {
 	s.status.State = state
 }
 
-// jitter returns a random duration in [0, max).
-func jitter(max time.Duration) time.Duration {
-	if max <= 0 {
+// jitter returns a random duration in [0, maxJitter).
+func jitter(maxJitter time.Duration) time.Duration {
+	if maxJitter <= 0 {
 		return 0
 	}
-	return time.Duration(rand.Int64N(int64(max)))
+	return time.Duration(rand.Int64N(int64(maxJitter)))
 }
 
 // sleepCtx waits for d or until ctx is canceled. Returns false if ctx was canceled.

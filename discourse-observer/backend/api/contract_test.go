@@ -473,7 +473,7 @@ func TestStatusShape(t *testing.T) {
 	ts, _ := testServer(t)
 	defer ts.Close()
 	data := decodeJSON(t, get(t, ts, "/api/v1/status"))
-	for _, field := range []string{"lastSyncedAt", "version"} {
+	for _, field := range []string{"lastSyncedAt", "version", "syncState"} {
 		if _, ok := data[field]; !ok {
 			t.Errorf("missing field: %s", field)
 		}

@@ -79,14 +79,14 @@ func main() {
 // startSyncIfConfigured creates and starts the scheduler if Discourse
 // credentials are present. Returns nil if sync is disabled (dev mode).
 func startSyncIfConfigured(ctx context.Context, store *storage.SQLiteStore, srv *api.Server) *scheduler.Scheduler {
-	discourseURL := os.Getenv("DISCOURSE_URL")
+	discourseURL := os.Getenv("DISCOURSE_BASE_URL")
 	if discourseURL == "" {
-		log.Println("DISCOURSE_URL not set — sync disabled (dev mode)")
+		log.Println("DISCOURSE_BASE_URL not set — sync disabled (dev mode)")
 		return nil
 	}
 
-	apiKey := os.Getenv("DISCOURSE_API_KEY")
-	apiUser := os.Getenv("DISCOURSE_API_USERNAME")
+	apiKey := os.Getenv("DISCOURSE_API_TOKEN")
+	apiUser := os.Getenv("DISCOURSE_API_USER")
 	syncCfg := config.LoadSyncConfig()
 
 	pageCfg := discourse.PageConfig{

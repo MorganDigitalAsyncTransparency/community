@@ -19,14 +19,14 @@ import (
 
 // fakeSyncRunner records calls and returns configurable results.
 type fakeSyncRunner struct {
-	runCalls      atomic.Int32
-	deltaCalls    atomic.Int32
-	runResult     observer.SyncResult
-	deltaResult   observer.SyncResult
-	runDelay      time.Duration // simulate slow sync
-	deltaDelay    time.Duration
-	deltaResults  []observer.SyncResult // per-call delta results (if set, overrides deltaResult)
-	deltaIdx      atomic.Int32
+	runCalls     atomic.Int32
+	deltaCalls   atomic.Int32
+	runResult    observer.SyncResult
+	deltaResult  observer.SyncResult
+	runDelay     time.Duration // simulate slow sync
+	deltaDelay   time.Duration
+	deltaResults []observer.SyncResult // per-call delta results (if set, overrides deltaResult)
+	deltaIdx     atomic.Int32
 }
 
 func (f *fakeSyncRunner) Run(_ context.Context) (observer.SyncResult, error) {
@@ -178,8 +178,8 @@ func TestSchedulerJitter(t *testing.T) {
 
 func TestSchedulerConcurrencyGuard(t *testing.T) {
 	fake := &fakeSyncRunner{
-		runResult:  observer.SyncResult{Mode: "initial", TopicsStored: 1},
-		deltaDelay: 30 * time.Millisecond, // slow delta sync
+		runResult:   observer.SyncResult{Mode: "initial", TopicsStored: 1},
+		deltaDelay:  30 * time.Millisecond, // slow delta sync
 		deltaResult: observer.SyncResult{Mode: "delta", TopicsStored: 1},
 	}
 	cfg := shortCfg()
@@ -227,8 +227,8 @@ func TestSchedulerLowActivityDetection(t *testing.T) {
 
 func TestSchedulerGracefulShutdown(t *testing.T) {
 	fake := &fakeSyncRunner{
-		runResult:  observer.SyncResult{Mode: "initial", TopicsStored: 1},
-		runDelay:   50 * time.Millisecond, // slow initial sync
+		runResult: observer.SyncResult{Mode: "initial", TopicsStored: 1},
+		runDelay:  50 * time.Millisecond, // slow initial sync
 	}
 	cfg := shortCfg()
 	cfg.Interval = 1 * time.Hour
