@@ -1,4 +1,16 @@
-.claude/
-.env
-node_modules/
+# Ignore everything by default
+*
+
+# Allow directory traversal
+!*/
+
+# --- Documentation ---
+!README.md
+
+# --- Go source ---
+!*.go
+!go.mod
+!go.sum
+
+# --- Build output ---
 site/
