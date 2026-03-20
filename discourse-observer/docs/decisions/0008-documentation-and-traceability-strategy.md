@@ -1,6 +1,6 @@
 # 8. Documentation and Traceability Strategy
 
-**Status:** Accepted
+**Status:** Accepted (Go test location partially superseded by [ADR 0014](0014-go-test-location-and-tdd-workflow.md))
 **Date:** 2026-03-13
 
 ## Context

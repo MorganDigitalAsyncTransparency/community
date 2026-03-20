@@ -1,6 +1,6 @@
 # 0014. Go Test Location and TDD Workflow
 
-**Status:** Proposed
+**Status:** Accepted
 **Date:** 2026-03-20
 
 ## Context

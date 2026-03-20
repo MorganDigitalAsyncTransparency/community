@@ -85,6 +85,7 @@ nav:
       - "0011: Dashboard Layout and Theme": docs/decisions/0011-dashboard-layout-and-theme.md
       - "0012: API Responsibility Model": docs/decisions/0012-api-responsibility-model.md
       - "0013: Sync Strategy": docs/decisions/0013-sync-strategy.md
+      - "0014: Go Test Location and TDD Workflow": docs/decisions/0014-go-test-location-and-tdd-workflow.md
 
 markdown_extensions:
   - toc:
