@@ -36,6 +36,7 @@ nav:
       - Engineering Strategy: docs/engineering-strategy.md
       - Design Strategy: docs/design-strategy.md
       - Documentation Strategy: docs/documentation-strategy.md
+      - Testing Strategy: docs/testing-strategy.md
       - API Strategy: docs/api-strategy.md
       - Sync Strategy: docs/sync-strategy.md
   - Specifications:
