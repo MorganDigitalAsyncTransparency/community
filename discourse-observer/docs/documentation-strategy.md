@@ -1,12 +1,14 @@
 # Documentation and Traceability Strategy
 
-This document defines how specifications, tests, and source code are organized and linked in discourse-observer. The approach was decided in [ADR 0008](decisions/0008-documentation-and-traceability-strategy.md).
+This document defines how specifications, tests, and source code are organized and linked in discourse-observer. The approach was decided in [ADR 0008](decisions/0008-documentation-and-traceability-strategy.md), with Go-specific test conventions refined in [ADR 0014](decisions/0014-go-test-location-and-tdd-workflow.md).
 
 ---
 
 ## Directory structure
 
-`specs/` and `tests/` mirror the module layout defined in [ARCHITECTURE.md](../ARCHITECTURE.md). `backend/` and `frontend/` follow the same module boundaries but are free to organize files as the implementation requires.
+`specs/` mirrors the module layout defined in [ARCHITECTURE.md](../ARCHITECTURE.md). `backend/` and `frontend/` follow the same module boundaries but are free to organize files as the implementation requires.
+
+Go tests live in `backend/` alongside source files ([ADR 0014](decisions/0014-go-test-location-and-tdd-workflow.md)). Frontend tests live in `tests/` mirroring the spec structure ([ADR 0008](decisions/0008-documentation-and-traceability-strategy.md)).
 
 ```text
 specs/
@@ -25,21 +27,15 @@ specs/
   operational-constraints.md                 ← system-wide constraint
   operational-constraints_verification.md    ← manual verification for above
 tests/
-  observer/
-    change_detection_unit_test.go
-    change_detection_integration_test.go
-  dashboard/
+  dashboard/                                 ← frontend tests only
     queue-visibility.unit.test.ts
-  discourse/
-  model/
-  storage/
-  config/
 backend/
   observer/
     change_detector.go             ← free structure
-    diff_calculator.go             ← free structure
-    change_types.go                ← free structure
+    observer_test.go               ← Go tests colocated with source
   discourse/
+    client.go
+    client_test.go
   model/
   storage/
   config/
@@ -50,11 +46,25 @@ frontend/
       UnrepliedTable.tsx           ← free structure
 ```
 
-## Deviation from language-default test conventions
+## Test location conventions
 
-Go convention places test files next to source files in the same package. Frontend frameworks (Vitest, Jest) similarly default to colocated test files. This project deliberately separates tests into `tests/` to support the TDD workflow: specifications and tests are written *before* the source files exist. Placing tests next to source files assumes the source structure is known — in a spec-first workflow, it is not. The `tests/` directory mirrors the spec structure, not the source structure.
+Go and frontend tests follow different location conventions, reflecting the different constraints of each toolchain. The TDD workflow (tests before implementation) applies to both — the difference is where the test files live on disk.
 
-This means `go test ./...` from the project root does not automatically discover tests in `tests/`. Similarly, frontend test runners need explicit configuration to find tests outside `src/`. Test execution is configured through the Makefile, CI scripts, and test runner config files, which explicitly include the `tests/` directory.
+### Go tests — colocated with source ([ADR 0014](decisions/0014-go-test-location-and-tdd-workflow.md))
+
+Go tests live in `backend/` alongside the source files they verify. This follows Go convention and preserves `go test ./...` discovery, IDE integration (go-to-test, coverage overlay), and access to unexported symbols for internal tests.
+
+The TDD workflow for Go uses interface-first acceptance testing:
+
+1. Define interfaces and domain types in a contracts file.
+2. Write acceptance tests against those interfaces using fakes, in an external test package (`package observer_test`). These tests compile and fail before any implementation exists.
+3. Implement concrete types until the tests pass.
+
+Acceptance tests prove use cases through behavior. Internal tests (`package storage`) may additionally verify implementation details — they are valuable but not the primary verification artifact.
+
+### Frontend tests — in `tests/` ([ADR 0008](decisions/0008-documentation-and-traceability-strategy.md))
+
+Frontend tests live in `tests/` mirroring the spec structure. This supports the spec-first workflow where tests are written before knowing the source file layout. Frontend test runners (Vitest) need explicit configuration to find tests outside `src/` — this is handled through the test runner config.
 
 ---
 
@@ -62,7 +72,7 @@ This means `go test ./...` from the project root does not automatically discover
 
 Every specification — module-level or system-wide — must have at least one corresponding verification artifact. There are no exceptions.
 
-- **Automated tests** are preferred: unit tests, integration tests, contract tests. These live in `tests/`.
+- **Automated tests** are preferred: unit tests, integration tests, contract tests. Go tests live in `backend/`; frontend tests live in `tests/`.
 - **Manual verification** is acceptable when automation is impractical. Manual verification is documented as a markdown file in `specs/` alongside the spec it verifies, following the naming convention `<spec>_verification.md`. The file describes the verification steps concretely enough that someone unfamiliar with the system can execute them.
 
 Use cases (`specs/use-cases.md`) are not specs — they describe what users need from the system. Use cases drive the creation of module specs but are not subject to the verification requirement themselves. They are validated indirectly: each use case should be traceable to one or more module specs that *are* verified.
@@ -96,7 +106,7 @@ Test files use the spec filename as a **prefix**, with a suffix indicating the t
 |-----------|---------------|---------|
 | Manual verification | `<spec>_verification.md` | `single-forum-scope_verification.md` |
 
-Automated test files live in `tests/`, regardless of language. Manual verification documents (markdown) live in `specs/` alongside the spec they verify. This keeps executable code separate from documentation while keeping manual verification close to the requirement it checks.
+Go test files live in `backend/` alongside source files. Frontend test files live in `tests/`. Manual verification documents (markdown) live in `specs/` alongside the spec they verify. This keeps manual verification close to the requirement it checks.
 
 Multiple test files per spec is expected and correct — different test types verify different aspects of the same responsibility. A spec needs at least one.
 
@@ -104,7 +114,7 @@ Multiple test files per spec is expected and correct — different test types ve
 
 ## Two tiers of specifications
 
-**Module specs** live in `specs/<module>/` and describe responsibilities within that module. Each has at least one corresponding test file in `tests/<module>/`.
+**Module specs** live in `specs/<module>/` and describe responsibilities within that module. Each has at least one corresponding test file — in `backend/<module>/` for Go or `tests/<module>/` for frontend.
 
 **System specs** live in `specs/` root and describe cross-cutting constraints or system-wide properties (e.g., single-forum scope, operational constraints). These also require verification — typically manual verification documents or integration tests that assert the constraint holds.
 
@@ -169,22 +179,22 @@ Specs are living documents that evolve with the project:
 
 Traceability works in two directions:
 
-**Spec → tests** — linked by naming convention. The spec filename is the prefix for all related test files:
+**Spec → tests** — linked by naming convention and header comments. The spec filename is the prefix for related test files:
 
 | Artifact | Location | Relationship |
 |----------|----------|--------------|
 | Specification | `specs/<module>/<responsibility>.md` | Defines the responsibility |
-| Tests (Go) | `tests/<module>/<responsibility>_*_test.go` | Verify the specification |
+| Tests (Go) | `backend/<module>/<responsibility>_*_test.go` | Verify the specification |
 | Tests (TS) | `tests/<module>/<responsibility>.*.test.ts` | Verify the specification |
 | Manual verification | `specs/[<module>/]<responsibility>_verification.md` | Documents manual checks |
+
+Go test files include a `// Spec:` header comment linking back to the spec they verify. This is the primary traceability mechanism for Go (replacing the directory-mirroring used by frontend tests).
 
 **Code → spec** — linked by header comment in each source file:
 
 ```go
-// Package observer implements change detection for forum observations.
-//
 // Spec: specs/observer/change_detection.md
-// Tests: tests/observer/change_detection_*_test.go
+// Tests: backend/observer/change_detection_*_test.go
 package observer
 ```
 
@@ -203,7 +213,7 @@ Header comments will drift over time — this is accepted as technical debt, not
 
 A CI check verifies the traceability chain:
 
-- Every module spec in `specs/<module>/` has at least one corresponding test file in `tests/<module>/`
+- Every module spec in `specs/<module>/` has at least one corresponding test file — in `backend/<module>/` for Go or `tests/<module>/` for frontend
 - Every system spec in `specs/` root has a corresponding manual verification document or integration test
 - Every source file in `backend/` and `frontend/src/` contains a `Spec:` header comment pointing to a valid spec file
 - Broken references (header comments pointing to non-existent specs) are reported as errors
@@ -219,8 +229,8 @@ The TDD workflow follows the delivery phases defined in AGENT.md:
 
 1. Write the specification in `specs/<module>/<responsibility>.md` (Phase 1 — Requirements)
 2. Document design decisions if needed (Phase 2 — Design)
-3. Define validation strategy: determine what tests are needed and write failing tests in `tests/<module>/` (Phase 3 — Validation Strategy)
-4. Implement in `backend/<module>/` or `frontend/src/` until tests pass — structure source files freely (Phase 4 — Implementation)
+3. Define validation strategy: determine what tests are needed and write failing tests (Phase 3 — Validation Strategy). For Go: define interfaces, then write acceptance tests in `backend/<module>/` using fakes. For frontend: write tests in `tests/<module>/`.
+4. Implement until tests pass — structure source files freely (Phase 4 — Implementation)
 5. Add `Spec:` and `Tests:` header comments to each source file (Phase 4 — part of implementation)
 6. Update the spec if implementation revealed gaps or corrections (Phase 4 — part of implementation)
 7. Verify that spec, tests, and source references are consistent (Phase 5 — Review)
@@ -233,7 +243,7 @@ The reverse is not equally acceptable: implementation code merged without a corr
 
 ## Parallel work
 
-The module-mirrored structure in `specs/` and `tests/` isolates parallel work streams. Each task involves a spec and its test files within one module. Two agents working on different responsibilities — even within the same module — touch different files.
+The module-mirrored structure in `specs/`, `backend/`, and `tests/` isolates parallel work streams. Each task involves a spec and its test files within one module. Two agents working on different responsibilities — even within the same module — touch different files.
 
 Shared files (`ARCHITECTURE.md`, `mkdocs.yml` navigation, module-level `README.md` files) are updated in the same PR that introduces the change requiring the update — but only after the implementation is complete. If a task reveals a new architectural boundary or module change, the discovering agent documents it in its PR rather than deferring to a later merge. This keeps shared documentation current without requiring coordination between streams.
 

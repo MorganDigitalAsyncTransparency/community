@@ -100,3 +100,4 @@ ADRs are numbered sequentially using lowercase with hyphens. The number prefix e
 | [0011](0011-dashboard-layout-and-theme.md) | Dashboard Layout and Theme | Accepted |
 | [0012](0012-api-responsibility-model.md) | API Responsibility Model | Accepted |
 | [0013](0013-sync-strategy.md)           | Sync Strategy            | Accepted |
+| [0014](0014-go-test-location-and-tdd-workflow.md) | Go Test Location and TDD Workflow | Accepted |
