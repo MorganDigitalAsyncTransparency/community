@@ -70,6 +70,15 @@ The observer does not perform analytics itself, but it produces observations in 
 
 This design allows a future event extraction layer to derive higher-level events (response time patterns, topic lifecycle events, category health metrics) from the observation stream without re-fetching data from Discourse.
 
+## Sync modes
+
+The observer supports two sync modes, selected automatically based on stored state:
+
+- **Initial sync** — full crawl of all pages, used when no watermark exists (first run or after reset). Stores each page incrementally and supports resume after interruption via last-completed-page tracking.
+- **Delta sync** — incremental fetch from page 0, stopping when all topics on a page have `bumped_at ≤ stored watermark`. Used on subsequent runs after initial sync completes.
+
+Both modes follow the same base sequence: fetch categories, paginate `/latest.json`, normalize and upsert per page, update watermark. The operational details are in [sync-strategy.md](../../docs/sync-strategy.md). The interface and behavior requirements are in [initial-delta-sync.md](initial-delta-sync.md).
+
 ## Boundaries
 
 The observer does **not**:

@@ -1,5 +1,5 @@
 // Spec: specs/discourse/discourse-source-model.md
-// Tests: backend/discourse/client_test.go, backend/pipeline_test.go
+// Tests: backend/discourse/client_test.go, backend/pipeline_test.go, backend/sync_test.go
 //
 // Package mockserver provides an HTTP server that mimics the Discourse API
 // using the project's existing mock dataset. It serves /latest.json and
@@ -21,6 +21,7 @@ import (
 	"log"
 	"net/http"
 	"net/http/httptest"
+	"sort"
 	"strconv"
 	"strings"
 	"time"
@@ -43,6 +44,7 @@ func NewWithPageSize(pageSize int) *httptest.Server {
 	topics := mock.Topics()
 	categories := buildCategories(topics)
 	rawTopics := convertTopics(topics, categories)
+	sortByBumpedAtDesc(rawTopics)
 
 	mux := http.NewServeMux()
 	mux.HandleFunc("GET /latest.json", handleLatest(rawTopics, pageSize))
@@ -185,6 +187,26 @@ func effectiveBump(tp *model.Topic) *time.Time {
 		t := tp.CreatedAt
 		return &t
 	}
+}
+
+// sortByBumpedAtDesc orders topics by BumpedAt descending, matching real
+// Discourse /latest.json behavior. Ties are broken by ID descending.
+func sortByBumpedAtDesc(topics []model.RawTopic) {
+	sort.Slice(topics, func(i, j int) bool {
+		bi, bj := topics[i].BumpedAt, topics[j].BumpedAt
+		switch {
+		case bi == nil && bj == nil:
+			return topics[i].ID > topics[j].ID
+		case bi == nil:
+			return false
+		case bj == nil:
+			return true
+		case bi.Equal(*bj):
+			return topics[i].ID > topics[j].ID
+		default:
+			return bi.After(*bj)
+		}
+	})
 }
 
 func slugify(s string) string {

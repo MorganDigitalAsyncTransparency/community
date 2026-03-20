@@ -24,9 +24,9 @@ It is a thin integration layer. Its job is to make reliable API calls and return
 
 ## Current implementation
 
-`Client` in `client.go` fetches topics (`/latest.json`) and categories (`/categories.json`) from a Discourse-compatible HTTP API. It sends `Api-Key` and `Api-Username` headers when credentials are configured. Returns `model.RawTopic` and `model.RawCategory` values.
+`Client` in `client.go` fetches topics (`/latest.json`) and categories (`/categories.json`) from a Discourse-compatible HTTP API. It sends `Api-Key` and `Api-Username` headers when credentials are configured. Returns `model.RawTopic` and `model.RawCategory` values. Pagination timing (delay, retries) can be configured at construction via `WithPageConfig` and is applied internally when the observer calls through the `FetchClient` interface.
 
-`mockserver/` provides an `httptest.Server` that serves Discourse-format JSON from the project's mock dataset. Used in pipeline integration tests.
+`mockserver/` provides an `httptest.Server` that serves Discourse-format JSON from the project's mock dataset, sorted by `bumped_at` descending to match real Discourse behavior. Used in pipeline and sync integration tests.
 
 ## Design expectations
 

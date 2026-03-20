@@ -54,9 +54,9 @@ Seven methods on `SQLiteStore` (not on the `StorageBackend` interface):
 
 Both new tables are created in the existing `migrate` function using `CREATE TABLE IF NOT EXISTS`. The `topics` table is unchanged.
 
-### R6 — StorageBackend interface unchanged
+### R6 — StorageBackend interface unchanged in this PR
 
-The `StorageBackend` interface in `observer.go` is not expanded. New methods are concrete on `SQLiteStore` only. Interface expansion is deferred to the PR that wires watermarks into the observer.
+The `StorageBackend` interface in `observer.go` is not expanded in this PR. New methods are concrete on `SQLiteStore` only. Interface expansion happens in the [initial-delta-sync](initial-delta-sync.md) PR that wires watermarks into the observer.
 
 ## Verification
 
@@ -65,4 +65,4 @@ The `StorageBackend` interface in `observer.go` is not expanded. New methods are
 | R1 | Automated: test all 44 mock server topics have non-nil `bumped_at` and `last_posted_at` |
 | R1 | Automated: pipeline report shows 0 null `last_activity_at` |
 | R2–R5 | Automated: storage round-trip tests in `backend/storage/sqlite_test.go` |
-| R6 | Manual: verify `StorageBackend` interface is unchanged |
+| R6 | Manual: verify `StorageBackend` interface is unchanged in this PR (expanded in [initial-delta-sync](initial-delta-sync.md)) |

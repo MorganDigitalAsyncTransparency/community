@@ -40,7 +40,7 @@ func run() error {
 	obs := observer.New(client, store, srv.URL)
 
 	ctx := context.Background()
-	if err := obs.Run(ctx); err != nil {
+	if _, err := obs.Run(ctx); err != nil {
 		return fmt.Errorf("pipeline run: %w", err)
 	}
 
