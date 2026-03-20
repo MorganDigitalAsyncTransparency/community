@@ -6,7 +6,6 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"strconv"
 	"time"
 
 	"github.com/code-community/discourse-observer/backend/model"
@@ -72,52 +71,35 @@ func (o *Observer) Run(ctx context.Context) (SyncResult, error) {
 func (o *Observer) RunInitialSync(ctx context.Context) (SyncResult, error) {
 	start := time.Now()
 
-	cats, err := o.fetch.FetchCategories(ctx)
+	catMap, err := o.fetchCategoryMap(ctx)
 	if err != nil {
-		return SyncResult{}, fmt.Errorf("fetch categories: %w", err)
+		return SyncResult{}, err
 	}
-	catMap := buildCategoryMap(cats)
 
-	lastPage, err := o.store.LoadLastPage(ctx)
+	startPage, err := o.resumePage(ctx)
 	if err != nil {
-		return SyncResult{}, fmt.Errorf("load last page: %w", err)
-	}
-	startPage := 0
-	if lastPage >= 0 {
-		startPage = lastPage + 1
+		return SyncResult{}, err
 	}
 
 	var maxBump time.Time
-	var result SyncResult
-	result.Mode = "initial"
+	result := SyncResult{Mode: "initial"}
 
 	err = o.fetch.FetchTopicsPages(ctx, startPage, func(raws []model.RawTopic, page int) error {
-		topics := normalizeAll(raws, catMap, o.baseURL)
-		if err := o.store.StoreTopics(ctx, topics); err != nil {
-			return fmt.Errorf("store page %d: %w", page, err)
+		if err := o.storeAndTrack(ctx, raws, catMap, &result, &maxBump); err != nil {
+			return fmt.Errorf("page %d: %w", page, err)
 		}
 		if err := o.store.SaveLastPage(ctx, page); err != nil {
 			return fmt.Errorf("save last page %d: %w", page, err)
 		}
-		result.PagesFetched++
-		result.TopicsStored += len(topics)
-		trackMaxBump(&maxBump, raws)
 		return nil
 	})
 	if err != nil {
 		return result, err
 	}
 
-	if !maxBump.IsZero() {
-		if err := o.store.SaveWatermark(ctx, maxBump); err != nil {
-			return result, fmt.Errorf("save watermark: %w", err)
-		}
-		result.NewWatermark = &maxBump
+	if err := o.finalizeInitialSync(ctx, &result, maxBump); err != nil {
+		return result, err
 	}
-	if err := o.store.ClearLastPage(ctx); err != nil {
-		return result, fmt.Errorf("clear last page: %w", err)
-	}
-
 	result.Duration = time.Since(start)
 	return result, nil
 }
@@ -135,25 +117,18 @@ func (o *Observer) RunDeltaSync(ctx context.Context) (SyncResult, error) {
 		return SyncResult{}, fmt.Errorf("no watermark found: run initial sync first")
 	}
 
-	cats, err := o.fetch.FetchCategories(ctx)
+	catMap, err := o.fetchCategoryMap(ctx)
 	if err != nil {
-		return SyncResult{}, fmt.Errorf("fetch categories: %w", err)
+		return SyncResult{}, err
 	}
-	catMap := buildCategoryMap(cats)
 
 	var maxBump time.Time
-	var result SyncResult
-	result.Mode = "delta"
+	result := SyncResult{Mode: "delta"}
 
 	err = o.fetch.FetchTopicsPages(ctx, 0, func(raws []model.RawTopic, page int) error {
-		topics := normalizeAll(raws, catMap, o.baseURL)
-		if err := o.store.StoreTopics(ctx, topics); err != nil {
-			return fmt.Errorf("store page %d: %w", page, err)
+		if err := o.storeAndTrack(ctx, raws, catMap, &result, &maxBump); err != nil {
+			return fmt.Errorf("page %d: %w", page, err)
 		}
-		result.PagesFetched++
-		result.TopicsStored += len(topics)
-		trackMaxBump(&maxBump, raws)
-
 		if allAtOrBelowWatermark(raws, *wm) {
 			return errStopPagination
 		}
@@ -175,13 +150,52 @@ func (o *Observer) RunDeltaSync(ctx context.Context) (SyncResult, error) {
 	return result, nil
 }
 
-// normalizeAll converts a slice of raw topics to domain topics.
-func normalizeAll(raws []model.RawTopic, catMap map[int]string, baseURL string) []model.Topic {
-	topics := make([]model.Topic, len(raws))
-	for i := range raws {
-		topics[i] = Normalize(&raws[i], catMap, baseURL)
+// fetchCategoryMap fetches categories and builds an ID→name lookup.
+func (o *Observer) fetchCategoryMap(ctx context.Context) (map[int]string, error) {
+	cats, err := o.fetch.FetchCategories(ctx)
+	if err != nil {
+		return nil, fmt.Errorf("fetch categories: %w", err)
 	}
-	return topics
+	return buildCategoryMap(cats), nil
+}
+
+// resumePage returns the page to start from based on stored progress.
+// Returns 0 if no progress is stored.
+func (o *Observer) resumePage(ctx context.Context) (int, error) {
+	lastPage, err := o.store.LoadLastPage(ctx)
+	if err != nil {
+		return 0, fmt.Errorf("load last page: %w", err)
+	}
+	if lastPage >= 0 {
+		return lastPage + 1, nil
+	}
+	return 0, nil
+}
+
+// storeAndTrack normalizes a page of topics, stores them, and updates counters.
+func (o *Observer) storeAndTrack(ctx context.Context, raws []model.RawTopic, catMap map[int]string, result *SyncResult, maxBump *time.Time) error {
+	topics := normalizeAll(raws, catMap, o.baseURL)
+	if err := o.store.StoreTopics(ctx, topics); err != nil {
+		return fmt.Errorf("store topics: %w", err)
+	}
+	result.PagesFetched++
+	result.TopicsStored += len(topics)
+	trackMaxBump(maxBump, raws)
+	return nil
+}
+
+// finalizeInitialSync saves the watermark and clears page progress.
+func (o *Observer) finalizeInitialSync(ctx context.Context, result *SyncResult, maxBump time.Time) error {
+	if !maxBump.IsZero() {
+		if err := o.store.SaveWatermark(ctx, maxBump); err != nil {
+			return fmt.Errorf("save watermark: %w", err)
+		}
+		result.NewWatermark = &maxBump
+	}
+	if err := o.store.ClearLastPage(ctx); err != nil {
+		return fmt.Errorf("clear last page: %w", err)
+	}
+	return nil
 }
 
 // trackMaxBump updates maxBump to the latest BumpedAt in the slice.
@@ -205,59 +219,4 @@ func allAtOrBelowWatermark(raws []model.RawTopic, wm time.Time) bool {
 		}
 	}
 	return true
-}
-
-// Normalize transforms a raw Discourse topic into a domain Topic.
-func Normalize(raw *model.RawTopic, categories map[int]string, baseURL string) model.Topic {
-	outcome := deriveOutcome(raw)
-
-	t := model.Topic{
-		ID:           raw.ID,
-		Title:        raw.Title,
-		CreatedAt:    raw.CreatedAt,
-		Tags:         raw.Tags,
-		CategoryName: categories[raw.CategoryID],
-		ReplyCount:   raw.ReplyCount,
-		Outcome:      outcome,
-		FirstReplyAt: raw.FirstReplyAt,
-		TopicURL:     baseURL + "/t/" + strconv.Itoa(raw.ID),
-	}
-
-	if t.Tags == nil {
-		t.Tags = []string{}
-	}
-
-	switch outcome {
-	case "solved":
-		t.ResolvedAt = raw.AcceptedAnswerAt
-	case "self-closed":
-		t.ResolvedAt = raw.ClosedAt
-	}
-
-	// Use LastPostedAt as last activity; fall back to BumpedAt.
-	if raw.LastPostedAt != nil {
-		t.LastActivityAt = raw.LastPostedAt
-	} else if raw.BumpedAt != nil {
-		t.LastActivityAt = raw.BumpedAt
-	}
-
-	return t
-}
-
-func deriveOutcome(raw *model.RawTopic) string {
-	if raw.HasAcceptedAnswer {
-		return "solved"
-	}
-	if raw.Closed {
-		return "self-closed"
-	}
-	return ""
-}
-
-func buildCategoryMap(cats []model.RawCategory) map[int]string {
-	m := make(map[int]string, len(cats))
-	for _, c := range cats {
-		m[c.ID] = c.Name
-	}
-	return m
 }
