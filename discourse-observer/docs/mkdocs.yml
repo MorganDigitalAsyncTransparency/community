@@ -28,35 +28,36 @@ theme:
 
 nav:
   - Overview: README.md
+  - Purpose: docs/purpose.md
   - Getting Started: docs/getting-started.md
   - Architecture: ARCHITECTURE.md
   - Contributing: CONTRIBUTING.md
   - Strategy:
-      - Purpose: docs/purpose.md
-      - Engineering Strategy: docs/engineering-strategy.md
-      - Design Strategy: docs/design-strategy.md
-      - Documentation Strategy: docs/documentation-strategy.md
-      - Testing Strategy: docs/testing-strategy.md
-      - API Strategy: docs/api-strategy.md
-      - Sync Strategy: docs/sync-strategy.md
+      - Engineering: docs/engineering-strategy.md
+      - Documentation: docs/documentation-strategy.md
+      - Testing: docs/testing-strategy.md
+      - API: docs/api-strategy.md
+      - Sync: docs/sync-strategy.md
+      - Design: docs/design-strategy.md
   - Specifications:
       - Use Cases: specs/use-cases.md
-      - Single Forum Scope: specs/single-forum-scope.md
-      - Single Forum Scope Verification: specs/single-forum-scope_verification.md
-      - Operational Constraints: specs/operational-constraints.md
-      - Operational Constraints Verification: specs/operational-constraints_verification.md
+      - System Constraints:
+          - Single Forum Scope: specs/single-forum-scope.md
+          - Single Forum Scope Verification: specs/single-forum-scope_verification.md
+          - Operational Constraints: specs/operational-constraints.md
+          - Operational Constraints Verification: specs/operational-constraints_verification.md
       - Dashboard:
           - Queue Visibility: specs/dashboard/queue-visibility.md
+          - Stalled Topics: specs/dashboard/stalled-topics.md
           - Response Metrics: specs/dashboard/response-metrics.md
-          - Time Period Filter: specs/dashboard/time-period-filter.md
           - Response Time Trends: specs/dashboard/response-time-trends.md
           - Tag Distribution: specs/dashboard/tag-distribution.md
-          - SLO Monitoring: specs/dashboard/slo-monitoring.md
-          - Tag and Area Filter: specs/dashboard/tag-area-filter.md
-          - Topic Intake: specs/dashboard/topic-intake.md
-          - Stalled Topics: specs/dashboard/stalled-topics.md
-          - Peak Activity: specs/dashboard/peak-activity.md
           - Response Time Distribution: specs/dashboard/response-time-distribution.md
+          - SLO Monitoring: specs/dashboard/slo-monitoring.md
+          - Topic Intake: specs/dashboard/topic-intake.md
+          - Peak Activity: specs/dashboard/peak-activity.md
+          - Time Period Filter: specs/dashboard/time-period-filter.md
+          - Tag and Area Filter: specs/dashboard/tag-area-filter.md
           - URL State: specs/dashboard/url-state.md
           - Components: specs/dashboard/dashboard-components.md
           - Traceability: specs/dashboard/traceability.md
@@ -66,8 +67,8 @@ nav:
           - Traceability: specs/api/traceability.md
       - Observer:
           - Observer Behavior: specs/observer/observer-behavior.md
-          - Sync Metadata: specs/observer/sync-metadata.md
           - Initial and Delta Sync: specs/observer/initial-delta-sync.md
+          - Sync Metadata: specs/observer/sync-metadata.md
           - Traceability: specs/observer/traceability.md
       - Discourse:
           - Source Model: specs/discourse/discourse-source-model.md
