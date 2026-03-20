@@ -23,7 +23,7 @@ This module does **not**:
 
 ## Current implementation
 
-`Observer` in `observer.go` coordinates sync cycles through two interfaces — `FetchClient` and `StorageBackend` — implemented by `discourse/` and `storage/` respectively. It supports two sync modes: initial sync (full crawl with page-by-page resume) and delta sync (incremental from a stored watermark). `Run()` auto-detects which mode to use based on whether a watermark exists. `Normalize` maps `model.RawTopic` fields to domain types, deriving outcome (solved/self-closed/open) from Discourse flags and constructing topic URLs.
+`Observer` in `observer.go` coordinates sync cycles using two interfaces: `FetchClient` (implemented by `discourse/`) and `StorageBackend` (implemented by `storage/`). It supports two sync modes: initial sync (full crawl with page-by-page resume) and delta sync (incremental from a stored watermark). `Run()` auto-detects which mode to use based on whether a watermark exists. `Normalize` maps `model.RawTopic` fields to domain types, deriving outcome (solved/self-closed/open) from Discourse flags and constructing topic URLs.
 
 ## Design expectations
 
