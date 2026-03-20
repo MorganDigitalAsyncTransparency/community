@@ -104,6 +104,6 @@ SC-13 — **Context cancellation.** When the context passed to `Start` is cancel
 
 ## Boundary rules
 
-SC-14 — **Module dependencies.** The scheduler module (`backend/scheduler/`) imports only `config/` and `model/`. It depends on `observer` only through the `SyncRunner` interface it defines (which references `observer.SyncResult`). It does not import `discourse/` or `storage/`.
+SC-14 — **Module dependencies.** The scheduler module (`backend/scheduler/`) imports `config/` and `observer/` (for the `SyncResult` type only). It defines a `SyncRunner` interface — `*observer.Observer` satisfies it, but the scheduler never calls observer methods directly. It does not import `discourse/` or `storage/`.
 
 The API module reads scheduler state through the `SyncStateProvider` interface — it does not import `scheduler/` directly.
