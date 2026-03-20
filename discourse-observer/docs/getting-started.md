@@ -39,7 +39,7 @@ The following tools are needed. Go and Node.js are only required for local devel
 | **[Go 1.26+](https://go.dev/dl/)** | `choco install golang` | `brew install go` | [go.dev/dl](https://go.dev/dl/) (distro packages are often outdated) |
 | **[Node.js 24+](https://nodejs.org/)** | `choco install nodejs-lts` | `brew install node` | `sudo apt install nodejs npm` (Debian) / `sudo dnf install nodejs npm` (Fedora) |
 
-To connect to a real Discourse forum you also need an API token (read-only is sufficient). This is not required for local development with mock data.
+To connect to a real Discourse forum, you also need an API token (read-only is sufficient). This is not required for local development with mock data.
 
 ### VS Code extensions
 
