@@ -125,6 +125,8 @@ Perform an impact radius scan before evaluating anything.
 - Update every file where the description is now inaccurate, incomplete, or missing — including specs, architecture docs, component catalogs, traceability matrices, and navigation files.
 - Verify that every requirement has a named verification method (automated test or explicit manual step) and that traceability references are accurate.
 
+After the impact radius scan, run full verification: `make verify`, `make build`, `make docs`, and any other build or test targets that exist. Do not guess which targets are affected — run all of them. If a target fails, fix the root cause before proceeding.
+
 **Phase 5 output — required before moving to Phase 6:**
 
 State explicitly:
@@ -132,6 +134,7 @@ State explicitly:
 1. Every file read during the impact radius scan.
 2. Which files were updated and why.
 3. Which files were reviewed and needed no change — and why not.
+4. Which verification commands were run and their results.
 
 If you cannot produce this list, the scan is not complete.
 
