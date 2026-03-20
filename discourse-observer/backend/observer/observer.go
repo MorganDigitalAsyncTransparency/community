@@ -1,5 +1,5 @@
-// Spec: specs/observer/observer-behavior.md
-// Tests: backend/pipeline_test.go
+// Spec: specs/observer/observer-behavior.md, specs/observer/initial-delta-sync.md
+// Tests: backend/pipeline_test.go, backend/sync_test.go
 package observer
 
 import (
