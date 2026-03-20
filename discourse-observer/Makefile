@@ -8,7 +8,7 @@ check:
 setup:
 	npm install
 	cd frontend && npm install
-	pip install -r requirements.txt
+	pip install -r docs/requirements.txt
 	go install github.com/golangci/golangci-lint/v2/cmd/golangci-lint@latest
 	git config core.hooksPath .githooks
 

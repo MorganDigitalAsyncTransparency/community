@@ -31,7 +31,7 @@ jobs:
           python-version: "3.12"
 
       - name: Install MkDocs Material
-        run: pip install -r discourse-observer/requirements.txt
+        run: pip install -r discourse-observer/docs/requirements.txt
 
       - name: Build site
         run: mkdocs build --strict -f discourse-observer/docs/mkdocs.yml
