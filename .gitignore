@@ -11,6 +11,8 @@
 
 # --- Copilot ---
 !.github/copilot-instructions.md
+!.github/instructions/
+!.github/instructions/*
 
 # --- Git hooks ---
 !.githooks/

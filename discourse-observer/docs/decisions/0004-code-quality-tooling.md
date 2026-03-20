@@ -5,7 +5,7 @@
 
 ## Context
 
-The project has established coding standards (CLAUDE.md), an engineering strategy with CI expectations, and language choices (ADR 0003: Go backend, TypeScript frontend). There is no tooling yet to enforce these standards automatically.
+The project has established coding standards (AGENT.md), an engineering strategy with CI expectations, and language choices (ADR 0003: Go backend, TypeScript frontend). There is no tooling yet to enforce these standards automatically.
 
 Without automated enforcement, code quality depends entirely on contributor discipline. This is especially risky in a project designed for AI-assisted contributions, where automated guardrails prevent drift more reliably than instructions alone.
 

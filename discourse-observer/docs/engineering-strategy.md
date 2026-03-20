@@ -26,7 +26,7 @@ The essential constraint: `observer` defines interfaces for fetching and storing
 
 ### File and function discipline
 
-Follow CLAUDE.md rules. In short:
+Follow AGENT.md rules. In short:
 
 - Functions under 20 lines, files under 200 lines.
 - No deep nesting. No boolean flag parameters.
@@ -160,7 +160,7 @@ These PRs go through normal CI before merge.
 
 - CI passes.
 - PR description explains what and why.
-- Code follows CLAUDE.md and CONTRIBUTING.md.
+- Code follows AGENT.md and CONTRIBUTING.md.
 - No unrelated changes smuggled in.
 
 ### Post-merge confidence
