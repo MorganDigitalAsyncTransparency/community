@@ -1,5 +1,5 @@
 // Spec: specs/discourse/discourse-source-model.md
-// Tests: backend/discourse/client_test.go, backend/pipeline_test.go
+// Tests: backend/discourse/client_test.go, backend/pipeline_test.go, backend/sync_test.go
 package discourse
 
 import (

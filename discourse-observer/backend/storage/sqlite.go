@@ -1,5 +1,5 @@
 // Spec: docs/decisions/0006-analytical-storage.md
-// Tests: backend/pipeline_test.go, backend/api/contract_test.go
+// Tests: backend/pipeline_test.go, backend/api/contract_test.go, backend/sync_test.go
 package storage
 
 import (

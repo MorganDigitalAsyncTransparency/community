@@ -1,5 +1,5 @@
 // Spec: specs/discourse/discourse-source-model.md
-// Tests: backend/discourse/client_test.go, backend/pipeline_test.go
+// Tests: backend/discourse/client_test.go, backend/pipeline_test.go, backend/sync_test.go
 //
 // Package mockserver provides an HTTP server that mimics the Discourse API
 // using the project's existing mock dataset. It serves /latest.json and
