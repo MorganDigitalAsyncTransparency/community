@@ -104,8 +104,40 @@ Create a `tests/go.mod` that imports `backend/` as a dependency. Tests in `tests
 
 ## Decision
 
-*Awaiting decision.*
+**Alternative B — colocated Go tests with acceptance-test discipline.**
+
+Go tests stay in `backend/`, colocated with source files per Go convention. The TDD workflow is preserved through interface-first acceptance testing: define interfaces and domain types first, write failing acceptance tests against those interfaces using fakes, then implement.
+
+This follows the same principle as [ADR 0001](0001-project-foundation.md): choose the simplest approach that achieves the goal. The goal is use-case-proving tests written before implementation — not a particular directory layout. Colocated tests achieve that goal without fighting the Go toolchain.
+
+ADR 0008's test location rule (`tests/` for all languages) is **partially superseded** — it remains in effect for frontend tests but no longer applies to Go. ADR 0008's other decisions (spec-test pairing by naming convention, `// Spec:` and `// Tests:` header comments, traceability chain, CI checks) are unaffected.
+
+### Go test conventions established by this decision
+
+1. **Acceptance tests** prove use cases. They live in external test packages (`package observer_test`), test only through exported interfaces, and are written in Phase 3 before implementation. They use fakes — not mocks of implementation details.
+
+2. **Internal tests** prove implementation correctness. They live in the same package (`package storage`) and may access unexported symbols. They are written alongside or after implementation in Phase 4. They are valuable but optional — acceptance tests are the required verification artifact.
+
+3. **Spec-to-test traceability** uses `// Spec:` header comments in test files, the same mechanism as source files. The spec filename prefix convention from ADR 0008 applies to test file naming regardless of location.
+
+4. **Test runner** remains `go test ./backend/...` — no configuration changes needed.
+
+### Frontend test conventions (unchanged)
+
+Frontend tests remain in `tests/dashboard/` per ADR 0008. The `tests/` directory mirrors the spec structure. This works naturally in TypeScript where imports are resolved at runtime.
 
 ## Consequences
 
-*To be completed after decision.*
+**Positive:**
+
+- Go tests follow Go convention — zero toolchain friction, full IDE support (go-to-test, coverage, test-on-save).
+- TDD workflow is preserved: acceptance tests are written before implementation using interfaces and fakes.
+- Tests prove use cases through behavior, not implementation — stronger verification that survives refactoring.
+- No changes to existing test files, CI, Makefile, or test scripts.
+- Clear distinction between acceptance tests (required, prove behavior) and internal tests (optional, prove implementation).
+
+**Negative:**
+
+- Two conventions for test location: Go in `backend/`, frontend in `tests/`. The documentation strategy must be explicit about which applies where.
+- Spec-to-test traceability for Go relies on header comments rather than directory mirroring — slightly weaker than the naming-convention approach used for frontend.
+- Future contributors must understand the acceptance-test-first discipline — it is not enforced by file location, only by workflow and review.
