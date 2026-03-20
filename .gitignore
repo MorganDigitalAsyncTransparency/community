@@ -6,6 +6,10 @@
 
 # --- Documentation ---
 !README.md
+!CLAUDE.md
+
+# --- Config ---
+!*.yml
 
 # --- Go source ---
 !*.go
