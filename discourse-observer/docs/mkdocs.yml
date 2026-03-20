@@ -65,6 +65,7 @@ nav:
       - Observer:
           - Observer Behavior: specs/observer/observer-behavior.md
           - Sync Metadata: specs/observer/sync-metadata.md
+          - Initial and Delta Sync: specs/observer/initial-delta-sync.md
       - Discourse:
           - Source Model: specs/discourse/discourse-source-model.md
   - Decisions:

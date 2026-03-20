@@ -71,6 +71,8 @@ This isolation means that if the Discourse API changes, only this module needs t
 
 Responsible for change detection, normalization, and coordinating the fetch-observe-store cycle. The observer defines interfaces for its dependencies (`FetchClient`, `StorageBackend`) and works entirely in terms of `model` types.
 
+The observer supports two sync modes — initial (full crawl) and delta (incremental from watermark) — selected automatically based on stored state. Both modes paginate through topics page by page, normalizing and storing each page before advancing. See [initial-delta-sync spec](specs/observer/initial-delta-sync.md) for details.
+
 The observer does not import `discourse` or `storage`. Those modules are injected at startup. This keeps the core logic independent of API details and persistence implementation.
 
 ### backend/model/
