@@ -1,9 +1,13 @@
 // Spec: specs/discourse/discourse-source-model.md
-// Tests: backend/pipeline_test.go
+// Tests: backend/discourse/client_test.go, backend/pipeline_test.go
 //
 // Package mockserver provides an HTTP server that mimics the Discourse API
 // using the project's existing mock dataset. It serves /latest.json and
 // /categories.json in the same JSON shape as a real Discourse instance.
+//
+// The server supports pagination: /latest.json?page=N returns a page of
+// topics (default 30 per page) and includes more_topics_url when more
+// pages are available.
 //
 // Usage in tests:
 //
@@ -17,34 +21,66 @@ import (
 	"log"
 	"net/http"
 	"net/http/httptest"
+	"strconv"
 	"strings"
 
 	"github.com/code-community/discourse-observer/backend/mock"
 	"github.com/code-community/discourse-observer/backend/model"
 )
 
+const defaultPageSize = 30
+
 // New starts an httptest.Server that serves Discourse-format responses
 // built from mock.Topics().
 func New() *httptest.Server {
+	return NewWithPageSize(defaultPageSize)
+}
+
+// NewWithPageSize starts an httptest.Server with a custom page size.
+// Useful for tests that need to verify pagination with small pages.
+func NewWithPageSize(pageSize int) *httptest.Server {
 	topics := mock.Topics()
 	categories := buildCategories(topics)
 	rawTopics := convertTopics(topics, categories)
 
 	mux := http.NewServeMux()
-	mux.HandleFunc("GET /latest.json", handleLatest(rawTopics))
+	mux.HandleFunc("GET /latest.json", handleLatest(rawTopics, pageSize))
 	mux.HandleFunc("GET /categories.json", handleCategories(categories))
 
 	return httptest.NewServer(mux)
 }
 
-func handleLatest(topics []model.RawTopic) http.HandlerFunc {
-	return func(w http.ResponseWriter, _ *http.Request) {
+func handleLatest(topics []model.RawTopic, pageSize int) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		page := 0
+		if p := r.URL.Query().Get("page"); p != "" {
+			if n, err := strconv.Atoi(p); err == nil && n >= 0 {
+				page = n
+			}
+		}
+
+		start := page * pageSize
+		if start >= len(topics) {
+			start = len(topics)
+		}
+		end := start + pageSize
+		if end > len(topics) {
+			end = len(topics)
+		}
+		pageTopics := topics[start:end]
+
 		resp := struct {
 			TopicList struct {
-				Topics []model.RawTopic `json:"topics"`
+				Topics        []model.RawTopic `json:"topics"`
+				MoreTopicsURL string           `json:"more_topics_url,omitempty"`
 			} `json:"topic_list"`
 		}{}
-		resp.TopicList.Topics = topics
+		resp.TopicList.Topics = pageTopics
+
+		if end < len(topics) {
+			resp.TopicList.MoreTopicsURL = "/latest.json?page=" + strconv.Itoa(page+1)
+		}
+
 		writeJSON(w, resp)
 	}
 }
