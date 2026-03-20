@@ -72,6 +72,7 @@ Internal tests verify implementation details within a package. They use the same
 **Conventions:**
 
 - **Same package.** Internal tests use `package storage`, `package domain`, etc.
+- **File naming:** `<spec>_unit_test.go` — the documentation strategy's "unit test" naming convention applies to these tests.
 - **Valuable but optional.** Acceptance tests are the required verification artifact. Internal tests add confidence in tricky implementation logic — algorithms, edge cases in private helpers, state transitions.
 - **May use concrete implementations.** Internal tests for `storage` may use a real SQLite database in a temp directory. Internal tests for `domain` test pure functions directly.
 
