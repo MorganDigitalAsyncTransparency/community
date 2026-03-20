@@ -8,7 +8,7 @@ check:
 setup:
 	npm install
 	cd frontend && npm install
-	pip install mkdocs-material
+	pip install -r docs/requirements.txt
 	go install github.com/golangci/golangci-lint/v2/cmd/golangci-lint@latest
 	git config core.hooksPath .githooks
 
@@ -37,7 +37,7 @@ verify: lint test
 
 ## Docs — serve documentation locally
 docs:
-	cd .. && python -m mkdocs serve
+	python -m mkdocs serve -f docs/mkdocs.yml
 
 ## Docker — build and run containers
 build:

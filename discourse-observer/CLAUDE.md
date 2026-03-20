@@ -12,11 +12,7 @@ Read [docs/documentation-strategy.md](docs/documentation-strategy.md) for how sp
 
 ## Monorepo structure
 
-This project lives inside a monorepo at `c:\code\community\discourse-observer\`. Shared files that belong to the monorepo root — one level up — include:
-
-- **`../mkdocs.yml`** — MkDocs navigation for the published documentation site. It uses `docs_dir: discourse-observer`, so all nav paths are relative to this project folder. **When adding a new spec file, add a corresponding entry to the `nav:` block in `../mkdocs.yml`.** This file is easy to miss in Phase 5 impact scans because it sits outside the project directory — always include it when specs are created or renamed.
-
-During Phase 5 impact scans, search from the monorepo root (`c:\code\community\`), not just from `discourse-observer/`.
+This project lives inside a monorepo at `c:\code\community\discourse-observer\`. Documentation config (`mkdocs.yml`, `requirements.txt`) lives in `docs/`. **When adding a new spec file, add a corresponding entry to the `nav:` block in `docs/mkdocs.yml`.**
 
 ## Current state
 
@@ -28,7 +24,7 @@ The backend (Go) has the HTTP API layer (`backend/api/`, `backend/domain/`) impl
 
 When executing delivery phases from the repository-level CLAUDE.md:
 
-- **Phase 5 (Impact scan):** Include `../mkdocs.yml` in every scan when specs are created, renamed, or removed.
+- **Phase 5 (Impact scan):** Include `docs/mkdocs.yml` in every scan when specs are created, renamed, or removed.
 - **Phase 7 (Rebase and PR):** After rebase, run `npm run lint` and `npm test` to confirm the branch is clean before creating the PR.
 - **Phase 8 (CI):** Wait for all checks to pass, including CodeQL and any other configured checks.
 

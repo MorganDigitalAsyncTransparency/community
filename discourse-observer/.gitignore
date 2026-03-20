@@ -1,7 +1,44 @@
+# Ignore everything by default
+*
+
+# Allow directory traversal
+!*/
+
+# --- Documentation ---
+!*.md
+
+# --- Go source ---
+!*.go
+!go.mod
+!go.sum
+
+# --- Frontend ---
+!*.ts
+!*.tsx
+!*.js
+!*.css
+!*.html
+!*.json
+
+# --- Config & Build ---
+!*.yml
+!*.sh
+!*.example
+!*.conf
+!*.txt
+!Makefile
+!Dockerfile
+!*.dockerignore
+!*.gitattributes
+!*.gitignore
+
+# --- Git hooks ---
+!.githooks/
+
+# --- Ignored (override whitelist) ---
 node_modules/
-frontend/dist/
 site/
-.env
+frontend/dist/
 config/tagConfig.json
 *.exe
 data/
