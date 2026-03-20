@@ -37,7 +37,7 @@ verify: lint test
 
 ## Docs — serve documentation locally
 docs:
-	python -m mkdocs serve -f docs/mkdocs.yml
+	python -m mkdocs serve -f docs/mkdocs.yml --watch docs --watch specs --watch ARCHITECTURE.md --watch CONTRIBUTING.md --watch README.md
 
 ## Docker — build and run containers
 build:
