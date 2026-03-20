@@ -29,7 +29,7 @@ func TestPipelineEndToEnd(t *testing.T) {
 	obs := observer.New(client, store, srv.URL)
 
 	ctx := context.Background()
-	if err := obs.Run(ctx); err != nil {
+	if _, err := obs.Run(ctx); err != nil {
 		t.Fatalf("pipeline run: %v", err)
 	}
 
@@ -107,7 +107,7 @@ func TestPipelineIdempotent(t *testing.T) {
 
 	// Run pipeline twice.
 	for i := range 2 {
-		if err := obs.Run(ctx); err != nil {
+		if _, err := obs.Run(ctx); err != nil {
 			t.Fatalf("run %d: %v", i+1, err)
 		}
 	}
@@ -135,7 +135,7 @@ func TestPipelineTopicURLs(t *testing.T) {
 	client := discourse.NewClient(srv.URL, "", "")
 	obs := observer.New(client, store, srv.URL)
 
-	if err := obs.Run(context.Background()); err != nil {
+	if _, err := obs.Run(context.Background()); err != nil {
 		t.Fatalf("run: %v", err)
 	}
 

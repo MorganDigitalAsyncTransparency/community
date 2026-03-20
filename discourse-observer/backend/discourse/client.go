@@ -21,17 +21,32 @@ type Client struct {
 	apiKey      string
 	apiUsername string
 	http        *http.Client
+	pageCfg     PageConfig
+}
+
+// Option configures a Client.
+type Option func(*Client)
+
+// WithPageConfig sets the pagination timing configuration used by
+// FetchTopicsPages when called through the observer interface (without
+// an explicit PageConfig argument).
+func WithPageConfig(cfg PageConfig) Option {
+	return func(c *Client) { c.pageCfg = cfg }
 }
 
 // NewClient creates a Discourse API client. apiKey and apiUsername may be
 // empty for unauthenticated access (e.g. against a mock server).
-func NewClient(baseURL, apiKey, apiUsername string) *Client {
-	return &Client{
+func NewClient(baseURL, apiKey, apiUsername string, opts ...Option) *Client {
+	c := &Client{
 		baseURL:     baseURL,
 		apiKey:      apiKey,
 		apiUsername: apiUsername,
 		http:        &http.Client{},
 	}
+	for _, o := range opts {
+		o(c)
+	}
+	return c
 }
 
 // PageConfig controls pagination behavior for paginated fetches.
@@ -59,10 +74,10 @@ type categoriesResponse struct {
 
 // FetchTopics retrieves all topics by paginating /latest.json to exhaustion.
 // It uses zero delay between pages (suitable for local/mock use).
-// For controlled pagination with delays and retries, use FetchTopicsPages.
+// For controlled pagination with delays and retries, use FetchTopicsPagesWithConfig.
 func (c *Client) FetchTopics(ctx context.Context) ([]model.RawTopic, error) {
 	var all []model.RawTopic
-	err := c.FetchTopicsPages(ctx, PageConfig{}, func(topics []model.RawTopic, _ int) error {
+	err := c.FetchTopicsPagesWithConfig(ctx, PageConfig{}, func(topics []model.RawTopic, _ int) error {
 		all = append(all, topics...)
 		return nil
 	})
@@ -72,11 +87,19 @@ func (c *Client) FetchTopics(ctx context.Context) ([]model.RawTopic, error) {
 	return all, nil
 }
 
-// FetchTopicsPages paginates /latest.json and calls fn for each page.
+// FetchTopicsPages paginates /latest.json from startPage using the client's
+// stored PageConfig. This method satisfies the observer.FetchClient interface.
+func (c *Client) FetchTopicsPages(ctx context.Context, startPage int, fn func(topics []model.RawTopic, page int) error) error {
+	cfg := c.pageCfg
+	cfg.StartPage = startPage
+	return c.FetchTopicsPagesWithConfig(ctx, cfg, fn)
+}
+
+// FetchTopicsPagesWithConfig paginates /latest.json with explicit config.
 // Pagination stops when the response lacks more_topics_url.
 // The fn receives the topics from each page and the page number.
 // If fn returns a non-nil error, pagination stops and that error is returned.
-func (c *Client) FetchTopicsPages(ctx context.Context, cfg PageConfig, fn func(topics []model.RawTopic, page int) error) error {
+func (c *Client) FetchTopicsPagesWithConfig(ctx context.Context, cfg PageConfig, fn func(topics []model.RawTopic, page int) error) error {
 	page := cfg.StartPage
 	for {
 		if page > cfg.StartPage {

@@ -34,7 +34,7 @@ func TestPipelineReport(t *testing.T) {
 	obs := observer.New(client, store, srv.URL)
 	ctx := context.Background()
 
-	if err := obs.Run(ctx); err != nil {
+	if _, err := obs.Run(ctx); err != nil {
 		t.Fatalf("pipeline run: %v", err)
 	}
 
@@ -44,7 +44,7 @@ func TestPipelineReport(t *testing.T) {
 	}
 
 	// Run pipeline again for idempotency check.
-	if err := obs.Run(ctx); err != nil {
+	if _, err := obs.Run(ctx); err != nil {
 		t.Fatalf("second run: %v", err)
 	}
 	topicsAfter, err := store.LoadTopics(ctx)

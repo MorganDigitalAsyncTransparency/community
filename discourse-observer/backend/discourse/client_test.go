@@ -26,7 +26,7 @@ func TestFetchTopicsPagesCollectsAllTopics(t *testing.T) {
 	var allTopics []model.RawTopic
 	var pagesSeen []int
 
-	err := client.FetchTopicsPages(context.Background(), discourse.PageConfig{}, func(topics []model.RawTopic, page int) error {
+	err := client.FetchTopicsPagesWithConfig(context.Background(), discourse.PageConfig{}, func(topics []model.RawTopic, page int) error {
 		allTopics = append(allTopics, topics...)
 		pagesSeen = append(pagesSeen, page)
 		return nil
@@ -59,7 +59,7 @@ func TestFetchTopicsPagesStartPage(t *testing.T) {
 	client := discourse.NewClient(srv.URL, "", "")
 
 	var pagesSeen []int
-	err := client.FetchTopicsPages(context.Background(), discourse.PageConfig{StartPage: 2}, func(_ []model.RawTopic, page int) error {
+	err := client.FetchTopicsPagesWithConfig(context.Background(), discourse.PageConfig{StartPage: 2}, func(_ []model.RawTopic, page int) error {
 		pagesSeen = append(pagesSeen, page)
 		return nil
 	})
@@ -82,7 +82,7 @@ func TestFetchTopicsPagesCallbackError(t *testing.T) {
 	client := discourse.NewClient(srv.URL, "", "")
 
 	callbackErr := context.Canceled
-	err := client.FetchTopicsPages(context.Background(), discourse.PageConfig{}, func(_ []model.RawTopic, _ int) error {
+	err := client.FetchTopicsPagesWithConfig(context.Background(), discourse.PageConfig{}, func(_ []model.RawTopic, _ int) error {
 		return callbackErr
 	})
 	if err != callbackErr {
@@ -98,7 +98,7 @@ func TestFetchTopicsPagesContextCanceled(t *testing.T) {
 
 	ctx, cancel := context.WithCancel(context.Background())
 	var pages int
-	err := client.FetchTopicsPages(ctx, discourse.PageConfig{Delay: 50 * time.Millisecond}, func(_ []model.RawTopic, _ int) error {
+	err := client.FetchTopicsPagesWithConfig(ctx, discourse.PageConfig{Delay: 50 * time.Millisecond}, func(_ []model.RawTopic, _ int) error {
 		pages++
 		if pages >= 2 {
 			cancel()
@@ -135,7 +135,7 @@ func TestFetchTopicsPagesHTTP429(t *testing.T) {
 	client := discourse.NewClient(srv.URL, "", "")
 
 	var gotTopics int
-	err := client.FetchTopicsPages(context.Background(), discourse.PageConfig{MaxRetries: 3, RetryDelay: 10 * time.Millisecond}, func(topics []model.RawTopic, _ int) error {
+	err := client.FetchTopicsPagesWithConfig(context.Background(), discourse.PageConfig{MaxRetries: 3, RetryDelay: 10 * time.Millisecond}, func(topics []model.RawTopic, _ int) error {
 		gotTopics += len(topics)
 		return nil
 	})
@@ -167,7 +167,7 @@ func TestFetchTopicsPagesHTTP429FallbackDelay(t *testing.T) {
 	ctx, cancel := context.WithTimeout(context.Background(), 200*time.Millisecond)
 	defer cancel()
 
-	_ = client.FetchTopicsPages(ctx, discourse.PageConfig{}, func(_ []model.RawTopic, _ int) error {
+	_ = client.FetchTopicsPagesWithConfig(ctx, discourse.PageConfig{}, func(_ []model.RawTopic, _ int) error {
 		return nil
 	})
 
@@ -199,7 +199,7 @@ func TestFetchTopicsPagesHTTP5xxRetry(t *testing.T) {
 
 	client := discourse.NewClient(srv.URL, "", "")
 
-	err := client.FetchTopicsPages(context.Background(), discourse.PageConfig{MaxRetries: 3, RetryDelay: 10 * time.Millisecond}, func(_ []model.RawTopic, _ int) error {
+	err := client.FetchTopicsPagesWithConfig(context.Background(), discourse.PageConfig{MaxRetries: 3, RetryDelay: 10 * time.Millisecond}, func(_ []model.RawTopic, _ int) error {
 		return nil
 	})
 	if err != nil {
@@ -218,7 +218,7 @@ func TestFetchTopicsPagesHTTP5xxExhaustsRetries(t *testing.T) {
 
 	client := discourse.NewClient(srv.URL, "", "")
 
-	err := client.FetchTopicsPages(context.Background(), discourse.PageConfig{MaxRetries: 2, RetryDelay: 10 * time.Millisecond}, func(_ []model.RawTopic, _ int) error {
+	err := client.FetchTopicsPagesWithConfig(context.Background(), discourse.PageConfig{MaxRetries: 2, RetryDelay: 10 * time.Millisecond}, func(_ []model.RawTopic, _ int) error {
 		return nil
 	})
 	if err == nil {
@@ -236,7 +236,7 @@ func TestFetchTopicsPagesHTTP4xxNoRetry(t *testing.T) {
 
 	client := discourse.NewClient(srv.URL, "", "")
 
-	err := client.FetchTopicsPages(context.Background(), discourse.PageConfig{MaxRetries: 3, RetryDelay: 10 * time.Millisecond}, func(_ []model.RawTopic, _ int) error {
+	err := client.FetchTopicsPagesWithConfig(context.Background(), discourse.PageConfig{MaxRetries: 3, RetryDelay: 10 * time.Millisecond}, func(_ []model.RawTopic, _ int) error {
 		return nil
 	})
 	if err == nil {
@@ -257,7 +257,7 @@ func TestFetchTopicsPagesDelay(t *testing.T) {
 	delay := 50 * time.Millisecond
 	start := time.Now()
 	var pages int
-	err := client.FetchTopicsPages(context.Background(), discourse.PageConfig{Delay: delay}, func(_ []model.RawTopic, _ int) error {
+	err := client.FetchTopicsPagesWithConfig(context.Background(), discourse.PageConfig{Delay: delay}, func(_ []model.RawTopic, _ int) error {
 		pages++
 		return nil
 	})
