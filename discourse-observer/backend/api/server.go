@@ -9,6 +9,15 @@ import (
 	"github.com/code-community/discourse-observer/backend/model"
 )
 
+// SyncStateProvider exposes sync operational state for the status endpoint.
+// Implemented by the scheduler's SyncStatus; nil when sync is disabled.
+type SyncStateProvider interface {
+	GetState() string
+	GetLastDuration() time.Duration
+	GetLastTopics() int
+	GetLastSyncedAt() *time.Time
+}
+
 // Server holds shared state for all API handlers.
 type Server struct {
 	Store          TopicReader
@@ -17,6 +26,7 @@ type Server struct {
 	BucketCeilings []int
 	Version        string
 	LastSyncedAt   *time.Time
+	SyncStatus     SyncStateProvider
 	Now            func() time.Time
 }
 

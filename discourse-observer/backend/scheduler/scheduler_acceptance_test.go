@@ -29,26 +29,18 @@ type fakeSyncRunner struct {
 	deltaIdx      atomic.Int32
 }
 
-func (f *fakeSyncRunner) Run(ctx context.Context) (observer.SyncResult, error) {
+func (f *fakeSyncRunner) Run(_ context.Context) (observer.SyncResult, error) {
 	f.runCalls.Add(1)
 	if f.runDelay > 0 {
-		select {
-		case <-time.After(f.runDelay):
-		case <-ctx.Done():
-			return observer.SyncResult{}, ctx.Err()
-		}
+		time.Sleep(f.runDelay)
 	}
 	return f.runResult, nil
 }
 
-func (f *fakeSyncRunner) RunDeltaSync(ctx context.Context) (observer.SyncResult, error) {
+func (f *fakeSyncRunner) RunDeltaSync(_ context.Context) (observer.SyncResult, error) {
 	f.deltaCalls.Add(1)
 	if f.deltaDelay > 0 {
-		select {
-		case <-time.After(f.deltaDelay):
-		case <-ctx.Done():
-			return observer.SyncResult{}, ctx.Err()
-		}
+		time.Sleep(f.deltaDelay)
 	}
 	if len(f.deltaResults) > 0 {
 		idx := int(f.deltaIdx.Add(1)) - 1
