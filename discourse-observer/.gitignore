@@ -6,3 +6,4 @@ config/tagConfig.json
 *.exe
 data/
 docs/test-reports/
+.github/prompts/
