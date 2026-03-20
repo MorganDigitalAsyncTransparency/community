@@ -124,6 +124,7 @@ Perform an impact radius scan before evaluating anything.
 - For every file created or modified, search the codebase for all other files that reference, link to, describe, or depend on it. Read each one.
 - Update every file where the description is now inaccurate, incomplete, or missing — including specs, architecture docs, component catalogs, traceability matrices, and navigation files.
 - Verify that every requirement has a named verification method (automated test or explicit manual step) and that traceability references are accurate.
+- Verify compliance with project strategies and decisions. Read the relevant strategy documents (`docs/*-strategy.md`) and ADRs (`docs/decisions/`) and check that the changes follow their rules — traceability matrices, naming conventions, verification requirements, architectural constraints, and any other obligations they define.
 
 After the impact radius scan, run full verification: `make verify`, `make build`, `make docs`, and any other build or test targets that exist. Do not guess which targets are affected — run all of them. If a target fails, fix the root cause before proceeding.
 
