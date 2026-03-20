@@ -1,7 +1,7 @@
 site_name: discourse-observer
 site_description: A generic foundation for observing and analyzing activity from a single Discourse forum.
 
-docs_dir: .
+docs_dir: ..
 
 exclude_docs: |
   node_modules/

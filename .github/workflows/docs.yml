@@ -5,7 +5,7 @@ on:
     branches: [main]
     paths:
       - "discourse-observer/**/*.md"
-      - "discourse-observer/mkdocs.yml"
+      - "discourse-observer/docs/mkdocs.yml"
       - ".github/workflows/docs.yml"
 
 permissions:
@@ -34,7 +34,7 @@ jobs:
         run: pip install -r discourse-observer/requirements.txt
 
       - name: Build site
-        run: mkdocs build --strict -f discourse-observer/mkdocs.yml
+        run: mkdocs build --strict -f discourse-observer/docs/mkdocs.yml
 
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3

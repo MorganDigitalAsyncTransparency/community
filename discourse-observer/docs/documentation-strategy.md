@@ -243,7 +243,7 @@ Shared files (`ARCHITECTURE.md`, `mkdocs.yml` navigation, module-level `README.m
 
 Documentation is published via **MkDocs** with the **Material** theme, deployed to **GitHub Pages**. MkDocs reads markdown files directly from the repository.
 
-`mkdocs.yml` lives inside the `discourse-observer/` project folder. It sets `docs_dir: .` so all content paths inside the nav are relative to the project directory.
+`mkdocs.yml` lives in `discourse-observer/docs/`. It sets `docs_dir: ..` so all content paths inside the nav are relative to the `discourse-observer/` project directory.
 
 The navigation references files from `specs/`, `docs/`, and project-level markdown files. When a new spec is added under `specs/dashboard/` or any other module, add a corresponding entry to the `nav:` block in `mkdocs.yml`.
 
