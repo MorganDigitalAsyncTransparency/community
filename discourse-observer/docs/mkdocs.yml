@@ -41,13 +41,16 @@ nav:
       - Design: docs/design-strategy.md
   - Specifications:
       - Use Cases: specs/use-cases.md
+      - Traceability:
+          - Dashboard: specs/dashboard/traceability.md
+          - API: specs/api/traceability.md
+          - Observer: specs/observer/traceability.md
       - System Constraints:
           - Single Forum Scope: specs/single-forum-scope.md
           - Single Forum Scope Verification: specs/single-forum-scope_verification.md
           - Operational Constraints: specs/operational-constraints.md
           - Operational Constraints Verification: specs/operational-constraints_verification.md
       - Dashboard:
-          - Traceability: specs/dashboard/traceability.md
           - Queue Visibility: specs/dashboard/queue-visibility.md
           - Stalled Topics: specs/dashboard/stalled-topics.md
           - Response Metrics: specs/dashboard/response-metrics.md
@@ -62,11 +65,9 @@ nav:
           - URL State: specs/dashboard/url-state.md
           - Components: specs/dashboard/dashboard-components.md
       - API:
-          - Traceability: specs/api/traceability.md
           - API Contract: specs/api/api-contract.md
           - API Contract Verification: specs/api/api-contract_verification.md
       - Observer:
-          - Traceability: specs/observer/traceability.md
           - Observer Behavior: specs/observer/observer-behavior.md
           - Initial and Delta Sync: specs/observer/initial-delta-sync.md
           - Sync Metadata: specs/observer/sync-metadata.md
