@@ -12,7 +12,7 @@ Some of these workflow events (category changes, tag reassignments, title edits)
 
 This project provides the structured observation layer. It separates the concerns of fetching data, detecting changes, modeling domain concepts, and storing results so that each concern can evolve independently.
 
-While the project is built as a generic foundation (not hardcoded to any specific forum), the design is informed by the needs of support-focused forums where workflow visibility is the primary goal.
+The project is a generic foundation — not hardcoded to any specific forum — but its design is informed by the needs of support-focused forums where workflow visibility is the primary goal.
 
 ## Intended usage
 
@@ -22,7 +22,7 @@ One deployment of discourse-observer watches one Discourse forum. The project is
 - A community manager can adapt it to track engagement patterns and community health
 - A developer relations team can extend it to observe developer forum activity and feed data into their own reporting tools
 
-Each of these uses starts from the same foundation but adapts it for their specific forum's categories, tags, workflows, and reporting needs.
+Each starts from the same foundation but adapts it for a specific forum's categories, tags, workflows, and reporting needs.
 
 ## What this project does not do
 
@@ -33,7 +33,7 @@ Each of these uses starts from the same foundation but adapts it for their speci
 
 The expected evolution of this project is:
 
-1. **Foundation** (current stage) — Project structure, documentation, architecture boundaries
+1. **Foundation** — Project structure, documentation, architecture boundaries
 2. **Discourse client** — Minimal API integration to fetch topics, categories, tags
 3. **Observer logic** — Change detection, normalization, observation lifecycle
 4. **Internal model** — Normalized domain types independent of the API
@@ -42,4 +42,4 @@ The expected evolution of this project is:
 7. **Backend API** — Serving processed data to consumers
 8. **Dashboard / Reporting** — Visualizing patterns and trends
 
-Each stage builds on the previous one. The foundation stage ensures that all future stages have a clear place to land.
+Each stage builds on the previous one.

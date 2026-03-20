@@ -22,7 +22,7 @@ The API is the single source of computed metrics. Consumers do not reimplement c
 
 ### Domain-oriented, not view-oriented
 
-Endpoints are organized around data concepts — queue state, response metrics, tag distribution, SLO compliance, activity patterns — not around UI components. A layout change in the dashboard does not require an API change. A new frontend page that combines existing metrics makes zero backend requests beyond what already exists.
+Endpoints are organized around data concepts — queue state, response metrics, tag distribution, SLO compliance, activity patterns — not around UI components. A layout change in the dashboard does not require an API change. A new frontend page that combines existing metrics requires no additional backend endpoints.
 
 ### Machine-readable values, consumer-formatted display
 

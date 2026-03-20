@@ -90,7 +90,7 @@ Delta sync uses a shorter delay between requests (default 2 seconds, ~30 req/min
 
 ### Why this works
 
-`/latest.json` is ordered by `bumped_at` descending. Once we reach a page where every topic has `bumped_at ≤ last_bumped_at`, all subsequent pages contain only topics we have already seen in their current state. Re-fetching them would be safe (upsert) but wasteful.
+`/latest.json` is ordered by `bumped_at` descending. Once the observer reaches a page where every topic has `bumped_at ≤ last_bumped_at`, all subsequent pages contain only topics already seen in their current state. Re-fetching them would be safe (upsert) but wasteful.
 
 ### Typical delta volume
 

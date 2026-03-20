@@ -67,7 +67,7 @@ Every specification — module-level or system-wide — must have at least one c
 - **Automated tests** are preferred: unit tests, integration tests, contract tests. Go tests live in `backend/`; frontend tests live in `tests/`.
 - **Manual verification** is acceptable when automation is impractical. Manual verification is documented as a markdown file in `specs/` alongside the spec it verifies, following the naming convention `<spec>_verification.md`. The file describes the verification steps concretely enough that someone unfamiliar with the system can execute them.
 
-Use cases (`specs/use-cases.md`) are not specs — they describe what users need from the system. Use cases drive the creation of module specs but are not subject to the verification requirement themselves. They are validated indirectly: each use case should be traceable to one or more module specs that *are* verified.
+Use cases (`specs/use-cases.md`) are not specs — they describe what users need from the system. They drive the creation of module specs but are not subject to the verification requirement themselves. They are validated indirectly: each use case should be traceable to one or more module specs that *are* verified.
 
 A spec without any verification artifact is an open gap. This is expected during development — specs, tests, and implementation may land in separate PRs as the TDD workflow progresses. The CI check reports gaps as information, not as merge blockers.
 
@@ -212,7 +212,7 @@ A CI check verifies the traceability chain:
 - Broken references (header comments pointing to non-existent specs) are reported as errors
 - Orphaned specs (no test artifacts) are reported
 
-This check runs on every PR. Gaps are reported as information, not as merge blockers — the TDD workflow means specs, tests, and implementation may arrive in separate PRs. The traceability matrix provides visibility into the current state of the chain, not a gate that prevents incremental progress.
+This check runs on every PR. Gaps are informational, not merge blockers. The traceability matrix provides visibility into the current state of the chain, not a gate that prevents incremental progress.
 
 ---
 

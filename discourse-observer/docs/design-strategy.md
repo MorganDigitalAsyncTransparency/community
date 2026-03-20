@@ -95,7 +95,7 @@ Mobile is not a priority. The layout should degrade gracefully rather than break
 
 ## CSS variable taxonomy
 
-All visual tokens live on `:root` in the stylesheet. A fork replaces the values to rebrand the dashboard. This document defines the variable **names and semantics** — the stylesheet is the source of truth for values.
+All visual tokens live on `:root` in the stylesheet. To rebrand, a fork replaces these values. This document defines the variable **names and semantics** — the stylesheet is the source of truth for values.
 
 ### Naming convention
 
@@ -275,4 +275,4 @@ To rebrand a fork:
 
 No class name changes. The variable names are the contract between structure and style.
 
-**Note on chart colors:** Chart libraries (Recharts) receive colors as JavaScript props, not via CSS inheritance. Changing `--color-chart-*` or `--color-heatmap-base` in the stylesheet requires a JavaScript bridge that reads the computed variable values and passes them to chart components. This bridge is an implementation concern — but be aware that chart rebranding is not pure CSS.
+**Note on chart colors:** Recharts receives colors as JavaScript props, not via CSS inheritance. Changing `--color-chart-*` or `--color-heatmap-base` requires a JavaScript bridge that reads computed variable values and passes them to chart components. Chart rebranding is therefore not pure CSS.
