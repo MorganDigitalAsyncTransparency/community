@@ -47,6 +47,7 @@ nav:
           - Operational Constraints: specs/operational-constraints.md
           - Operational Constraints Verification: specs/operational-constraints_verification.md
       - Dashboard:
+          - Traceability: specs/dashboard/traceability.md
           - Queue Visibility: specs/dashboard/queue-visibility.md
           - Stalled Topics: specs/dashboard/stalled-topics.md
           - Response Metrics: specs/dashboard/response-metrics.md
@@ -60,16 +61,15 @@ nav:
           - Tag and Area Filter: specs/dashboard/tag-area-filter.md
           - URL State: specs/dashboard/url-state.md
           - Components: specs/dashboard/dashboard-components.md
-          - Traceability: specs/dashboard/traceability.md
       - API:
+          - Traceability: specs/api/traceability.md
           - API Contract: specs/api/api-contract.md
           - API Contract Verification: specs/api/api-contract_verification.md
-          - Traceability: specs/api/traceability.md
       - Observer:
+          - Traceability: specs/observer/traceability.md
           - Observer Behavior: specs/observer/observer-behavior.md
           - Initial and Delta Sync: specs/observer/initial-delta-sync.md
           - Sync Metadata: specs/observer/sync-metadata.md
-          - Traceability: specs/observer/traceability.md
       - Discourse:
           - Source Model: specs/discourse/discourse-source-model.md
   - Decisions:
