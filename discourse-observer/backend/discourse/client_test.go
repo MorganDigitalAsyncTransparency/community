@@ -128,7 +128,7 @@ func TestFetchTopicsPagesHTTP429(t *testing.T) {
 		}{}
 		resp.TopicList.Topics = []model.RawTopic{{ID: 1, Title: "test"}}
 		w.Header().Set("Content-Type", "application/json")
-		json.NewEncoder(w).Encode(resp)
+		_ = json.NewEncoder(w).Encode(resp)
 	}))
 	defer srv.Close()
 
@@ -193,7 +193,7 @@ func TestFetchTopicsPagesHTTP5xxRetry(t *testing.T) {
 		}{}
 		resp.TopicList.Topics = []model.RawTopic{{ID: 1, Title: "test"}}
 		w.Header().Set("Content-Type", "application/json")
-		json.NewEncoder(w).Encode(resp)
+		_ = json.NewEncoder(w).Encode(resp)
 	}))
 	defer srv.Close()
 
@@ -300,7 +300,7 @@ func TestMockserverPaginationBeyondLastPage(t *testing.T) {
 	if err != nil {
 		t.Fatalf("GET: %v", err)
 	}
-	defer resp.Body.Close()
+	defer func() { _ = resp.Body.Close() }()
 
 	var body struct {
 		TopicList struct {
@@ -308,7 +308,7 @@ func TestMockserverPaginationBeyondLastPage(t *testing.T) {
 			MoreTopicsURL string           `json:"more_topics_url"`
 		} `json:"topic_list"`
 	}
-	json.NewDecoder(resp.Body).Decode(&body)
+	_ = json.NewDecoder(resp.Body).Decode(&body)
 
 	if len(body.TopicList.Topics) != 0 {
 		t.Errorf("got %d topics beyond last page, want 0", len(body.TopicList.Topics))
