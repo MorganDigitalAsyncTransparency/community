@@ -63,6 +63,7 @@ nav:
           - Traceability: specs/api/traceability.md
       - Observer:
           - Observer Behavior: specs/observer/observer-behavior.md
+          - Sync Metadata: specs/observer/sync-metadata.md
       - Discourse:
           - Source Model: specs/discourse/discourse-source-model.md
   - Decisions:
