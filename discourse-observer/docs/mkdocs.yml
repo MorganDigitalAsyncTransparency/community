@@ -4,11 +4,6 @@ site_description: A generic foundation for observing and analyzing activity from
 docs_dir: ..
 site_dir: ../../site
 
-watch:
-  - ..
-  - ../docs
-  - ../specs
-
 exclude_docs: |
   node_modules/
   site/
