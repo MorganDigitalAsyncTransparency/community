@@ -23,8 +23,9 @@ Each directory under `backend/` has a single responsibility. See [ARCHITECTURE.m
 | `backend/discourse/` | Discourse API integration | `model/`, `config/` |
 | `backend/storage/` | Persistence abstraction | `model/`, `config/` |
 | `backend/observer/` | Change detection and normalization | `model/` |
+| `backend/scheduler/` | Sync lifecycle and scheduling | `model/`, `config/` (depends on `observer` via `SyncRunner` interface) |
 | `backend/domain/` | Pure calculation functions | `model/` |
-| `backend/api/` | HTTP handlers and routing | `model/`, `domain/` |
+| `backend/api/` | HTTP handlers and routing | `model/`, `domain/` (reads scheduler state via `SyncStateProvider` interface) |
 | `backend/mock/` | Hardcoded test fixtures | `model/` |
 
 **Rules:**

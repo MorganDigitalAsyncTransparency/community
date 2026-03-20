@@ -7,7 +7,7 @@ This module handles forum-specific configuration and adaptation points.
 Every deployment of discourse-observer targets a specific Discourse forum. This module is where that specificity lives:
 
 - Forum base URL and API credentials
-- Polling intervals and sync schedules
+- Polling intervals and sync schedules (see `sync.go` — `SyncConfig` and `LoadSyncConfig`)
 - Which categories or tags to observe (if scoped)
 - Forum-specific mappings (category names to internal labels, tag groupings)
 - Feature flags for optional observation behaviors
