@@ -1,0 +1,21 @@
+name: Agent Rules Sync
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  check-sync:
+    name: Verify agent rules are in sync
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Compare AGENT.md with CLAUDE.md
+        run: diff AGENT.md CLAUDE.md
+
+      - name: Compare AGENT.md with copilot-instructions.md
+        run: diff AGENT.md .github/copilot-instructions.md
