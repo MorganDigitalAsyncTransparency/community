@@ -5,7 +5,7 @@
 
 ## Context
 
-The project uses test-driven development with requirements as the first step: specifications are written before tests, tests before implementation. The delivery workflow (CLAUDE.md) requires that documentation and implementation stay aligned — but without a defined traceability mechanism, there is no way to verify that alignment.
+The project uses test-driven development with requirements as the first step: specifications are written before tests, tests before implementation. The delivery workflow (AGENT.md) requires that documentation and implementation stay aligned — but without a defined traceability mechanism, there is no way to verify that alignment.
 
 The project expects 4–5 parallel work streams, often driven by separate AI agents. Each stream works on a small number of files. Without a deliberate file organization strategy, parallel streams will create merge conflicts in shared documentation files, slowing down delivery.
 

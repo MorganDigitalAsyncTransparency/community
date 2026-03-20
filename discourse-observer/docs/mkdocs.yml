@@ -8,6 +8,7 @@ exclude_docs: |
   node_modules/
   site/
   AI_GUIDELINES.md
+  AGENT.md
   CLAUDE.md
   backend/README.md
   backend/config/README.md

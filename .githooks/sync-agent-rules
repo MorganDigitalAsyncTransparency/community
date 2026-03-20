@@ -1,58 +1,100 @@
 #!/usr/bin/env bash
-# Syncs AGENT.md, CLAUDE.md, and .github/copilot-instructions.md.
+# Syncs AGENT.md → CLAUDE.md and copilot-instructions.md for each scope.
 # Called by pre-commit hook. Can also be run standalone.
 #
-# Logic:
-#   - If AGENT.md changed   → copy to CLAUDE.md and copilot-instructions.md
+# Scopes:
+#   root:               AGENT.md → CLAUDE.md, .github/copilot-instructions.md
+#   discourse-observer: discourse-observer/AGENT.md → discourse-observer/CLAUDE.md,
+#                       .github/instructions/discourse-observer.instructions.md
+#
+# Logic per scope:
+#   - If AGENT.md changed   → copy to targets
 #   - If a target changed   → copy back to AGENT.md, then to all targets
-#   - If multiple sources diverge → fail with an error
+#   - If multiple targets diverge → fail with an error
 
 set -euo pipefail
-
-AGENT="AGENT.md"
-CLAUDE="CLAUDE.md"
-COPILOT=".github/copilot-instructions.md"
-
-targets=("$CLAUDE" "$COPILOT")
-
-agent_staged=false
-changed_target=""
 
 is_staged() {
   git diff --cached --name-only | grep -qx "$1"
 }
 
-if is_staged "$AGENT"; then
-  agent_staged=true
-fi
-
-for t in "${targets[@]}"; do
-  if is_staged "$t"; then
-    if [ "$agent_staged" = false ] && [ -n "$changed_target" ]; then
-      echo "ERROR: Both $changed_target and $t were modified without AGENT.md."
-      echo "Edit AGENT.md instead and run: .githooks/sync-agent-rules"
-      exit 1
-    fi
-    changed_target="$t"
+# Copy agent file to target, adding frontmatter for .instructions.md files.
+copy_to_target() {
+  local agent="$1" target="$2" frontmatter="$3"
+  mkdir -p "$(dirname "$target")"
+  if [ -n "$frontmatter" ] && [[ "$target" == *.instructions.md ]]; then
+    printf '%s\n\n' "$frontmatter" | cat - "$agent" > "$target"
+  else
+    cp "$agent" "$target"
   fi
-done
-
-sync_from_agent() {
-  for t in "${targets[@]}"; do
-    mkdir -p "$(dirname "$t")"
-    cp "$AGENT" "$t"
-    git add "$t"
-  done
+  git add "$target"
 }
 
-if [ "$agent_staged" = true ]; then
-  sync_from_agent
-  exit 0
-fi
+# Strip frontmatter (---\n...\n---\n\n) from a file before copying back.
+strip_frontmatter() {
+  local file="$1"
+  if head -1 "$file" | grep -qx '---'; then
+    sed '1{/^---$/d};1,/^---$/d;1{/^$/d}' "$file"
+  else
+    cat "$file"
+  fi
+}
 
-if [ -n "$changed_target" ]; then
-  cp "$changed_target" "$AGENT"
-  git add "$AGENT"
-  sync_from_agent
-  exit 0
-fi
+# Sync one scope: sync_scope <frontmatter> <agent_file> <target1> [<target2> ...]
+# Pass "" for frontmatter if none is needed.
+sync_scope() {
+  local frontmatter="$1"
+  local agent="$2"
+  shift 2
+  local targets=("$@")
+
+  local agent_staged=false
+  local changed_target=""
+
+  if is_staged "$agent"; then
+    agent_staged=true
+  fi
+
+  for t in "${targets[@]}"; do
+    if is_staged "$t"; then
+      if [ "$agent_staged" = false ] && [ -n "$changed_target" ]; then
+        echo "ERROR: Both $changed_target and $t were modified without $agent."
+        echo "Edit $agent instead and run: .githooks/sync-agent-rules"
+        exit 1
+      fi
+      changed_target="$t"
+    fi
+  done
+
+  sync_from() {
+    for t in "${targets[@]}"; do
+      copy_to_target "$agent" "$t" "$frontmatter"
+    done
+  }
+
+  if [ "$agent_staged" = true ]; then
+    sync_from
+    return
+  fi
+
+  if [ -n "$changed_target" ]; then
+    strip_frontmatter "$changed_target" > "$agent"
+    git add "$agent"
+    sync_from
+    return
+  fi
+}
+
+# Root scope (no frontmatter needed)
+sync_scope "" "AGENT.md" \
+  "CLAUDE.md" \
+  ".github/copilot-instructions.md"
+
+# discourse-observer scope
+DO_FRONTMATTER='---
+applyTo: "discourse-observer/**"
+---'
+
+sync_scope "$DO_FRONTMATTER" "discourse-observer/AGENT.md" \
+  "discourse-observer/CLAUDE.md" \
+  ".github/instructions/discourse-observer.instructions.md"

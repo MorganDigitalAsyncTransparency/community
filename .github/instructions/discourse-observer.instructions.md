@@ -1,3 +1,7 @@
+---
+applyTo: "discourse-observer/**"
+---
+
 # AGENT.md — discourse-observer
 
 This file complements the repository-level [AGENT.md](../AGENT.md) with project-specific context for AI agents working in this subproject.

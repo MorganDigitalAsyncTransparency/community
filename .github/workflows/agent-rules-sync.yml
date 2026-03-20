@@ -19,3 +19,12 @@ jobs:
 
       - name: Compare AGENT.md with copilot-instructions.md
         run: diff AGENT.md .github/copilot-instructions.md
+
+      - name: Compare discourse-observer/AGENT.md with discourse-observer/CLAUDE.md
+        run: diff discourse-observer/AGENT.md discourse-observer/CLAUDE.md
+
+      - name: Compare discourse-observer/AGENT.md with copilot instructions
+        run: |
+          # Strip frontmatter from instructions file before comparing
+          tail -n +5 .github/instructions/discourse-observer.instructions.md > /tmp/do-instructions-body.md
+          diff discourse-observer/AGENT.md /tmp/do-instructions-body.md

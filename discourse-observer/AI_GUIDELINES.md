@@ -2,7 +2,7 @@
 
 Guidelines for AI tools contributing to this project.
 
-For general code principles and delivery workflow, see the repository-level [CLAUDE.md](../CLAUDE.md). This file covers what is specific to discourse-observer.
+For general code principles and delivery workflow, see the repository-level [AGENT.md](../AGENT.md). This file covers what is specific to discourse-observer.
 
 ## Project context
 

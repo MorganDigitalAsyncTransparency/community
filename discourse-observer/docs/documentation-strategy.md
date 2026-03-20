@@ -215,7 +215,7 @@ This check runs on every PR. Gaps are reported as information, not as merge bloc
 
 ## Workflow
 
-The TDD workflow follows the delivery phases defined in CLAUDE.md:
+The TDD workflow follows the delivery phases defined in AGENT.md:
 
 1. Write the specification in `specs/<module>/<responsibility>.md` (Phase 1 — Requirements)
 2. Document design decisions if needed (Phase 2 — Design)
