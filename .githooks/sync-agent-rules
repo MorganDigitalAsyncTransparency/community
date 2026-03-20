@@ -34,7 +34,7 @@ copy_to_target() {
 strip_frontmatter() {
   local file="$1"
   if head -1 "$file" | grep -qx '---'; then
-    sed '1{/^---$/d};1,/^---$/d;1{/^$/d}' "$file"
+    sed '1,/^---$/d' "$file" | sed '/./,$!d'
   else
     cat "$file"
   fi
