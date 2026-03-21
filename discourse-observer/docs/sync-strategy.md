@@ -123,7 +123,7 @@ Revision version numbering starts at 2 (version 1 is the original post). The `la
    c. Extract and store: tag change timestamps, category move timestamps, title change timestamps.
    d. Mark the topic as detail-synced with the current timestamp and the highest fetched revision version.
    e. Wait the configured delay (default 20 seconds) between each HTTP request.
-   f. If `/t/{id}.json` returns 404 (deleted topic): keep stored history if the topic had a monitored tag, mark so it is not re-selected.
+   f. If `/t/{id}.json` returns 404 (deleted topic): keep all stored history and mark as skipped so it is not re-selected.
 4. Stop when the activity window ends or all selected topics are enriched.
 
 ### Prioritization

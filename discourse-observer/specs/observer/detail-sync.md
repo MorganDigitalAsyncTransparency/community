@@ -75,7 +75,7 @@ DS-12 — **Interruptibility.** `RunDetailSync` checks `ctx.Done()` between topi
 
 DS-13 — **No-revision topics.** If a topic's first post has version = 1, no revision fetches are needed. The topic is still marked as detail-synced (with `last_revision = 1`) so it is not re-selected until bumped.
 
-DS-14 — **Deleted topic handling.** If `/t/{id}.json` returns 404, check whether the topic has a monitored tag (from configured tag list). If tagged: keep all stored history, mark topic with a flag so it is not re-selected. If untagged: skip, mark so it is not re-selected.
+DS-14 — **Deleted topic handling.** If `/t/{id}.json` returns 404, keep all stored history (events are never deleted) and mark the topic as skipped (`last_revision = -1`) so it is not re-selected for detail sync.
 
 ---
 
