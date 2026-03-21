@@ -7,6 +7,8 @@ import (
 	"database/sql"
 	"strconv"
 	"time"
+
+	"github.com/code-community/discourse-observer/backend/model"
 )
 
 // SaveWatermark persists the high-water mark timestamp.
@@ -62,6 +64,54 @@ func (s *SQLiteStore) ClearLastPage(ctx context.Context) error {
 	_, err := s.db.ExecContext(ctx,
 		`DELETE FROM sync_state WHERE key = 'last_completed_page'`)
 	return err
+}
+
+const maxLogPerType = 20
+
+// SaveSyncLogEntry appends a sync log entry, keeping at most 20 per mode.
+func (s *SQLiteStore) SaveSyncLogEntry(ctx context.Context, e model.SyncLogEntry) error {
+	_, err := s.db.ExecContext(ctx,
+		`INSERT INTO sync_log (timestamp, mode, pages, topics, duration_s) VALUES (?, ?, ?, ?, ?)`,
+		e.Timestamp.Format(time.RFC3339), e.Mode, e.Pages, e.Topics, e.Duration.Seconds())
+	if err != nil {
+		return err
+	}
+	// Trim to maxLogPerType per mode: delete oldest entries beyond the limit.
+	_, err = s.db.ExecContext(ctx, `
+		DELETE FROM sync_log WHERE id IN (
+			SELECT id FROM sync_log WHERE mode = ?
+			ORDER BY timestamp DESC
+			LIMIT -1 OFFSET ?
+		)`, e.Mode, maxLogPerType)
+	return err
+}
+
+// LoadSyncLog returns all stored sync log entries, newest first.
+func (s *SQLiteStore) LoadSyncLog(ctx context.Context) ([]model.SyncLogEntry, error) {
+	rows, err := s.db.QueryContext(ctx,
+		`SELECT timestamp, mode, pages, topics, duration_s FROM sync_log ORDER BY timestamp DESC`)
+	if err != nil {
+		return nil, err
+	}
+	defer func() { _ = rows.Close() }()
+
+	var entries []model.SyncLogEntry
+	for rows.Next() {
+		var raw string
+		var e model.SyncLogEntry
+		var durS float64
+		if err := rows.Scan(&raw, &e.Mode, &e.Pages, &e.Topics, &durS); err != nil {
+			return nil, err
+		}
+		t, err := time.Parse(time.RFC3339, raw)
+		if err != nil {
+			return nil, err
+		}
+		e.Timestamp = t
+		e.Duration = time.Duration(durS * float64(time.Second))
+		entries = append(entries, e)
+	}
+	return entries, rows.Err()
 }
 
 // SaveDetailSync records when a topic was last detail-synced.

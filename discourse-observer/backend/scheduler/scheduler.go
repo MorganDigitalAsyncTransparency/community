@@ -20,7 +20,11 @@ type SyncRunner interface {
 	RunDeltaSync(ctx context.Context) (observer.SyncResult, error)
 }
 
-const maxLogEntries = 20
+// SyncLogStore persists sync log entries. Implemented by SQLiteStore.
+type SyncLogStore interface {
+	SaveSyncLogEntry(ctx context.Context, e model.SyncLogEntry) error
+	LoadSyncLog(ctx context.Context) ([]model.SyncLogEntry, error)
+}
 
 // SyncStatus holds thread-safe operational state for the API to read.
 type SyncStatus struct {
@@ -98,6 +102,7 @@ type Scheduler struct {
 	runner     SyncRunner
 	cfg        config.SyncConfig
 	status     *SyncStatus
+	logStore   SyncLogStore
 	logger     *log.Logger
 	running    sync.Mutex
 	zeroStreak int
@@ -122,6 +127,12 @@ func NewWithLogger(runner SyncRunner, cfg config.SyncConfig, logger *log.Logger)
 	}
 }
 
+// SetLogStore sets the persistent store for sync log entries.
+// If set, entries are persisted to SQLite and loaded on startup.
+func (s *Scheduler) SetLogStore(store SyncLogStore) {
+	s.logStore = store
+}
+
 // Status returns the shared status for the API to read.
 func (s *Scheduler) Status() *SyncStatus {
 	return s.status
@@ -131,6 +142,14 @@ func (s *Scheduler) Status() *SyncStatus {
 // It runs one immediate sync (auto-detect), then loops delta syncs on interval+jitter.
 // When ctx is canceled, it waits for any in-progress sync before returning.
 func (s *Scheduler) Start(ctx context.Context) {
+	if s.logStore != nil {
+		if entries, err := s.logStore.LoadSyncLog(ctx); err == nil {
+			s.status.mu.Lock()
+			s.status.log = entries
+			s.status.mu.Unlock()
+		}
+	}
+
 	s.runSync(ctx, func(ctx context.Context) (observer.SyncResult, error) {
 		return s.runner.Run(ctx)
 	})
@@ -200,16 +219,20 @@ func (s *Scheduler) recordResult(r observer.SyncResult, d time.Duration) {
 		Topics:    r.TopicsStored,
 		Duration:  d,
 	}
+
+	if s.logStore != nil {
+		ctx := context.Background()
+		if err := s.logStore.SaveSyncLogEntry(ctx, entry); err != nil {
+			s.logger.Printf("failed to persist sync log: %v", err)
+		}
+	}
+
 	s.status.mu.Lock()
 	defer s.status.mu.Unlock()
 	s.status.LastDuration = d
 	s.status.LastTopics = r.TopicsStored
 	s.status.LastSyncedAt = &now
-	// Prepend newest first, cap at maxLogEntries.
 	s.status.log = append([]model.SyncLogEntry{entry}, s.status.log...)
-	if len(s.status.log) > maxLogEntries {
-		s.status.log = s.status.log[:maxLogEntries]
-	}
 }
 
 func (s *Scheduler) trackLowActivity(r observer.SyncResult) {

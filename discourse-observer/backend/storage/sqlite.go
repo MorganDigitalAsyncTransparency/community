@@ -180,6 +180,15 @@ func migrate(db *sql.DB) error {
 		CREATE TABLE IF NOT EXISTS topic_detail_sync (
 			topic_id  INTEGER PRIMARY KEY,
 			synced_at TEXT    NOT NULL
+		);
+
+		CREATE TABLE IF NOT EXISTS sync_log (
+			id         INTEGER PRIMARY KEY AUTOINCREMENT,
+			timestamp  TEXT    NOT NULL,
+			mode       TEXT    NOT NULL,
+			pages      INTEGER NOT NULL,
+			topics     INTEGER NOT NULL,
+			duration_s REAL    NOT NULL
 		)
 	`)
 	return err
