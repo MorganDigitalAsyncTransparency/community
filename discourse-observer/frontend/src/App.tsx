@@ -219,6 +219,15 @@ export function App() {
     loadPageData(page, { period: activePeriod, tag: activeTag });
   }, [page, activePeriod, activeTag, loadPageData]);
 
+  // Auto-refresh sync log every 10s while on the page
+  useEffect(() => {
+    if (page !== "sync-log") return;
+    const id = setInterval(() => {
+      fetchSyncLog().then(setSyncLogData).catch(() => {});
+    }, 10_000);
+    return () => clearInterval(id);
+  }, [page]);
+
   function handlePresetSelect(preset: PeriodPreset) {
     setPeriod({ kind: "preset", preset });
     setCustomDraft(null);
