@@ -96,9 +96,23 @@ func (s *SyncStatus) UpdateProgress(mode string, pages, topics, totalTopics int)
 	s.progress.Mode = mode
 	s.progress.Pages = pages
 	s.progress.Topics = topics
+	s.progress.RetryAttempt = 0
+	s.progress.RetryReason = ""
 	if totalTopics > 0 {
 		s.progress.TotalTopics = totalTopics
 	}
+}
+
+// SetRetry records that a retry is in progress. Called by the client
+// via a callback wired in main.go.
+func (s *SyncStatus) SetRetry(attempt int, reason string) {
+	s.mu.Lock()
+	defer s.mu.Unlock()
+	if s.progress == nil {
+		return
+	}
+	s.progress.RetryAttempt = attempt
+	s.progress.RetryReason = reason
 }
 
 // GetLog returns the most recent sync log entries (newest first).

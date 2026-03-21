@@ -66,20 +66,23 @@ function formatEta(etaSeconds: number): string {
 function ProgressRow({ p }: { p: SyncProgress }) {
   const elapsed = formatDuration(p.elapsedSeconds);
   const mode = p.mode || "sync";
+  const retrying = p.retryAttempt > 0;
   const hasTotal = p.totalTopics > 0;
   const topicLabel = hasTotal
     ? `${p.topics}/${p.totalTopics} topics`
     : `${p.topics} topics`;
 
   return (
-    <div className="sync-progress">
+    <div className={retrying ? "sync-progress sync-progress-retrying" : "sync-progress"}>
       <span className="sync-entry-mode">{mode}</span>
-      {p.topics === 0
-        ? <span className="sync-entry-stat">starting...</span>
-        : <span className="sync-entry-stat">{topicLabel}</span>
+      {retrying
+        ? <span className="sync-entry-error-msg">retry {p.retryAttempt}: {p.retryReason}</span>
+        : p.topics === 0
+          ? <span className="sync-entry-stat">starting...</span>
+          : <span className="sync-entry-stat">{topicLabel}</span>
       }
       <span className="sync-entry-stat">{elapsed}</span>
-      {p.etaSeconds > 0 && (
+      {!retrying && p.etaSeconds > 0 && (
         <span className="sync-entry-stat">done ~{formatEta(p.etaSeconds)}</span>
       )}
     </div>

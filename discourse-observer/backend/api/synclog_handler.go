@@ -14,11 +14,13 @@ func (s *Server) handleSyncLog(w http.ResponseWriter, _ *http.Request) {
 	}
 
 	type jsonProgress struct {
-		Mode        string  `json:"mode"`
-		Topics      int     `json:"topics"`
-		TotalTopics int     `json:"totalTopics"`
-		ElapsedS    float64 `json:"elapsedSeconds"`
-		EtaSeconds  float64 `json:"etaSeconds"`
+		Mode         string  `json:"mode"`
+		Topics       int     `json:"topics"`
+		TotalTopics  int     `json:"totalTopics"`
+		ElapsedS     float64 `json:"elapsedSeconds"`
+		EtaSeconds   float64 `json:"etaSeconds"`
+		RetryAttempt int     `json:"retryAttempt"`
+		RetryReason  string  `json:"retryReason"`
 	}
 
 	type jsonEntry struct {
@@ -42,11 +44,13 @@ func (s *Server) handleSyncLog(w http.ResponseWriter, _ *http.Request) {
 			}
 		}
 		prog = &jsonProgress{
-			Mode:        p.Mode,
-			Topics:      p.Topics,
-			TotalTopics: p.TotalTopics,
-			ElapsedS:    elapsed,
-			EtaSeconds:  eta,
+			Mode:         p.Mode,
+			Topics:       p.Topics,
+			TotalTopics:  p.TotalTopics,
+			ElapsedS:     elapsed,
+			EtaSeconds:   eta,
+			RetryAttempt: p.RetryAttempt,
+			RetryReason:  p.RetryReason,
 		}
 	}
 

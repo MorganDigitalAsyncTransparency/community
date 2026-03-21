@@ -269,6 +269,8 @@ export interface SyncProgress {
   totalTopics: number;
   elapsedSeconds: number;
   etaSeconds: number;
+  retryAttempt: number;
+  retryReason: string;
 }
 
 export interface SyncLogResponse {

@@ -251,6 +251,11 @@ body {
   50% { opacity: 0.6; }
 }
 
+.sync-progress-retrying {
+  border-left-color: #dc2626;
+  animation: none;
+}
+
 .sync-log {
   border-radius: var(--radius-md);
   overflow: hidden;

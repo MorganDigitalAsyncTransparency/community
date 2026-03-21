@@ -99,6 +99,7 @@ func startSyncIfConfigured(ctx context.Context, store *storage.SQLiteStore, srv 
 	obs := observer.New(client, store, discourseURL)
 
 	sched := scheduler.New(obs, syncCfg)
+	client.SetRetryFunc(sched.Status().SetRetry)
 	sched.SetLogStore(store)
 	sched.SetActivityData(store)
 	srv.SyncStatus = sched.Status()
