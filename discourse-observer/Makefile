@@ -1,4 +1,4 @@
-.PHONY: check setup lint lint-go lint-md lint-frontend test verify docs build up down start restart open seed maybe-seed
+.PHONY: check setup lint lint-go lint-md lint-frontend test verify docs build up down start restart open seed
 
 ## Check — verify prerequisites are installed
 check:
@@ -65,17 +65,6 @@ config/tagConfig.json:
 seed:
 	@mkdir -p data
 	go run ./backend/cmd/seed
-
-## Maybe-seed — seed only when no real Discourse credentials are configured
-maybe-seed:
-	@TOKEN=$$(grep -s '^DISCOURSE_API_TOKEN=' .env | cut -d= -f2-); \
-	if [ -z "$$TOKEN" ]; then \
-		echo "No DISCOURSE_API_TOKEN in .env — seeding mock data..."; \
-		mkdir -p data; \
-		go run ./backend/cmd/seed; \
-	else \
-		echo "DISCOURSE_API_TOKEN found — skipping seed."; \
-	fi
 
 ## Restart — rebuild and relaunch after code changes
 restart: down verify build up open
