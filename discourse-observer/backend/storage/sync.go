@@ -145,11 +145,17 @@ func (s *SQLiteStore) SaveDetailSync(ctx context.Context, topicID, lastRevision 
 // ordered by priority: never synced first, then stale (oldest synced_at),
 // with ties broken by topic ID ascending. Returns both topic ID and last
 // fetched revision version. Limit controls how many to return.
+//
+// Only topics that have never been detail-synced, or where activity happened
+// after the last detail sync, are returned. Already up-to-date topics are
+// excluded to avoid redundant HTTP requests.
 func (s *SQLiteStore) TopicsNeedingDetailSync(ctx context.Context, limit int) ([]model.TopicDetailState, error) {
 	rows, err := s.db.QueryContext(ctx, `
 		SELECT t.id, COALESCE(d.last_revision, 0)
 		FROM topics t
 		LEFT JOIN topic_detail_sync d ON t.id = d.topic_id
+		WHERE d.synced_at IS NULL
+		   OR t.last_activity_at > d.synced_at
 		ORDER BY d.synced_at IS NOT NULL, d.synced_at ASC, t.id ASC
 		LIMIT ?`, limit)
 	if err != nil {

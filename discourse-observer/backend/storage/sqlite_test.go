@@ -273,15 +273,19 @@ func TestSyncLogErrorRetention(t *testing.T) {
 
 // seedTopics inserts minimal topics into the database so that
 // TopicsNeedingDetailSync can join against the topics table.
+// Topics are given a recent LastActivityAt so the detail sync
+// query considers them candidates for enrichment.
 func seedTopics(t *testing.T, store *SQLiteStore, ctx context.Context, ids ...int) {
 	t.Helper()
+	activity := time.Date(2026, 3, 20, 0, 0, 0, 0, time.UTC)
 	topics := make([]model.Topic, len(ids))
 	for i, id := range ids {
 		topics[i] = model.Topic{
-			ID:        id,
-			Title:     "test",
-			CreatedAt: time.Date(2026, 1, 1, 0, 0, 0, 0, time.UTC),
-			Tags:      []string{},
+			ID:             id,
+			Title:          "test",
+			CreatedAt:      time.Date(2026, 1, 1, 0, 0, 0, 0, time.UTC),
+			LastActivityAt: &activity,
+			Tags:           []string{},
 		}
 	}
 	if err := store.StoreTopics(ctx, topics); err != nil {
