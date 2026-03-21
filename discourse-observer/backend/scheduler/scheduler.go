@@ -279,7 +279,7 @@ func (s *Scheduler) shouldRunDetailSync(ctx context.Context) bool {
 	if s.activityData != nil {
 		grid, err := s.activityData.ActivityByHour(ctx)
 		if err == nil {
-			return isLowActivityHour(grid, time.Now().UTC())
+			return isLowActivityHour(&grid, time.Now().UTC())
 		}
 		// Fall through to heuristic on error.
 	}
@@ -290,25 +290,9 @@ func (s *Scheduler) shouldRunDetailSync(ctx context.Context) bool {
 // an hour is considered low-activity. 0.2 = hours with ≤20% of peak.
 const lowActivityThresholdPct = 0.2
 
-// isLowActivity returns true if conditions indicate a low-activity window.
-// Uses peak activity data when available, falls back to zero-streak heuristic.
-func (s *Scheduler) isLowActivity(ctx context.Context) bool {
-	if s.activityData != nil {
-		grid, err := s.activityData.ActivityByHour(ctx)
-		if err == nil && isLowActivityHour(grid, time.Now().UTC()) {
-			return true
-		}
-		// If activity data lookup fails or hour is not low, fall through to heuristic.
-		if err == nil {
-			return false
-		}
-	}
-	return s.zeroStreak >= s.cfg.LowActivityThreshold
-}
-
 // isLowActivityHour checks if the given time falls in a low-activity hour
 // based on historical activity data.
-func isLowActivityHour(grid [7][24]int, now time.Time) bool {
+func isLowActivityHour(grid *[7][24]int, now time.Time) bool {
 	var peak int
 	for d := 0; d < 7; d++ {
 		for h := 0; h < 24; h++ {

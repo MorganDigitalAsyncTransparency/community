@@ -58,8 +58,8 @@ type fakeHTTPError struct {
 	status int
 }
 
-func (e *fakeHTTPError) Error() string          { return "fake HTTP error" }
-func (e *fakeHTTPError) HTTPStatusCode() int     { return e.status }
+func (e *fakeHTTPError) Error() string       { return "fake HTTP error" }
+func (e *fakeHTTPError) HTTPStatusCode() int { return e.status }
 
 type fakeDetailStore struct {
 	detailSyncs map[int]detailSyncRecord
@@ -278,10 +278,10 @@ func TestDetailSyncInterruptible(t *testing.T) {
 	if result.PagesFetched != 1 {
 		t.Errorf("topics processed = %d, want 1", result.PagesFetched)
 	}
-	if _, ok := cancelStore.fakeDetailStore.detailSyncs[100]; !ok {
+	if _, ok := cancelStore.detailSyncs[100]; !ok {
 		t.Error("topic 100 should be marked as synced")
 	}
-	if _, ok := cancelStore.fakeDetailStore.detailSyncs[200]; ok {
+	if _, ok := cancelStore.detailSyncs[200]; ok {
 		t.Error("topic 200 should NOT be marked as synced (context canceled)")
 	}
 }

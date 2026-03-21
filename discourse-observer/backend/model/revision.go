@@ -6,7 +6,7 @@ import "time"
 
 // RawTopicDetail represents relevant fields from /t/{id}.json.
 type RawTopicDetail struct {
-	ID         int       `json:"id"`
+	ID         int        `json:"id"`
 	PostStream PostStream `json:"post_stream"`
 }
 
@@ -57,9 +57,9 @@ type TopicDetailState struct {
 
 // TopicEvent represents a stored event extracted from a revision.
 type TopicEvent struct {
-	ID        int       `json:"id,omitempty"`
-	TopicID   int       `json:"topic_id"`
-	EventType string    `json:"event_type"`
+	ID         int       `json:"id,omitempty"`
+	TopicID    int       `json:"topic_id"`
+	EventType  string    `json:"event_type"`
 	HappenedAt time.Time `json:"happened_at"`
-	Detail    string    `json:"detail"`
+	Detail     string    `json:"detail"`
 }

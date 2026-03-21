@@ -22,8 +22,8 @@ type postInfo struct {
 // buildTopicMap creates a lookup from topic ID to RawTopic.
 func buildTopicMap(rawTopics []model.RawTopic) map[int]model.RawTopic {
 	m := make(map[int]model.RawTopic, len(rawTopics))
-	for _, rt := range rawTopics {
-		m[rt.ID] = rt
+	for i := range rawTopics {
+		m[rawTopics[i].ID] = rawTopics[i]
 	}
 	return m
 }
@@ -38,15 +38,16 @@ func buildPostData(topics []model.Topic, rawTopics []model.RawTopic, categories 
 	}
 
 	topicByID := make(map[int]model.Topic, len(topics))
-	for _, tp := range topics {
-		topicByID[tp.ID] = tp
+	for i := range topics {
+		topicByID[topics[i].ID] = topics[i]
 	}
 
 	data := make(map[int]postInfo, len(rawTopics))
-	for _, rt := range rawTopics {
+	for i := range rawTopics {
+		rt := &rawTopics[i]
 		postID := rt.ID*10 + 1 // deterministic post ID
 		tp := topicByID[rt.ID]
-		revs := buildRevisions(tp, rt, catByID)
+		revs := buildRevisions(&tp, rt, catByID)
 		data[rt.ID] = postInfo{
 			PostID:    postID,
 			Version:   len(revs) + 1, // version 1 is original
@@ -57,7 +58,7 @@ func buildPostData(topics []model.Topic, rawTopics []model.RawTopic, categories 
 }
 
 // buildRevisions creates plausible revision data for a topic.
-func buildRevisions(tp model.Topic, rt model.RawTopic, catByID map[int]string) map[int]model.RawRevision {
+func buildRevisions(tp *model.Topic, rt *model.RawTopic, catByID map[int]string) map[int]model.RawRevision {
 	revs := make(map[int]model.RawRevision)
 	version := 2
 	baseTime := tp.CreatedAt.Add(time.Hour)
@@ -83,7 +84,6 @@ func buildRevisions(tp model.Topic, rt model.RawTopic, catByID map[int]string) m
 				Current:  rt.CategoryID,
 			},
 		}
-		version++
 	}
 
 	return revs
