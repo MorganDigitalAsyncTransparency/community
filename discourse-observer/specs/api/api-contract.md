@@ -353,6 +353,8 @@ Response object:
   - `totalTopics` (integer): estimated total from `/about.json` (0 if unknown)
   - `elapsedSeconds` (float): time since sync started
   - `etaSeconds` (float): estimated seconds remaining (0 if unknown)
+  - `retryAttempt` (integer): 0 when not retrying; positive during retry attempts
+  - `retryReason` (string): short description of the retry cause; empty when not retrying
 - `entries` (array): most recent completed syncs, newest first, up to 20 per type
   - `timestamp` (string): ISO 8601 UTC timestamp of sync completion
   - `mode` (string): `"initial"`, `"delta"`, or `"detail"`
