@@ -236,6 +236,9 @@ func (s *Scheduler) runSync(ctx context.Context, mode string, fn func(context.Co
 	duration := time.Since(start)
 
 	if err != nil {
+		if result.Mode == "" {
+			result.Mode = mode
+		}
 		s.logger.Printf("sync aborted: %v (duration=%s)", err, duration)
 		s.recordError(result, duration, err)
 		return false
