@@ -69,11 +69,12 @@ seed:
 ## Restart — rebuild and relaunch after code changes
 restart: down verify build up open
 
-## Reset — rebuild, clear database, and re-run initial sync from scratch
-reset: down build
+## Reset — clear database and re-run initial sync from scratch
+## Run `make restart` first if you also need to rebuild after code changes.
+reset: down
 	rm -f data/analytics.db
 	@echo "Database cleared — scheduler will run initial sync on next start."
-	$(MAKE) up open
+	$(MAKE) build up open
 
 ## Open the dashboard in the default browser
 open:
