@@ -10,6 +10,7 @@ import (
 	"io"
 	"net/http"
 	"strconv"
+	"strings"
 	"time"
 
 	"github.com/code-community/discourse-observer/backend/model"
@@ -320,8 +321,24 @@ func newHTTPError(resp *http.Response) *HTTPError {
 
 func (c *Client) notifyRetry(attempt int, reason string) {
 	if c.onRetry != nil {
-		c.onRetry(attempt, reason)
+		c.onRetry(attempt, shortenReason(reason))
 	}
+}
+
+// shortenReason strips Go-internal network details from retry reasons.
+func shortenReason(s string) string {
+	if i := strings.Index(s, "dial tcp: lookup "); i >= 0 {
+		sub := s[i+len("dial tcp: lookup "):]
+		host := sub
+		if sp := strings.IndexAny(sub, " :"); sp >= 0 {
+			host = sub[:sp]
+		}
+		return "server unreachable (" + host + ")"
+	}
+	if strings.Contains(s, "connection refused") {
+		return "connection refused"
+	}
+	return s
 }
 
 // sleepCtx waits for the given duration or until ctx is canceled.
