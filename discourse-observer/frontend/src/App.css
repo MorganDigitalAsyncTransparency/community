@@ -1245,8 +1245,7 @@ body {
     grid-template-columns: 1fr;
     grid-template-areas:
       "filter-bar"
-      "content"
-      "footer";
+      "content";
   }
 
   .sidebar {
