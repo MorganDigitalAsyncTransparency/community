@@ -17,6 +17,8 @@ type FetchClient interface {
 	FetchTopicsPages(ctx context.Context, startPage int, fn func(topics []model.RawTopic, page int) error) error
 	FetchCategories(ctx context.Context) ([]model.RawCategory, error)
 	FetchTopicCount(ctx context.Context) int
+	FetchTopicDetail(ctx context.Context, topicID int) (*model.RawTopicDetail, error)
+	FetchPostRevision(ctx context.Context, postID int, version int) (*model.RawRevision, error)
 }
 
 // StorageBackend persists normalized topics and sync metadata.
@@ -27,6 +29,9 @@ type StorageBackend interface {
 	SaveLastPage(ctx context.Context, page int) error
 	LoadLastPage(ctx context.Context) (int, error)
 	ClearLastPage(ctx context.Context) error
+	SaveDetailSync(ctx context.Context, topicID, lastRevision int, syncedAt time.Time) error
+	TopicsNeedingDetailSync(ctx context.Context, limit int) ([]model.TopicDetailState, error)
+	SaveTopicEvents(ctx context.Context, events []model.TopicEvent) error
 	Close() error
 }
 

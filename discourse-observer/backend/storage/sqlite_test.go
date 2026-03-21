@@ -132,22 +132,22 @@ func TestDetailSyncSortsSyncedAfterUnsynced(t *testing.T) {
 	seedTopics(t, store, ctx, 1001, 1002)
 
 	ts := time.Date(2026, 3, 19, 14, 0, 0, 0, time.UTC)
-	if err := store.SaveDetailSync(ctx, 1001, ts); err != nil {
+	if err := store.SaveDetailSync(ctx, 1001, 3, ts); err != nil {
 		t.Fatalf("SaveDetailSync: %v", err)
 	}
 
-	ids, err := store.TopicsNeedingDetailSync(ctx, 10)
+	states, err := store.TopicsNeedingDetailSync(ctx, 10)
 	if err != nil {
 		t.Fatalf("TopicsNeedingDetailSync: %v", err)
 	}
 	// Unsynced topic 1002 should appear before synced topic 1001.
 	want := []int{1002, 1001}
-	if len(ids) != len(want) {
-		t.Fatalf("got %v, want %v", ids, want)
+	if len(states) != len(want) {
+		t.Fatalf("got %d states, want %d", len(states), len(want))
 	}
 	for i := range want {
-		if ids[i] != want[i] {
-			t.Errorf("ids[%d] = %d, want %d (full: %v)", i, ids[i], want[i], ids)
+		if states[i].TopicID != want[i] {
+			t.Errorf("states[%d].TopicID = %d, want %d", i, states[i].TopicID, want[i])
 			break
 		}
 	}
@@ -162,26 +162,26 @@ func TestTopicsNeedingDetailSync(t *testing.T) {
 	// Mark topics 2 and 4 as synced (4 older, 2 newer).
 	old := time.Date(2026, 3, 1, 0, 0, 0, 0, time.UTC)
 	recent := time.Date(2026, 3, 19, 0, 0, 0, 0, time.UTC)
-	if err := store.SaveDetailSync(ctx, 4, old); err != nil {
+	if err := store.SaveDetailSync(ctx, 4, 2, old); err != nil {
 		t.Fatalf("SaveDetailSync(4): %v", err)
 	}
-	if err := store.SaveDetailSync(ctx, 2, recent); err != nil {
+	if err := store.SaveDetailSync(ctx, 2, 5, recent); err != nil {
 		t.Fatalf("SaveDetailSync(2): %v", err)
 	}
 
-	ids, err := store.TopicsNeedingDetailSync(ctx, 10)
+	states, err := store.TopicsNeedingDetailSync(ctx, 10)
 	if err != nil {
 		t.Fatalf("TopicsNeedingDetailSync: %v", err)
 	}
 
 	// Expected order: unsynced (1, 3, 5) first, then stale→recent (4, 2).
 	want := []int{1, 3, 5, 4, 2}
-	if len(ids) != len(want) {
-		t.Fatalf("got %v, want %v", ids, want)
+	if len(states) != len(want) {
+		t.Fatalf("got %d states, want %d", len(states), len(want))
 	}
 	for i := range want {
-		if ids[i] != want[i] {
-			t.Errorf("ids[%d] = %d, want %d (full: %v)", i, ids[i], want[i], ids)
+		if states[i].TopicID != want[i] {
+			t.Errorf("states[%d].TopicID = %d, want %d", i, states[i].TopicID, want[i])
 			break
 		}
 	}

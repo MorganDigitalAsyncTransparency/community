@@ -151,6 +151,32 @@ func scanTopics(rows *sql.Rows) ([]model.Topic, error) {
 	return topics, rows.Err()
 }
 
+// ActivityByHour returns topic creation counts by day-of-week and hour.
+// Day 0 = Monday, Day 6 = Sunday. Hour 0..23 in UTC.
+func (s *SQLiteStore) ActivityByHour(ctx context.Context) ([7][24]int, error) {
+	var grid [7][24]int
+	rows, err := s.db.QueryContext(ctx,
+		`SELECT created_at FROM topics`)
+	if err != nil {
+		return grid, err
+	}
+	defer func() { _ = rows.Close() }()
+
+	for rows.Next() {
+		var raw string
+		if err := rows.Scan(&raw); err != nil {
+			return grid, err
+		}
+		t, err := time.Parse(time.RFC3339, raw)
+		if err != nil {
+			continue
+		}
+		day := (int(t.Weekday()) + 6) % 7 // Monday=0
+		grid[day][t.Hour()]++
+	}
+	return grid, rows.Err()
+}
+
 // Close closes the database connection.
 func (s *SQLiteStore) Close() error {
 	return s.db.Close()
@@ -178,8 +204,9 @@ func migrate(db *sql.DB) error {
 		);
 
 		CREATE TABLE IF NOT EXISTS topic_detail_sync (
-			topic_id  INTEGER PRIMARY KEY,
-			synced_at TEXT    NOT NULL
+			topic_id       INTEGER PRIMARY KEY,
+			synced_at      TEXT    NOT NULL,
+			last_revision  INTEGER NOT NULL DEFAULT 0
 		);
 
 		CREATE TABLE IF NOT EXISTS sync_log (
@@ -190,9 +217,23 @@ func migrate(db *sql.DB) error {
 			topics      INTEGER NOT NULL,
 			duration_s  REAL    NOT NULL,
 			has_changes INTEGER NOT NULL DEFAULT 1
+		);
+
+		CREATE TABLE IF NOT EXISTS topic_events (
+			id          INTEGER PRIMARY KEY AUTOINCREMENT,
+			topic_id    INTEGER NOT NULL,
+			event_type  TEXT    NOT NULL,
+			happened_at TEXT    NOT NULL,
+			detail      TEXT    NOT NULL
 		)
 	`)
-	return err
+	if err != nil {
+		return err
+	}
+	// Incremental migration: add last_revision column if it doesn't exist
+	// (for databases created before this column was added).
+	_, _ = db.Exec(`ALTER TABLE topic_detail_sync ADD COLUMN last_revision INTEGER NOT NULL DEFAULT 0`)
+	return nil
 }
 
 func formatTime(t *time.Time) any {

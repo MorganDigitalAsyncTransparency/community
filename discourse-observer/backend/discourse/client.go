@@ -153,6 +153,26 @@ func (c *Client) FetchCategories(ctx context.Context) ([]model.RawCategory, erro
 	return resp.CategoryList.Categories, nil
 }
 
+// FetchTopicDetail retrieves full topic data from /t/{id}.json.
+func (c *Client) FetchTopicDetail(ctx context.Context, topicID int) (*model.RawTopicDetail, error) {
+	path := fmt.Sprintf("/t/%d.json", topicID)
+	var resp model.RawTopicDetail
+	if err := c.getJSONRetry(ctx, path, &resp, c.pageCfg.MaxRetries, c.pageCfg.RetryDelay); err != nil {
+		return nil, fmt.Errorf("fetch topic detail %d: %w", topicID, err)
+	}
+	return &resp, nil
+}
+
+// FetchPostRevision retrieves a single revision from /posts/{id}/revisions/{v}.json.
+func (c *Client) FetchPostRevision(ctx context.Context, postID, version int) (*model.RawRevision, error) {
+	path := fmt.Sprintf("/posts/%d/revisions/%d.json", postID, version)
+	var resp model.RawRevision
+	if err := c.getJSONRetry(ctx, path, &resp, c.pageCfg.MaxRetries, c.pageCfg.RetryDelay); err != nil {
+		return nil, fmt.Errorf("fetch revision %d/v%d: %w", postID, version, err)
+	}
+	return &resp, nil
+}
+
 // getJSON performs a GET request and decodes the JSON response.
 // It does not retry on errors.
 func (c *Client) getJSON(ctx context.Context, path string, dst any) error {
@@ -251,6 +271,12 @@ type HTTPError struct {
 
 func (e *HTTPError) Error() string {
 	return fmt.Sprintf("unexpected status %d from %s", e.StatusCode, e.Path)
+}
+
+// HTTPStatusCode returns the HTTP status code, satisfying the observer's
+// HTTPStatusError interface for status-based error handling.
+func (e *HTTPError) HTTPStatusCode() int {
+	return e.StatusCode
 }
 
 func newHTTPError(resp *http.Response) *HTTPError {

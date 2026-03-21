@@ -21,8 +21,10 @@ import (
 type fakeSyncRunner struct {
 	runCalls     atomic.Int32
 	deltaCalls   atomic.Int32
+	detailCalls  atomic.Int32
 	runResult    observer.SyncResult
 	deltaResult  observer.SyncResult
+	detailResult observer.SyncResult
 	runDelay     time.Duration // simulate slow sync
 	deltaDelay   time.Duration
 	deltaResults []observer.SyncResult // per-call delta results (if set, overrides deltaResult)
@@ -49,6 +51,11 @@ func (f *fakeSyncRunner) RunDeltaSync(_ context.Context) (observer.SyncResult, e
 		}
 	}
 	return f.deltaResult, nil
+}
+
+func (f *fakeSyncRunner) RunDetailSync(_ context.Context) (observer.SyncResult, error) {
+	f.detailCalls.Add(1)
+	return f.detailResult, nil
 }
 
 // Compile-time check: *observer.Observer must satisfy SyncRunner.
@@ -283,5 +290,74 @@ func TestStatusReflectsSyncState(t *testing.T) {
 	}
 	if status.GetLastSyncedAt() == nil {
 		t.Error("LastSyncedAt should be set after sync")
+	}
+}
+
+// --- Detail sync tests (DS-17, DS-18, DS-19, DS-20) ---
+
+// fakeActivityData returns a fixed activity grid for testing.
+type fakeActivityData struct {
+	grid [7][24]int
+	err  error
+}
+
+func (f *fakeActivityData) ActivityByHour(_ context.Context) ([7][24]int, error) {
+	return f.grid, f.err
+}
+
+func TestSchedulerTriggersDetailSync(t *testing.T) {
+	// Set up: delta sync returns zero topics → triggers low activity detection.
+	fake := &fakeSyncRunner{
+		runResult:    observer.SyncResult{Mode: "initial", TopicsStored: 10},
+		deltaResult:  observer.SyncResult{Mode: "delta", TopicsStored: 0},
+		detailResult: observer.SyncResult{Mode: "detail", TopicsStored: 3},
+	}
+	cfg := shortCfg()
+	cfg.LowActivityThreshold = 1 // trigger after 1 zero-change sync
+
+	sched := scheduler.New(fake, cfg)
+	ctx, cancel := context.WithTimeout(context.Background(), 200*time.Millisecond)
+	defer cancel()
+
+	sched.Start(ctx)
+
+	// After initial + at least one delta (zero topics) → detail sync should run.
+	if got := fake.detailCalls.Load(); got == 0 {
+		t.Error("expected at least one RunDetailSync call after low activity")
+	}
+}
+
+func TestSchedulerLowActivityWindow(t *testing.T) {
+	// Build a grid where the current hour is low activity.
+	now := time.Now().UTC()
+	day := (int(now.Weekday()) + 6) % 7
+	hour := now.Hour()
+
+	var grid [7][24]int
+	// Set peak at a different hour.
+	peakHour := (hour + 12) % 24
+	grid[day][peakHour] = 100
+	// Current hour has 0 activity → should be detected as low.
+	grid[day][hour] = 0
+
+	activity := &fakeActivityData{grid: grid}
+
+	fake := &fakeSyncRunner{
+		runResult:    observer.SyncResult{Mode: "initial", TopicsStored: 10},
+		deltaResult:  observer.SyncResult{Mode: "delta", TopicsStored: 0},
+		detailResult: observer.SyncResult{Mode: "detail", TopicsStored: 1},
+	}
+	cfg := shortCfg()
+	cfg.LowActivityThreshold = 100 // high threshold so heuristic alone wouldn't trigger
+
+	sched := scheduler.New(fake, cfg)
+	sched.SetActivityData(activity)
+	ctx, cancel := context.WithTimeout(context.Background(), 200*time.Millisecond)
+	defer cancel()
+
+	sched.Start(ctx)
+
+	if got := fake.detailCalls.Load(); got == 0 {
+		t.Error("expected detail sync when current hour is low-activity per heatmap")
 	}
 }

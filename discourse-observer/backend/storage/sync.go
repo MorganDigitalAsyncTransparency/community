@@ -131,21 +131,22 @@ func (s *SQLiteStore) LoadSyncLog(ctx context.Context) ([]model.SyncLogEntry, er
 	return entries, rows.Err()
 }
 
-// SaveDetailSync records when a topic was last detail-synced.
-func (s *SQLiteStore) SaveDetailSync(ctx context.Context, topicID int, syncedAt time.Time) error {
+// SaveDetailSync records when a topic was last detail-synced and the
+// highest revision version fetched.
+func (s *SQLiteStore) SaveDetailSync(ctx context.Context, topicID, lastRevision int, syncedAt time.Time) error {
 	_, err := s.db.ExecContext(ctx,
-		`INSERT OR REPLACE INTO topic_detail_sync (topic_id, synced_at) VALUES (?, ?)`,
-		topicID, syncedAt.Format(time.RFC3339))
+		`INSERT OR REPLACE INTO topic_detail_sync (topic_id, synced_at, last_revision) VALUES (?, ?, ?)`,
+		topicID, syncedAt.Format(time.RFC3339), lastRevision)
 	return err
 }
 
-// TopicsNeedingDetailSync returns topic IDs that need detail enrichment,
+// TopicsNeedingDetailSync returns topics that need detail enrichment,
 // ordered by priority: never synced first, then stale (oldest synced_at),
-// with ties broken by topic ID ascending. Only topics present in the
-// topics table are considered. Limit controls how many IDs to return.
-func (s *SQLiteStore) TopicsNeedingDetailSync(ctx context.Context, limit int) ([]int, error) {
+// with ties broken by topic ID ascending. Returns both topic ID and last
+// fetched revision version. Limit controls how many to return.
+func (s *SQLiteStore) TopicsNeedingDetailSync(ctx context.Context, limit int) ([]model.TopicDetailState, error) {
 	rows, err := s.db.QueryContext(ctx, `
-		SELECT t.id
+		SELECT t.id, COALESCE(d.last_revision, 0)
 		FROM topics t
 		LEFT JOIN topic_detail_sync d ON t.id = d.topic_id
 		ORDER BY d.synced_at IS NOT NULL, d.synced_at ASC, t.id ASC
@@ -155,13 +156,78 @@ func (s *SQLiteStore) TopicsNeedingDetailSync(ctx context.Context, limit int) ([
 	}
 	defer func() { _ = rows.Close() }()
 
-	var ids []int
+	var states []model.TopicDetailState
 	for rows.Next() {
-		var id int
-		if err := rows.Scan(&id); err != nil {
+		var s model.TopicDetailState
+		if err := rows.Scan(&s.TopicID, &s.LastRevision); err != nil {
 			return nil, err
 		}
-		ids = append(ids, id)
+		states = append(states, s)
 	}
-	return ids, rows.Err()
+	return states, rows.Err()
+}
+
+// SaveTopicEvents stores extracted revision events for a topic.
+// Existing events for the same topic are not duplicated — events are
+// matched by topic_id + event_type + happened_at.
+func (s *SQLiteStore) SaveTopicEvents(ctx context.Context, events []model.TopicEvent) error {
+	if len(events) == 0 {
+		return nil
+	}
+	tx, err := s.db.BeginTx(ctx, nil)
+	if err != nil {
+		return err
+	}
+	defer func() { _ = tx.Rollback() }()
+
+	stmt, err := tx.PrepareContext(ctx, `
+		INSERT INTO topic_events (topic_id, event_type, happened_at, detail)
+		SELECT ?, ?, ?, ?
+		WHERE NOT EXISTS (
+			SELECT 1 FROM topic_events
+			WHERE topic_id = ? AND event_type = ? AND happened_at = ?
+		)`)
+	if err != nil {
+		return err
+	}
+	defer func() { _ = stmt.Close() }()
+
+	for i := range events {
+		e := &events[i]
+		ts := e.HappenedAt.Format(time.RFC3339)
+		_, err := stmt.ExecContext(ctx,
+			e.TopicID, e.EventType, ts, e.Detail,
+			e.TopicID, e.EventType, ts)
+		if err != nil {
+			return err
+		}
+	}
+	return tx.Commit()
+}
+
+// LoadTopicEvents returns all stored events for a topic, ordered by time.
+func (s *SQLiteStore) LoadTopicEvents(ctx context.Context, topicID int) ([]model.TopicEvent, error) {
+	rows, err := s.db.QueryContext(ctx, `
+		SELECT id, topic_id, event_type, happened_at, detail
+		FROM topic_events WHERE topic_id = ?
+		ORDER BY happened_at ASC`, topicID)
+	if err != nil {
+		return nil, err
+	}
+	defer func() { _ = rows.Close() }()
+
+	var events []model.TopicEvent
+	for rows.Next() {
+		var e model.TopicEvent
+		var ts string
+		if err := rows.Scan(&e.ID, &e.TopicID, &e.EventType, &ts, &e.Detail); err != nil {
+			return nil, err
+		}
+		e.HappenedAt, err = time.Parse(time.RFC3339, ts)
+		if err != nil {
+			return nil, err
+		}
+		events = append(events, e)
+	}
+	return events, rows.Err()
 }
