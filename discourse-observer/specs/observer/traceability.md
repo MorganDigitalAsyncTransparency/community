@@ -106,6 +106,27 @@ The observer module is the data pipeline — it fetches, normalizes, and stores 
 
 ---
 
+## Sync error logging
+
+| Use case | Spec | Requirements | Verification |
+|----------|------|-------------|--------------|
+| (operational) | [sync-error-logging.md](sync-error-logging.md) | SE-1 — Error field on SyncLogEntry | `backend/scheduler/scheduler_acceptance_test.go`: `TestSyncErrorSavedToLog` |
+| | | SE-2 — Scheduler saves error entry | `backend/scheduler/scheduler_acceptance_test.go`: `TestSyncErrorSavedToLog` |
+| | | SE-3 — SQLite error column | `backend/storage/sqlite_test.go`: `TestSyncLogErrorColumn` |
+| | | SE-4 — Endpoint includes error | `backend/api/contract_test.go`: `TestSyncLogErrorEntry` |
+| | | SE-5 — Frontend red styling | Manual verification |
+| | | SE-6 — Error retention rules | `backend/storage/sqlite_test.go`: `TestSyncLogErrorRetention` |
+| | | SE-7 — Backward compatibility | `backend/storage/sqlite_test.go`: `TestSyncLogErrorColumn` |
+| | | SE-8 — RetryAttempt/RetryReason on SyncProgress | Manual verification (retry visible in UI) |
+| | | SE-9 — Client retry callback | `go build ./backend/...` (compile-time wiring) |
+| | | SE-10 — Endpoint includes retry fields | Manual verification |
+| | | SE-11 — Frontend retry progress styling | Manual verification |
+| | | SE-12 — Progress mode set at creation | Manual verification |
+| | | SE-13 — Detail sync filters up-to-date topics | `backend/storage/sqlite_test.go`: `TestTopicsNeedingDetailSync` |
+| | | SE-14 — Skip detail sync after failure | `backend/scheduler/scheduler_acceptance_test.go`: (covered by lifecycle tests) |
+
+---
+
 ## Gaps
 
 | Gap | Status |

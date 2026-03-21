@@ -22,13 +22,14 @@ import (
 type fakeSyncState struct {
 	state    string
 	syncedAt *time.Time
+	log      []model.SyncLogEntry
 }
 
 func (f *fakeSyncState) GetState() string                 { return f.state }
 func (f *fakeSyncState) GetLastDuration() time.Duration   { return 0 }
 func (f *fakeSyncState) GetLastTopics() int               { return 0 }
 func (f *fakeSyncState) GetLastSyncedAt() *time.Time      { return f.syncedAt }
-func (f *fakeSyncState) GetLog() []model.SyncLogEntry     { return nil }
+func (f *fakeSyncState) GetLog() []model.SyncLogEntry     { return f.log }
 func (f *fakeSyncState) GetProgress() *model.SyncProgress { return nil }
 
 func testServer(t *testing.T) (ts *httptest.Server, srv *Server) {
@@ -543,5 +544,45 @@ func TestOnlyGetAllowed(t *testing.T) {
 	// Go 1.22+ returns 405 for method mismatch
 	if resp.StatusCode == 200 {
 		t.Error("POST should not return 200")
+	}
+}
+
+// SE-4: sync-log endpoint includes error field
+func TestSyncLogErrorEntry(t *testing.T) {
+	ts, srv := testServer(t)
+	defer ts.Close()
+
+	now := time.Date(2026, 3, 21, 10, 0, 0, 0, time.UTC)
+	srv.SyncStatus = &fakeSyncState{
+		state:    "idle",
+		syncedAt: &now,
+		log: []model.SyncLogEntry{
+			{
+				Timestamp: now, Mode: "delta", Duration: time.Second,
+				Error: "fetch page 0: unexpected status 500",
+			},
+			{
+				Timestamp: now.Add(-time.Hour), Mode: "delta",
+				Topics: 5, Duration: 2 * time.Second, HasChanges: true,
+			},
+		},
+	}
+
+	data := decodeJSON(t, get(t, ts, "/api/v1/sync-log"))
+	entries, ok := data["entries"].([]any)
+	if !ok || len(entries) != 2 {
+		t.Fatalf("expected 2 entries, got %v", data["entries"])
+	}
+
+	// First entry (error).
+	e0 := entries[0].(map[string]any)
+	if e0["error"] != "fetch page 0: unexpected status 500" {
+		t.Errorf("error entry: error = %v, want error message", e0["error"])
+	}
+
+	// Second entry (success).
+	e1 := entries[1].(map[string]any)
+	if e1["error"] != "" {
+		t.Errorf("success entry: error = %v, want empty string", e1["error"])
 	}
 }

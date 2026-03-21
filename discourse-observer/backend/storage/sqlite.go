@@ -216,7 +216,8 @@ func migrate(db *sql.DB) error {
 			pages       INTEGER NOT NULL,
 			topics      INTEGER NOT NULL,
 			duration_s  REAL    NOT NULL,
-			has_changes INTEGER NOT NULL DEFAULT 1
+			has_changes INTEGER NOT NULL DEFAULT 1,
+			error       TEXT    NOT NULL DEFAULT ''
 		);
 
 		CREATE TABLE IF NOT EXISTS topic_events (
@@ -233,6 +234,8 @@ func migrate(db *sql.DB) error {
 	// Incremental migration: add last_revision column if it doesn't exist
 	// (for databases created before this column was added).
 	_, _ = db.Exec(`ALTER TABLE topic_detail_sync ADD COLUMN last_revision INTEGER NOT NULL DEFAULT 0`)
+	// Incremental migration: add error column to sync_log if it doesn't exist.
+	_, _ = db.Exec(`ALTER TABLE sync_log ADD COLUMN error TEXT NOT NULL DEFAULT ''`)
 	return nil
 }
 

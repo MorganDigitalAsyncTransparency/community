@@ -10,10 +10,15 @@ import (
 	"io"
 	"net/http"
 	"strconv"
+	"strings"
 	"time"
 
 	"github.com/code-community/discourse-observer/backend/model"
 )
+
+// RetryFunc is called when the client retries a failed request.
+// attempt is 1-based; reason is a short description of the failure.
+type RetryFunc func(attempt int, reason string)
 
 // Client fetches raw data from a Discourse-compatible HTTP API.
 type Client struct {
@@ -22,6 +27,7 @@ type Client struct {
 	apiUsername string
 	http        *http.Client
 	pageCfg     PageConfig
+	onRetry     RetryFunc
 }
 
 // Option configures a Client.
@@ -32,6 +38,16 @@ type Option func(*Client)
 // an explicit PageConfig argument).
 func WithPageConfig(cfg PageConfig) Option {
 	return func(c *Client) { c.pageCfg = cfg }
+}
+
+// WithRetryFunc sets a callback invoked when the client retries a request.
+func WithRetryFunc(fn RetryFunc) Option {
+	return func(c *Client) { c.onRetry = fn }
+}
+
+// SetRetryFunc sets the retry callback after construction.
+func (c *Client) SetRetryFunc(fn RetryFunc) {
+	c.onRetry = fn
 }
 
 // NewClient creates a Discourse API client. apiKey and apiUsername may be
@@ -204,8 +220,9 @@ func (c *Client) getJSONRetry(ctx context.Context, path string, dst any, maxRetr
 		if !errors.As(err, &httpErr) {
 			// Network error — treat like 5xx.
 			retries++
+			c.notifyRetry(retries, err.Error())
 			if retries > maxRetries {
-				return fmt.Errorf("after %d retries: %w", retries, err)
+				return fmt.Errorf("failed after %d attempts: %w", retries, err)
 			}
 			if err := sleepCtx(ctx, retryDelay); err != nil {
 				return err
@@ -222,6 +239,7 @@ func (c *Client) getJSONRetry(ctx context.Context, path string, dst any, maxRetr
 			if wait <= 0 {
 				wait = rateLimitFallback
 			}
+			c.notifyRetry(retries+1, fmt.Sprintf("rate limited (429), waiting %s", wait))
 			if err := sleepCtx(ctx, wait); err != nil {
 				return err
 			}
@@ -230,8 +248,9 @@ func (c *Client) getJSONRetry(ctx context.Context, path string, dst any, maxRetr
 
 		case httpErr.StatusCode >= 500:
 			retries++
+			c.notifyRetry(retries, fmt.Sprintf("server error (%d)", httpErr.StatusCode))
 			if retries > maxRetries {
-				return fmt.Errorf("after %d retries: %w", retries, err)
+				return fmt.Errorf("failed after %d attempts: %w", retries, err)
 			}
 			if err := sleepCtx(ctx, retryDelay); err != nil {
 				return err
@@ -298,6 +317,28 @@ func newHTTPError(resp *http.Response) *HTTPError {
 		}
 	}
 	return e
+}
+
+func (c *Client) notifyRetry(attempt int, reason string) {
+	if c.onRetry != nil {
+		c.onRetry(attempt, shortenReason(reason))
+	}
+}
+
+// shortenReason strips Go-internal network details from retry reasons.
+func shortenReason(s string) string {
+	if i := strings.Index(s, "dial tcp: lookup "); i >= 0 {
+		sub := s[i+len("dial tcp: lookup "):]
+		host := sub
+		if sp := strings.IndexAny(sub, " :"); sp >= 0 {
+			host = sub[:sp]
+		}
+		return "server unreachable (" + host + ")"
+	}
+	if strings.Contains(s, "connection refused") {
+		return "connection refused"
+	}
+	return s
 }
 
 // sleepCtx waits for the given duration or until ctx is canceled.

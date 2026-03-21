@@ -12,15 +12,18 @@ type SyncLogEntry struct {
 	Topics     int
 	Duration   time.Duration
 	HasChanges bool
+	Error      string // empty on success, error message on failure
 }
 
 // SyncProgress tracks a sync cycle in progress.
 type SyncProgress struct {
-	Mode        string
-	Pages       int
-	Topics      int
-	TotalTopics int
-	StartedAt   time.Time
+	Mode         string
+	Pages        int
+	Topics       int
+	TotalTopics  int
+	StartedAt    time.Time
+	RetryAttempt int    // 0 when not retrying; >0 during retries
+	RetryReason  string // short description of the retry cause
 }
 
 // ProgressFunc is called after each page during a sync cycle.

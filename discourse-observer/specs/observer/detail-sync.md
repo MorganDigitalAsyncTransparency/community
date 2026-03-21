@@ -53,7 +53,7 @@ DS-8 — **Topic events table.** A `topic_events` table stores extracted revisio
 
 DS-9 — **Detail sync tracking.** The existing `topic_detail_sync` table gains a `last_revision` column (INTEGER NOT NULL DEFAULT 0) to track the highest fetched revision version per topic. This enables delta fetching — only new revisions are fetched on subsequent syncs.
 
-DS-10 — **Prioritization query.** `TopicsNeedingDetailSync` returns topics ordered by: (1) never detail-synced, (2) `bumped_at` newer than `synced_at` (something changed), (3) oldest `synced_at` first. Returns both topic ID and last fetched revision version.
+DS-10 — **Prioritization query.** `TopicsNeedingDetailSync` returns topics that need enrichment — either never detail-synced, or where `last_activity_at` is newer than `synced_at` (activity happened after the last sync). Already up-to-date topics are excluded. Results are ordered by: never synced first, then oldest `synced_at`. Returns both topic ID and last fetched revision version.
 
 ---
 

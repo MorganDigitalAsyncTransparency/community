@@ -6,6 +6,7 @@ import (
 	"context"
 	"log"
 	"math/rand/v2"
+	"strings"
 	"sync"
 	"time"
 
@@ -32,7 +33,7 @@ type ActivityDataProvider interface {
 
 // SyncLogStore persists sync log entries. Implemented by SQLiteStore.
 type SyncLogStore interface {
-	SaveSyncLogEntry(ctx context.Context, e model.SyncLogEntry) error
+	SaveSyncLogEntry(ctx context.Context, e *model.SyncLogEntry) error
 	LoadSyncLog(ctx context.Context) ([]model.SyncLogEntry, error)
 }
 
@@ -96,9 +97,23 @@ func (s *SyncStatus) UpdateProgress(mode string, pages, topics, totalTopics int)
 	s.progress.Mode = mode
 	s.progress.Pages = pages
 	s.progress.Topics = topics
+	s.progress.RetryAttempt = 0
+	s.progress.RetryReason = ""
 	if totalTopics > 0 {
 		s.progress.TotalTopics = totalTopics
 	}
+}
+
+// SetRetry records that a retry is in progress. Called by the client
+// via a callback wired in main.go.
+func (s *SyncStatus) SetRetry(attempt int, reason string) {
+	s.mu.Lock()
+	defer s.mu.Unlock()
+	if s.progress == nil {
+		return
+	}
+	s.progress.RetryAttempt = attempt
+	s.progress.RetryReason = reason
 }
 
 // GetLog returns the most recent sync log entries (newest first).
@@ -170,7 +185,7 @@ func (s *Scheduler) Start(ctx context.Context) {
 		}
 	}
 
-	s.runSync(ctx, func(ctx context.Context) (observer.SyncResult, error) {
+	s.runSync(ctx, "sync", func(ctx context.Context) (observer.SyncResult, error) {
 		return s.runner.Run(ctx)
 	})
 
@@ -179,12 +194,12 @@ func (s *Scheduler) Start(ctx context.Context) {
 		if !sleepCtx(ctx, wait) {
 			return
 		}
-		s.runSync(ctx, func(ctx context.Context) (observer.SyncResult, error) {
+		deltaOK := s.runSync(ctx, "delta", func(ctx context.Context) (observer.SyncResult, error) {
 			return s.runner.RunDeltaSync(ctx)
 		})
-		if s.shouldRunDetailSync(ctx) {
+		if deltaOK && s.shouldRunDetailSync(ctx) {
 			s.logger.Printf("low activity detected: triggering detail sync")
-			s.runSync(ctx, func(ctx context.Context) (observer.SyncResult, error) {
+			s.runSync(ctx, "detail", func(ctx context.Context) (observer.SyncResult, error) {
 				return s.runner.RunDetailSync(ctx)
 			})
 		}
@@ -193,10 +208,10 @@ func (s *Scheduler) Start(ctx context.Context) {
 
 // runSync executes a single sync cycle with concurrency guard and status updates.
 // The sync runs with a non-cancelable context so it completes even during shutdown.
-func (s *Scheduler) runSync(ctx context.Context, fn func(context.Context) (observer.SyncResult, error)) {
+func (s *Scheduler) runSync(ctx context.Context, mode string, fn func(context.Context) (observer.SyncResult, error)) bool {
 	if !s.running.TryLock() {
 		s.logger.Println("sync skipped: previous sync still running")
-		return
+		return false
 	}
 	defer s.running.Unlock()
 
@@ -205,7 +220,7 @@ func (s *Scheduler) runSync(ctx context.Context, fn func(context.Context) (obser
 
 	now := time.Now()
 	s.status.mu.Lock()
-	s.status.progress = &model.SyncProgress{StartedAt: now}
+	s.status.progress = &model.SyncProgress{Mode: mode, StartedAt: now}
 	s.status.mu.Unlock()
 	defer func() {
 		s.status.mu.Lock()
@@ -222,18 +237,80 @@ func (s *Scheduler) runSync(ctx context.Context, fn func(context.Context) (obser
 	duration := time.Since(start)
 
 	if err != nil {
+		if result.Mode == "" {
+			result.Mode = mode
+		}
 		s.logger.Printf("sync aborted: %v (duration=%s)", err, duration)
-		return
+		s.recordError(result, duration, err)
+		return false
 	}
 
 	s.logCompleted(result, duration)
 	s.recordResult(result, duration)
 	s.trackLowActivity(result)
+	return true
 }
 
 func (s *Scheduler) logCompleted(r observer.SyncResult, d time.Duration) {
 	s.logger.Printf("sync completed: type=%s pages=%d topics=%d duration=%s",
 		r.Mode, r.PagesFetched, r.TopicsStored, d)
+}
+
+// shortenError produces a human-readable error message for the sync log.
+// It strips Go-internal details (dial tcp, DNS resolver addresses, full
+// URLs) that are noise for operators.
+func shortenError(err error) string {
+	msg := err.Error()
+	if strings.Contains(msg, "dial tcp: lookup ") {
+		return extractHost(msg, "dial tcp: lookup ")
+	}
+	if strings.Contains(msg, "connection refused") {
+		return "connection refused"
+	}
+	if strings.Contains(msg, "no such host") {
+		return "server unreachable"
+	}
+	// Strip "failed after N attempts: " wrapper — the attempt count is
+	// visible in the retry progress, not needed in the final message.
+	if i := strings.Index(msg, "failed after "); i >= 0 {
+		if j := strings.Index(msg[i:], ": "); j >= 0 {
+			msg = msg[:i] + msg[i+j+2:]
+		}
+	}
+	return msg
+}
+
+func extractHost(msg, marker string) string {
+	i := strings.Index(msg, marker)
+	sub := msg[i+len(marker):]
+	host := sub
+	if sp := strings.IndexAny(sub, " :"); sp >= 0 {
+		host = sub[:sp]
+	}
+	return "server unreachable (" + host + ")"
+}
+
+func (s *Scheduler) recordError(r observer.SyncResult, d time.Duration, syncErr error) {
+	now := time.Now().UTC()
+	entry := model.SyncLogEntry{
+		Timestamp: now,
+		Mode:      r.Mode,
+		Pages:     r.PagesFetched,
+		Topics:    r.TopicsStored,
+		Duration:  d,
+		Error:     shortenError(syncErr),
+	}
+
+	if s.logStore != nil {
+		ctx := context.Background()
+		if err := s.logStore.SaveSyncLogEntry(ctx, &entry); err != nil {
+			s.logger.Printf("failed to persist sync error log: %v", err)
+		}
+	}
+
+	s.status.mu.Lock()
+	defer s.status.mu.Unlock()
+	s.status.log = append([]model.SyncLogEntry{entry}, s.status.log...)
 }
 
 func (s *Scheduler) recordResult(r observer.SyncResult, d time.Duration) {
@@ -249,7 +326,7 @@ func (s *Scheduler) recordResult(r observer.SyncResult, d time.Duration) {
 
 	if s.logStore != nil {
 		ctx := context.Background()
-		if err := s.logStore.SaveSyncLogEntry(ctx, entry); err != nil {
+		if err := s.logStore.SaveSyncLogEntry(ctx, &entry); err != nil {
 			s.logger.Printf("failed to persist sync log: %v", err)
 		}
 	}
