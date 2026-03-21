@@ -16,6 +16,8 @@ type SyncStateProvider interface {
 	GetLastDuration() time.Duration
 	GetLastTopics() int
 	GetLastSyncedAt() *time.Time
+	GetLog() []model.SyncLogEntry
+	GetProgress() *model.SyncProgress
 }
 
 // Server holds shared state for all API handlers.
@@ -62,4 +64,5 @@ func (s *Server) RegisterRoutes(mux *http.ServeMux) {
 
 	mux.HandleFunc("GET /api/v1/config", s.handleConfig)
 	mux.HandleFunc("GET /api/v1/status", s.handleStatus)
+	mux.HandleFunc("GET /api/v1/sync-log", s.handleSyncLog)
 }

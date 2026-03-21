@@ -91,8 +91,10 @@ SC-12 — **Thread-safe sync status.** The scheduler exposes operational state v
 | `LastDuration` | `time.Duration` | Duration of the last completed sync |
 | `LastTopics` | int | Topics upserted in the last completed sync |
 | `LastSyncedAt` | `*time.Time` | Timestamp of the last completed sync |
+| `GetLog()` | `[]model.SyncLogEntry` | Last 20 completed syncs per type (persisted in SQLite) |
+| `GetProgress()` | `*model.SyncProgress` | In-progress sync (mode, pages, topics, totalTopics, startedAt); nil when idle |
 
-The API reads this state through a `SyncStateProvider` interface defined in the `api` package. The scheduler satisfies the interface. `main.go` wires them together via dependency injection.
+The API reads this state through a `SyncStateProvider` interface defined in the `api` package. The scheduler satisfies the interface. `main.go` wires them together via dependency injection. The scheduler also accepts a `SyncLogStore` interface for persisting log entries to SQLite.
 
 ---
 

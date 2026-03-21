@@ -10,9 +10,9 @@ make start
 
 This single command handles the full onboarding flow: installs dependencies, creates config files, runs verification, builds containers, and opens the dashboard.
 
-No Discourse forum is needed to get started. The default `.env` points `DISCOURSE_BASE_URL` at a built-in mock Discourse server that runs as a Docker service. `make start` seeds mock topics for instant data, then the scheduler syncs from the mock server on its normal interval — the full pipeline runs end-to-end.
+No Discourse forum is needed to get started. The default `.env` points `DISCOURSE_BASE_URL` at a built-in mock Discourse server that runs as a Docker service. On first launch the scheduler performs a full initial sync from the mock server — the full pipeline runs end-to-end. Progress is visible on the Sync log page (link in the footer).
 
-To connect to a real forum later, edit `.env` with your Discourse credentials (see [Configure for a real forum](#configure-for-a-real-forum)). The next `make start` detects the token and skips seeding.
+To connect to a real forum later, edit `.env` with your Discourse credentials (see [Configure for a real forum](#configure-for-a-real-forum)).
 
 After code changes, use `make restart` to rebuild and relaunch.
 
@@ -75,7 +75,7 @@ DISCOURSE_API_TOKEN=your-api-token-here
 DISCOURSE_API_USER=nickname
 ```
 
-When `DISCOURSE_API_TOKEN` has a value, `make start` skips mock seeding. The backend syncs from whatever `DISCOURSE_BASE_URL` points to — your real forum in production, or the built-in mock server in dev mode (the default).
+The backend syncs from whatever `DISCOURSE_BASE_URL` points to. With your real forum URL and credentials, it syncs from your forum. The default (mock server) requires no credentials.
 
 The `.env` file is gitignored and will not be committed.
 
@@ -160,6 +160,16 @@ Browser ──:3000──▸ nginx (frontend)
 - **Mock server container** — serves realistic Discourse API responses from built-in fixtures. Used in dev mode (default). Not needed when connecting to a real forum.
 - **Data directory** — the SQLite database (`data/analytics.db`) is bind-mounted from the project's `data/` directory, shared between host and container.
 
+## Reset database
+
+To clear all data and re-run the initial sync from scratch:
+
+```sh
+make reset
+```
+
+This stops containers, deletes the SQLite database, restarts, and opens the dashboard. The scheduler will perform a full initial sync from the mock server (or your real forum). Progress is visible on the Sync log page.
+
 ## Rebuild after code changes
 
 ```sh
@@ -172,9 +182,10 @@ This stops the running containers, rebuilds changed layers, starts everything ag
 
 | Command | What it does |
 |---|---|
-| `make start` | One-command onboarding: setup, verify, configure, build, launch, open browser (auto-seeds mock data if no API token) |
-| `make seed` | Populate SQLite with mock topics for development |
+| `make start` | One-command onboarding: setup, verify, configure, build, launch, open browser |
+| `make seed` | Populate SQLite with mock topics for development (optional — the mock server handles this automatically) |
 | `make restart` | Verify, rebuild, and relaunch after code changes |
+| `make reset` | Clear database and re-run initial sync from scratch |
 | `make verify` | Run all linters and tests |
 | `make lint` | Run all linters (Go + markdown + frontend) |
 | `make test` | Run all tests (Go + frontend) |

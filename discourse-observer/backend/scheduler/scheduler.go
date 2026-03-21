@@ -10,6 +10,7 @@ import (
 	"time"
 
 	"github.com/code-community/discourse-observer/backend/config"
+	"github.com/code-community/discourse-observer/backend/model"
 	"github.com/code-community/discourse-observer/backend/observer"
 )
 
@@ -19,6 +20,12 @@ type SyncRunner interface {
 	RunDeltaSync(ctx context.Context) (observer.SyncResult, error)
 }
 
+// SyncLogStore persists sync log entries. Implemented by SQLiteStore.
+type SyncLogStore interface {
+	SaveSyncLogEntry(ctx context.Context, e model.SyncLogEntry) error
+	LoadSyncLog(ctx context.Context) ([]model.SyncLogEntry, error)
+}
+
 // SyncStatus holds thread-safe operational state for the API to read.
 type SyncStatus struct {
 	mu           sync.RWMutex
@@ -26,6 +33,8 @@ type SyncStatus struct {
 	LastDuration time.Duration
 	LastTopics   int
 	LastSyncedAt *time.Time
+	log          []model.SyncLogEntry
+	progress     *model.SyncProgress
 }
 
 // GetState returns the current sync state.
@@ -56,11 +65,47 @@ func (s *SyncStatus) GetLastSyncedAt() *time.Time {
 	return s.LastSyncedAt
 }
 
+// GetProgress returns the current in-progress sync, or nil if idle.
+func (s *SyncStatus) GetProgress() *model.SyncProgress {
+	s.mu.RLock()
+	defer s.mu.RUnlock()
+	if s.progress == nil {
+		return nil
+	}
+	cp := *s.progress
+	return &cp
+}
+
+// UpdateProgress records per-page progress during a sync cycle.
+func (s *SyncStatus) UpdateProgress(mode string, pages, topics, totalTopics int) {
+	s.mu.Lock()
+	defer s.mu.Unlock()
+	if s.progress == nil {
+		return
+	}
+	s.progress.Mode = mode
+	s.progress.Pages = pages
+	s.progress.Topics = topics
+	if totalTopics > 0 {
+		s.progress.TotalTopics = totalTopics
+	}
+}
+
+// GetLog returns the most recent sync log entries (newest first).
+func (s *SyncStatus) GetLog() []model.SyncLogEntry {
+	s.mu.RLock()
+	defer s.mu.RUnlock()
+	out := make([]model.SyncLogEntry, len(s.log))
+	copy(out, s.log)
+	return out
+}
+
 // Scheduler drives the sync lifecycle.
 type Scheduler struct {
 	runner     SyncRunner
 	cfg        config.SyncConfig
 	status     *SyncStatus
+	logStore   SyncLogStore
 	logger     *log.Logger
 	running    sync.Mutex
 	zeroStreak int
@@ -85,6 +130,12 @@ func NewWithLogger(runner SyncRunner, cfg config.SyncConfig, logger *log.Logger)
 	}
 }
 
+// SetLogStore sets the persistent store for sync log entries.
+// If set, entries are persisted to SQLite and loaded on startup.
+func (s *Scheduler) SetLogStore(store SyncLogStore) {
+	s.logStore = store
+}
+
 // Status returns the shared status for the API to read.
 func (s *Scheduler) Status() *SyncStatus {
 	return s.status
@@ -94,6 +145,14 @@ func (s *Scheduler) Status() *SyncStatus {
 // It runs one immediate sync (auto-detect), then loops delta syncs on interval+jitter.
 // When ctx is canceled, it waits for any in-progress sync before returning.
 func (s *Scheduler) Start(ctx context.Context) {
+	if s.logStore != nil {
+		if entries, err := s.logStore.LoadSyncLog(ctx); err == nil {
+			s.status.mu.Lock()
+			s.status.log = entries
+			s.status.mu.Unlock()
+		}
+	}
+
 	s.runSync(ctx, func(ctx context.Context) (observer.SyncResult, error) {
 		return s.runner.Run(ctx)
 	})
@@ -121,8 +180,18 @@ func (s *Scheduler) runSync(ctx context.Context, fn func(context.Context) (obser
 	s.setState("running")
 	defer s.setState("idle")
 
+	now := time.Now()
+	s.status.mu.Lock()
+	s.status.progress = &model.SyncProgress{StartedAt: now}
+	s.status.mu.Unlock()
+	defer func() {
+		s.status.mu.Lock()
+		s.status.progress = nil
+		s.status.mu.Unlock()
+	}()
+
 	s.logger.Printf("sync started")
-	start := time.Now()
+	start := now
 
 	// Use a detached context so in-progress syncs finish during shutdown.
 	syncCtx := context.WithoutCancel(ctx)
@@ -146,11 +215,28 @@ func (s *Scheduler) logCompleted(r observer.SyncResult, d time.Duration) {
 
 func (s *Scheduler) recordResult(r observer.SyncResult, d time.Duration) {
 	now := time.Now().UTC()
+	entry := model.SyncLogEntry{
+		Timestamp:  now,
+		Mode:       r.Mode,
+		Pages:      r.PagesFetched,
+		Topics:     r.TopicsStored,
+		Duration:   d,
+		HasChanges: r.HasChanges,
+	}
+
+	if s.logStore != nil {
+		ctx := context.Background()
+		if err := s.logStore.SaveSyncLogEntry(ctx, entry); err != nil {
+			s.logger.Printf("failed to persist sync log: %v", err)
+		}
+	}
+
 	s.status.mu.Lock()
 	defer s.status.mu.Unlock()
 	s.status.LastDuration = d
 	s.status.LastTopics = r.TopicsStored
 	s.status.LastSyncedAt = &now
+	s.status.log = append([]model.SyncLogEntry{entry}, s.status.log...)
 }
 
 func (s *Scheduler) trackLowActivity(r observer.SyncResult) {

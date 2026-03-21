@@ -341,6 +341,27 @@ Response fields:
 
 This endpoint is not filtered.
 
+### Endpoint: Sync log
+
+**AC-33.** `GET /api/v1/sync-log` — Returns sync log and live progress.
+
+Response object:
+
+- `progress` (object or null): present when a sync is running
+  - `mode` (string): `"initial"` or `"delta"`
+  - `topics` (integer): topics upserted so far
+  - `totalTopics` (integer): estimated total from `/about.json` (0 if unknown)
+  - `elapsedSeconds` (float): time since sync started
+  - `etaSeconds` (float): estimated seconds remaining (0 if unknown)
+- `entries` (array): most recent completed syncs, newest first, up to 20 per type
+  - `timestamp` (string): ISO 8601 UTC timestamp of sync completion
+  - `mode` (string): `"initial"`, `"delta"`, or `"detail"`
+  - `topics` (integer): number of topics upserted
+  - `durationSeconds` (float): sync duration in seconds
+  - `hasChanges` (boolean): true if new or updated data was found
+
+The log is persisted in SQLite and survives restarts. Each sync type retains its own 20 most recent entries, so infrequent events (like initial sync) are never displaced by frequent ones (like delta sync). No-change entries are deduplicated: only the most recent per type is kept. Returns empty entries array and null progress when sync is disabled. This endpoint is not filtered.
+
 ### Cross-cutting
 
 **AC-29.** All list endpoints (AC-13, AC-14, AC-15, AC-24) include a `topicUrl` field that is a full, clickable URL to the topic on the Discourse forum.

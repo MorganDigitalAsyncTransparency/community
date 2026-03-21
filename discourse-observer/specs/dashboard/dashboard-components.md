@@ -386,14 +386,15 @@ CSS class prefix: `sidebar-` for all elements specific to this component.
 
 ## Footer
 
-Accepts two props:
+Accepts three props:
 
 | Prop | Type | Purpose |
 |------|------|---------|
 | `version` | `string` | Application version string (e.g. "v0.1.0") |
-| `lastSyncedAt` | `string` | ISO 8601 timestamp of the last data sync |
+| `lastSyncedAt` | `string \| null` | ISO 8601 timestamp of the last data sync, or null |
+| `onSyncLogClick` | `() => void` (optional) | Navigates to the sync log page when clicked |
 
-Renders a footer bar at the bottom of the main area containing version, formatted last sync time, and a GitHub repository link.
+Renders a footer bar at the bottom of the main area containing version, formatted last sync time, a "Sync log" link, and a GitHub repository link.
 
 `Footer` is a pure function component — no hooks, no state.
 

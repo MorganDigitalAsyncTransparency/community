@@ -249,3 +249,28 @@ export interface AppStatus {
   lastSyncDuration: number;
   lastSyncTopics: number;
 }
+
+// ---------------------------------------------------------------------------
+// Sync log
+// ---------------------------------------------------------------------------
+
+export interface SyncLogEntry {
+  timestamp: string;
+  mode: string;
+  topics: number;
+  durationSeconds: number;
+  hasChanges: boolean;
+}
+
+export interface SyncProgress {
+  mode: string;
+  topics: number;
+  totalTopics: number;
+  elapsedSeconds: number;
+  etaSeconds: number;
+}
+
+export interface SyncLogResponse {
+  progress: SyncProgress | null;
+  entries: SyncLogEntry[];
+}

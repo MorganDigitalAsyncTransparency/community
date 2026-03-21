@@ -16,6 +16,7 @@ type FetchClient interface {
 	FetchTopics(ctx context.Context) ([]model.RawTopic, error)
 	FetchTopicsPages(ctx context.Context, startPage int, fn func(topics []model.RawTopic, page int) error) error
 	FetchCategories(ctx context.Context) ([]model.RawCategory, error)
+	FetchTopicCount(ctx context.Context) int
 }
 
 // StorageBackend persists normalized topics and sync metadata.
@@ -36,6 +37,7 @@ type SyncResult struct {
 	TopicsStored int
 	NewWatermark *time.Time
 	Duration     time.Duration
+	HasChanges   bool
 }
 
 // errStopPagination is a sentinel error used by delta sync to signal that
@@ -44,14 +46,21 @@ var errStopPagination = errors.New("stop pagination")
 
 // Observer coordinates fetch, normalization, and storage.
 type Observer struct {
-	fetch   FetchClient
-	store   StorageBackend
-	baseURL string
+	fetch       FetchClient
+	store       StorageBackend
+	baseURL     string
+	onProgress  model.ProgressFunc
+	totalTopics int
 }
 
 // New creates an Observer. baseURL is the forum URL used to construct topic links.
 func New(fetch FetchClient, store StorageBackend, baseURL string) *Observer {
 	return &Observer{fetch: fetch, store: store, baseURL: baseURL}
+}
+
+// SetProgressFunc sets an optional callback invoked after each page.
+func (o *Observer) SetProgressFunc(fn model.ProgressFunc) {
+	o.onProgress = fn
 }
 
 // Run executes one sync cycle, auto-detecting mode:
@@ -70,6 +79,8 @@ func (o *Observer) Run(ctx context.Context) (SyncResult, error) {
 // RunInitialSync performs a full crawl of all pages.
 func (o *Observer) RunInitialSync(ctx context.Context) (SyncResult, error) {
 	start := time.Now()
+
+	o.totalTopics = o.fetch.FetchTopicCount(ctx)
 
 	catMap, err := o.fetchCategoryMap(ctx)
 	if err != nil {
@@ -100,6 +111,7 @@ func (o *Observer) RunInitialSync(ctx context.Context) (SyncResult, error) {
 	if err := o.finalizeInitialSync(ctx, &result, maxBump); err != nil {
 		return result, err
 	}
+	result.HasChanges = result.TopicsStored > 0
 	result.Duration = time.Since(start)
 	return result, nil
 }
@@ -107,6 +119,7 @@ func (o *Observer) RunInitialSync(ctx context.Context) (SyncResult, error) {
 // RunDeltaSync fetches pages until all topics on a page are at or below
 // the stored watermark.
 func (o *Observer) RunDeltaSync(ctx context.Context) (SyncResult, error) {
+	o.totalTopics = 0
 	start := time.Now()
 
 	wm, err := o.store.LoadWatermark(ctx)
@@ -141,6 +154,7 @@ func (o *Observer) RunDeltaSync(ctx context.Context) (SyncResult, error) {
 	newWM := *wm
 	if maxBump.After(newWM) {
 		newWM = maxBump
+		result.HasChanges = true
 	}
 	if err := o.store.SaveWatermark(ctx, newWM); err != nil {
 		return result, fmt.Errorf("save watermark: %w", err)
@@ -181,6 +195,9 @@ func (o *Observer) storeAndTrack(ctx context.Context, raws []model.RawTopic, cat
 	result.PagesFetched++
 	result.TopicsStored += len(topics)
 	trackMaxBump(maxBump, raws)
+	if o.onProgress != nil {
+		o.onProgress(result.Mode, result.PagesFetched, result.TopicsStored, o.totalTopics)
+	}
 	return nil
 }
 

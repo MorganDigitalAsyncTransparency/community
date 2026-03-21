@@ -1,4 +1,4 @@
-.PHONY: check setup lint lint-go lint-md lint-frontend test verify docs build up down start restart open seed maybe-seed
+.PHONY: check setup lint lint-go lint-md lint-frontend test verify docs build up down start restart reset open seed
 
 ## Check — verify prerequisites are installed
 check:
@@ -50,8 +50,8 @@ down:
 	docker compose down --timeout 10 --remove-orphans
 
 ## Start — one-command onboarding: setup, configure, build, launch, open browser
-## Seeds mock data automatically when DISCOURSE_API_TOKEN is empty in .env.
-start: setup .env config/tagConfig.json verify maybe-seed build up open
+## The mock server service provides data in dev mode — no seeding needed.
+start: setup .env config/tagConfig.json verify build up open
 
 .env:
 	cp .env.example .env
@@ -66,19 +66,15 @@ seed:
 	@mkdir -p data
 	go run ./backend/cmd/seed
 
-## Maybe-seed — seed only when no real Discourse credentials are configured
-maybe-seed:
-	@TOKEN=$$(grep -s '^DISCOURSE_API_TOKEN=' .env | cut -d= -f2-); \
-	if [ -z "$$TOKEN" ]; then \
-		echo "No DISCOURSE_API_TOKEN in .env — seeding mock data..."; \
-		mkdir -p data; \
-		go run ./backend/cmd/seed; \
-	else \
-		echo "DISCOURSE_API_TOKEN found — skipping seed."; \
-	fi
-
 ## Restart — rebuild and relaunch after code changes
 restart: down verify build up open
+
+## Reset — clear database and re-run initial sync from scratch
+## Run `make restart` first if you also need to rebuild after code changes.
+reset: down
+	rm -f data/analytics.db
+	@echo "Database cleared — scheduler will run initial sync on next start."
+	$(MAKE) build up open
 
 ## Open the dashboard in the default browser
 open:

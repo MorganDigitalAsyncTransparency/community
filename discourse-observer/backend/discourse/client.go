@@ -125,6 +125,25 @@ func (c *Client) FetchTopicsPagesWithConfig(ctx context.Context, cfg PageConfig,
 	}
 }
 
+// aboutResponse mirrors the Discourse /about.json shape (subset).
+type aboutResponse struct {
+	About struct {
+		Stats struct {
+			TopicCount int `json:"topic_count"`
+		} `json:"stats"`
+	} `json:"about"`
+}
+
+// FetchTopicCount retrieves the total topic count from /about.json.
+// Returns 0 if the endpoint is unavailable or the field is missing.
+func (c *Client) FetchTopicCount(ctx context.Context) int {
+	var resp aboutResponse
+	if err := c.getJSON(ctx, "/about.json", &resp); err != nil {
+		return 0
+	}
+	return resp.About.Stats.TopicCount
+}
+
 // FetchCategories retrieves all categories from the /categories.json endpoint.
 func (c *Client) FetchCategories(ctx context.Context) ([]model.RawCategory, error) {
 	var resp categoriesResponse

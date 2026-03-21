@@ -67,6 +67,15 @@ This matrix shows how use cases decompose into API contract requirements and ver
 
 ---
 
+## Infrastructure
+
+| Use case | Spec | Requirements | Verification |
+|----------|------|-------------|--------------|
+| (operational) | [api-contract.md](api-contract.md) | AC-28 (status) | [api-contract_verification.md](api-contract_verification.md) |
+| (operational) | [api-contract.md](api-contract.md) | AC-33 (sync log) | `GET /api/v1/sync-log` returns entries |
+
+---
+
 ## Gaps
 
 None. All use cases except UC-24 (frontend-only) are covered by API contract requirements.

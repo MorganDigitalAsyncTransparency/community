@@ -24,10 +24,12 @@ type fakeSyncState struct {
 	syncedAt *time.Time
 }
 
-func (f *fakeSyncState) GetState() string               { return f.state }
-func (f *fakeSyncState) GetLastDuration() time.Duration { return 0 }
-func (f *fakeSyncState) GetLastTopics() int             { return 0 }
-func (f *fakeSyncState) GetLastSyncedAt() *time.Time    { return f.syncedAt }
+func (f *fakeSyncState) GetState() string                 { return f.state }
+func (f *fakeSyncState) GetLastDuration() time.Duration   { return 0 }
+func (f *fakeSyncState) GetLastTopics() int               { return 0 }
+func (f *fakeSyncState) GetLastSyncedAt() *time.Time      { return f.syncedAt }
+func (f *fakeSyncState) GetLog() []model.SyncLogEntry     { return nil }
+func (f *fakeSyncState) GetProgress() *model.SyncProgress { return nil }
 
 func testServer(t *testing.T) (ts *httptest.Server, srv *Server) {
 	t.Helper()

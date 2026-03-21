@@ -20,7 +20,7 @@ MS-5 — **Dev-mode detection.** The backend starts the sync scheduler when `DIS
 
 MS-6 — **Environment defaults.** `.env.example` sets `DISCOURSE_BASE_URL=http://mockserver:9920` so the backend container reaches the mock server by Docker service name. A comment documents `http://localhost:9920` for local non-Docker development.
 
-MS-7 — **Backward compatibility.** `maybe-seed` remains in the `start` chain, providing instant data on first load. The scheduler upserts over seeded data on its first sync cycle.
+MS-7 — **No seeding required.** The mock server service replaces the old `maybe-seed` approach. The scheduler performs a full initial sync from the mock server on first launch — no pre-seeding needed. `make seed` remains available for manual use.
 
 ---
 
@@ -34,4 +34,4 @@ MS-7 — **Backward compatibility.** `maybe-seed` remains in the `start` chain, 
 | MS-4 | `docker compose build mockserver` succeeds. |
 | MS-5 | Backend logs "sync scheduler started" when `DISCOURSE_BASE_URL` is set and `DISCOURSE_API_TOKEN` is empty. |
 | MS-6 | `.env.example` contains the mock server URL. |
-| MS-7 | `make start` still seeds mock data, then scheduler syncs over it. |
+| MS-7 | `make start` launches mock server, scheduler runs initial sync automatically. |

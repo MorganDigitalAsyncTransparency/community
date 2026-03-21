@@ -27,6 +27,7 @@ import type {
   ViolationGroups,
   TagCompliance,
   Heatmap,
+  SyncLogResponse,
 } from "./api/types";
 import type { FilterParams } from "./api/client";
 import type { Page } from "./types";
@@ -48,6 +49,7 @@ import {
   fetchViolations,
   fetchCompliance,
   fetchHeatmap,
+  fetchSyncLog,
 } from "./api/endpoints";
 import { SummaryCards } from "./components/SummaryCards";
 import { UnrepliedTable } from "./components/UnrepliedTable";
@@ -64,6 +66,7 @@ import { PeriodSelector } from "./components/PeriodSelector";
 import { TagSelector } from "./components/TagSelector";
 import { Sidebar } from "./components/Sidebar";
 import { Footer } from "./components/Footer";
+import { SyncLog } from "./components/SyncLog";
 import {
   type CustomRange,
   type PeriodPreset,
@@ -168,6 +171,7 @@ export function App() {
   const [distData, setDistData] = useState<DistributionData | null>(null);
   const [sloData, setSloData] = useState<SloData | null>(null);
   const [heatmapData, setHeatmapData] = useState<Heatmap | null>(null);
+  const [syncLogData, setSyncLogData] = useState<SyncLogResponse | null>(null);
 
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -200,6 +204,9 @@ export function App() {
         case "activity":
           setHeatmapData(await fetchHeatmap(f));
           break;
+        case "sync-log":
+          setSyncLogData(await fetchSyncLog());
+          break;
       }
     } catch (err) {
       setError(err instanceof Error ? err.message : "Failed to load data");
@@ -211,6 +218,15 @@ export function App() {
   useEffect(() => {
     loadPageData(page, { period: activePeriod, tag: activeTag });
   }, [page, activePeriod, activeTag, loadPageData]);
+
+  // Auto-refresh sync log every 10s while on the page
+  useEffect(() => {
+    if (page !== "sync-log") return;
+    const id = setInterval(() => {
+      fetchSyncLog().then(setSyncLogData).catch(() => {});
+    }, 10_000);
+    return () => clearInterval(id);
+  }, [page]);
 
   function handlePresetSelect(preset: PeriodPreset) {
     setPeriod({ kind: "preset", preset });
@@ -252,7 +268,7 @@ export function App() {
         onMobileClose={() => setSidebarOpen(false)}
       />
 
-      <div className="filter-bar">
+      {page !== "sync-log" && <div className="filter-bar">
         <PeriodSelector
           period={activePeriod}
           customDraft={customDraft}
@@ -282,7 +298,7 @@ export function App() {
             Clear all filters
           </button>
         )}
-      </div>
+      </div>}
 
       <main className="content">
         <div className="app-content">
@@ -366,12 +382,17 @@ export function App() {
           {page === "activity" && heatmapData && (
             <PeakActivity data={heatmapData} />
           )}
+
+          {page === "sync-log" && syncLogData && (
+            <SyncLog data={syncLogData} />
+          )}
         </div>
       </main>
 
       <Footer
         version={status?.version ?? ""}
         lastSyncedAt={status?.lastSyncedAt ?? null}
+        onSyncLogClick={() => setPage("sync-log")}
       />
     </div>
   );

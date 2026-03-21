@@ -12,13 +12,16 @@ The observer has paginated fetching (PR 1) and sync metadata storage (PR 2), but
 
 ### R1 — FetchClient interface supports paginated fetching
 
-The `FetchClient` interface in the observer package adds a paginated fetch method:
+The `FetchClient` interface in the observer package adds a paginated fetch method and a topic count method:
 
 ```go
 FetchTopicsPages(ctx context.Context, startPage int, fn func(topics []model.RawTopic, page int) error) error
+FetchTopicCount(ctx context.Context) int
 ```
 
-The method paginates from `startPage` and calls `fn` for each page. If `fn` returns an error, pagination stops and that error is returned. The observer does not import `discourse.PageConfig` — timing configuration is internal to the concrete client.
+`FetchTopicsPages` paginates from `startPage` and calls `fn` for each page. If `fn` returns an error, pagination stops and that error is returned. The observer does not import `discourse.PageConfig` — timing configuration is internal to the concrete client.
+
+`FetchTopicCount` retrieves the total topic count from `/about.json` for progress estimation during initial sync. Returns 0 if unavailable.
 
 The existing `FetchTopics` method remains on the interface for backward compatibility.
 
