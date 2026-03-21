@@ -28,6 +28,7 @@
 !*.txt
 !Makefile
 !Dockerfile
+!*.Dockerfile
 !*.dockerignore
 !*.gitattributes
 !*.gitignore
