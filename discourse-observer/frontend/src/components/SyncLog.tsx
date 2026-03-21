@@ -22,17 +22,43 @@ function formatDuration(seconds: number): string {
   return `${m}m${s}s`;
 }
 
-function formatEntry(e: SyncLogEntry): string {
-  return `${formatTimestamp(e.timestamp)}  ${e.mode}  ${e.pages} pages  ${e.topics} topics  ${formatDuration(e.durationSeconds)}`;
+function modeClass(mode: string): string {
+  switch (mode) {
+    case "initial": return "sync-entry sync-entry-initial";
+    case "delta":   return "sync-entry sync-entry-delta";
+    case "detail":  return "sync-entry sync-entry-detail";
+    default:        return "sync-entry";
+  }
 }
 
-function formatProgress(p: SyncProgress): string {
+function EntryRow({ e }: { e: SyncLogEntry }) {
+  return (
+    <div className={modeClass(e.mode)}>
+      <span className="sync-entry-time">{formatTimestamp(e.timestamp)}</span>
+      <span className="sync-entry-mode">{e.mode}</span>
+      <span className="sync-entry-stat">{e.pages} pages</span>
+      <span className="sync-entry-stat">{e.topics} topics</span>
+      <span className="sync-entry-stat">{formatDuration(e.durationSeconds)}</span>
+    </div>
+  );
+}
+
+function ProgressRow({ p }: { p: SyncProgress }) {
   const elapsed = formatDuration(p.elapsedSeconds);
   const mode = p.mode || "sync";
-  if (p.pages === 0) {
-    return `${mode} running... fetching first page  ${elapsed}`;
-  }
-  return `${mode} running... ${p.pages} pages  ${p.topics} topics  ${elapsed}`;
+  return (
+    <div className="sync-progress">
+      <span className="sync-entry-mode">{mode}</span>
+      {p.pages === 0
+        ? <span className="sync-entry-stat">fetching first page...</span>
+        : <>
+            <span className="sync-entry-stat">{p.pages} pages</span>
+            <span className="sync-entry-stat">{p.topics} topics</span>
+          </>
+      }
+      <span className="sync-entry-stat">{elapsed}</span>
+    </div>
+  );
 }
 
 export function SyncLog({ data }: SyncLogProps) {
@@ -40,15 +66,27 @@ export function SyncLog({ data }: SyncLogProps) {
     <section>
       <h2 className="app-section-title">Sync log</h2>
 
-      {data.progress && (
-        <div className="sync-progress">{formatProgress(data.progress)}</div>
-      )}
+      <div className="sync-log-description">
+        <p>The sync pipeline keeps local data up to date with the Discourse forum. Three sync types run at different times:</p>
+        <dl className="sync-type-list">
+          <dt className="sync-type-label sync-type-initial">initial</dt>
+          <dd>Full crawl of all topics. Runs once when the database is empty.</dd>
+          <dt className="sync-type-label sync-type-delta">delta</dt>
+          <dd>Incremental sync of recent changes. Runs every 15 minutes.</dd>
+          <dt className="sync-type-label sync-type-detail">detail</dt>
+          <dd>Fetches revision history per topic. Runs during low-activity windows.</dd>
+        </dl>
+        <p className="sync-log-retention">The log keeps the 20 most recent entries per type and persists across restarts.</p>
+      </div>
 
-      <pre className="sync-log">{
-        data.entries.length === 0
-          ? "No sync events yet."
-          : data.entries.map(formatEntry).join("\n")
-      }</pre>
+      {data.progress && <ProgressRow p={data.progress} />}
+
+      <div className="sync-log">
+        {data.entries.length === 0
+          ? <div className="sync-entry">No sync events yet.</div>
+          : data.entries.map((e, i) => <EntryRow key={i} e={e} />)
+        }
+      </div>
     </section>
   );
 }
