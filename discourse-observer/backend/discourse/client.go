@@ -221,7 +221,7 @@ func (c *Client) getJSONRetry(ctx context.Context, path string, dst any, maxRetr
 			retries++
 			c.notifyRetry(retries, err.Error())
 			if retries > maxRetries {
-				return fmt.Errorf("after %d retries: %w", retries, err)
+				return fmt.Errorf("failed after %d attempts: %w", retries, err)
 			}
 			if err := sleepCtx(ctx, retryDelay); err != nil {
 				return err
@@ -249,7 +249,7 @@ func (c *Client) getJSONRetry(ctx context.Context, path string, dst any, maxRetr
 			retries++
 			c.notifyRetry(retries, fmt.Sprintf("server error (%d)", httpErr.StatusCode))
 			if retries > maxRetries {
-				return fmt.Errorf("after %d retries: %w", retries, err)
+				return fmt.Errorf("failed after %d attempts: %w", retries, err)
 			}
 			if err := sleepCtx(ctx, retryDelay); err != nil {
 				return err

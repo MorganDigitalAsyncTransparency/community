@@ -193,10 +193,10 @@ func (s *Scheduler) Start(ctx context.Context) {
 		if !sleepCtx(ctx, wait) {
 			return
 		}
-		s.runSync(ctx, "delta", func(ctx context.Context) (observer.SyncResult, error) {
+		deltaOK := s.runSync(ctx, "delta", func(ctx context.Context) (observer.SyncResult, error) {
 			return s.runner.RunDeltaSync(ctx)
 		})
-		if s.shouldRunDetailSync(ctx) {
+		if deltaOK && s.shouldRunDetailSync(ctx) {
 			s.logger.Printf("low activity detected: triggering detail sync")
 			s.runSync(ctx, "detail", func(ctx context.Context) (observer.SyncResult, error) {
 				return s.runner.RunDetailSync(ctx)
@@ -207,10 +207,10 @@ func (s *Scheduler) Start(ctx context.Context) {
 
 // runSync executes a single sync cycle with concurrency guard and status updates.
 // The sync runs with a non-cancelable context so it completes even during shutdown.
-func (s *Scheduler) runSync(ctx context.Context, mode string, fn func(context.Context) (observer.SyncResult, error)) {
+func (s *Scheduler) runSync(ctx context.Context, mode string, fn func(context.Context) (observer.SyncResult, error)) bool {
 	if !s.running.TryLock() {
 		s.logger.Println("sync skipped: previous sync still running")
-		return
+		return false
 	}
 	defer s.running.Unlock()
 
@@ -238,12 +238,13 @@ func (s *Scheduler) runSync(ctx context.Context, mode string, fn func(context.Co
 	if err != nil {
 		s.logger.Printf("sync aborted: %v (duration=%s)", err, duration)
 		s.recordError(result, duration, err)
-		return
+		return false
 	}
 
 	s.logCompleted(result, duration)
 	s.recordResult(result, duration)
 	s.trackLowActivity(result)
+	return true
 }
 
 func (s *Scheduler) logCompleted(r observer.SyncResult, d time.Duration) {
