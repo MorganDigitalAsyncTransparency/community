@@ -268,7 +268,7 @@ export function App() {
         onMobileClose={() => setSidebarOpen(false)}
       />
 
-      <div className="filter-bar">
+      {page !== "sync-log" && <div className="filter-bar">
         <PeriodSelector
           period={activePeriod}
           customDraft={customDraft}
@@ -298,7 +298,7 @@ export function App() {
             Clear all filters
           </button>
         )}
-      </div>
+      </div>}
 
       <main className="content">
         <div className="app-content">
