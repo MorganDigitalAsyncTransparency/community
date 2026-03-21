@@ -64,6 +64,7 @@ nav:
           - Tag and Area Filter: specs/dashboard/tag-area-filter.md
           - URL State: specs/dashboard/url-state.md
           - Components: specs/dashboard/dashboard-components.md
+          - Sidebar About Section: specs/dashboard/sidebar-about-section.md
       - API:
           - API Contract: specs/api/api-contract.md
           - API Contract Verification: specs/api/api-contract_verification.md
