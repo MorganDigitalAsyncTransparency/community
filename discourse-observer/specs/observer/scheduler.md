@@ -64,7 +64,7 @@ SC-8 — **No overlapping syncs.** The scheduler prevents concurrent sync cycles
 
 SC-9 — **Consecutive zero-change tracking.** The scheduler counts consecutive delta syncs where `SyncResult.TopicsStored == 0`. The counter resets when a sync stores at least one topic.
 
-SC-10 — **Low-activity logging.** When the consecutive zero-change count reaches `LowActivityThreshold`, the scheduler logs a low-activity event with the count. Detail sync triggering based on this detection is deferred to PR 5.
+SC-10 — **Low-activity logging.** When the consecutive zero-change count reaches `LowActivityThreshold`, the scheduler logs a low-activity event with the count. Detail sync triggering based on this detection is specified in [detail-sync.md](detail-sync.md) (DS-17 through DS-19).
 
 ---
 

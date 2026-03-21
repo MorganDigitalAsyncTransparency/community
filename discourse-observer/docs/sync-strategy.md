@@ -119,10 +119,11 @@ Revision version numbering starts at 2 (version 1 is the original post). The `la
 2. Select topics that need detail enrichment — either never detail-synced, or where `bumped_at` is newer than the last detail sync.
 3. For each selected topic:
    a. Fetch `/t/{id}.json` to get the first post ID and its `version` count.
-   b. If `version > 1`: fetch `/posts/{post_id}/revisions/{v}.json` for each revision (v = 2 through `last_revision`).
+   b. If `version > last fetched revision` and `version > 1`: fetch only new revisions — from `(last fetched revision + 1)` through `version`, or from 2 if never synced. This avoids re-reading revisions already stored.
    c. Extract and store: tag change timestamps, category move timestamps, title change timestamps.
-   d. Mark the topic as detail-synced with the current timestamp.
-   e. Wait the configured delay (default 20 seconds) between requests.
+   d. Mark the topic as detail-synced with the current timestamp and the highest fetched revision version.
+   e. Wait the configured delay (default 20 seconds) between each HTTP request.
+   f. If `/t/{id}.json` returns 404 (deleted topic): keep stored history if the topic had a monitored tag, mark so it is not re-selected.
 4. Stop when the activity window ends or all selected topics are enriched.
 
 ### Prioritization
@@ -145,12 +146,9 @@ Delta sync runs every 15 minutes while the server is running. This is the base i
 
 ### Learned activity patterns
 
-Rather than relying on hardcoded time windows, the observer learns activity patterns from its own data. After accumulating enough sync history, it can identify:
+Rather than relying on hardcoded time windows, the scheduler identifies low-activity windows using peak activity data derived from stored topics. The current UTC day-of-week and hour are compared against historical topic creation patterns (the same heatmap data used by the Activity page). Hours with activity below a threshold relative to the peak are considered low-activity windows suitable for detail sync.
 
-- **Peak hours** — when the most topic changes occur. Delta sync continues at the base interval.
-- **Low-activity windows** — when few or no changes are detected across several consecutive syncs. The scheduler uses these windows for detail sync.
-
-Until enough data is collected (first few days of operation), the observer uses a simple heuristic: if the last N delta syncs each returned 0 changed topics, assume low activity.
+Until enough data is collected (first few days of operation), the scheduler uses a simple fallback heuristic: if the last N delta syncs each returned 0 changed topics, assume low activity.
 
 ### Jitter
 
