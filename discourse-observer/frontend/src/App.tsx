@@ -65,7 +65,6 @@ import { ResponseTimeDistribution } from "./components/ResponseTimeDistribution"
 import { PeriodSelector } from "./components/PeriodSelector";
 import { TagSelector } from "./components/TagSelector";
 import { Sidebar } from "./components/Sidebar";
-import { Footer } from "./components/Footer";
 import { SyncLog } from "./components/SyncLog";
 import {
   type CustomRange,
@@ -266,6 +265,9 @@ export function App() {
         onNavigate={setPage}
         mobileOpen={sidebarOpen}
         onMobileClose={() => setSidebarOpen(false)}
+        version={status?.version ?? ""}
+        lastSyncedAt={status?.lastSyncedAt ?? null}
+        onSyncLogClick={() => setPage("sync-log")}
       />
 
       {page !== "sync-log" && <div className="filter-bar">
@@ -389,11 +391,6 @@ export function App() {
         </div>
       </main>
 
-      <Footer
-        version={status?.version ?? ""}
-        lastSyncedAt={status?.lastSyncedAt ?? null}
-        onSyncLogClick={() => setPage("sync-log")}
-      />
     </div>
   );
 }

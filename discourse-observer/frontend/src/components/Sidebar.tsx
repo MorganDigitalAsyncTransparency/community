@@ -1,4 +1,4 @@
-// Spec: specs/dashboard/dashboard-components.md
+// Spec: specs/dashboard/dashboard-components.md, specs/dashboard/sidebar-about-section.md
 // ADR: docs/decisions/0011-dashboard-layout-and-theme.md
 // Tests: manual (sidebar interaction)
 
@@ -21,14 +21,30 @@ const NAV_ITEMS: NavItem[] = [
 
 const STORAGE_KEY = "sidebar-collapsed";
 
+const GITHUB_URL = "https://github.com/MorganDigitalAsyncTransparency/community";
+const DOCS_URL = "https://morgandigitalasynctransparency.github.io/community/";
+
 interface SidebarProps {
   activePage: Page;
   onNavigate: (page: Page) => void;
   mobileOpen?: boolean;
   onMobileClose?: () => void;
+  version: string;
+  lastSyncedAt: string | null;
+  onSyncLogClick?: () => void;
 }
 
-export function Sidebar({ activePage, onNavigate, mobileOpen, onMobileClose }: SidebarProps) {
+function formatSyncTime(isoString: string): string {
+  return new Date(isoString).toLocaleString(undefined, {
+    dateStyle: "short",
+    timeStyle: "short",
+  });
+}
+
+export function Sidebar({
+  activePage, onNavigate, mobileOpen, onMobileClose,
+  version, lastSyncedAt, onSyncLogClick,
+}: SidebarProps) {
   const [collapsed, setCollapsed] = useState(() => {
     try {
       return localStorage.getItem(STORAGE_KEY) === "true";
@@ -56,6 +72,11 @@ export function Sidebar({ activePage, onNavigate, mobileOpen, onMobileClose }: S
     onMobileClose?.();
   }
 
+  function handleSyncLogClick() {
+    onSyncLogClick?.();
+    onMobileClose?.();
+  }
+
   return (
     <>
       {mobileOpen && (
@@ -79,6 +100,40 @@ export function Sidebar({ activePage, onNavigate, mobileOpen, onMobileClose }: S
             </button>
           ))}
         </nav>
+
+        <div className="sidebar-about" title={collapsed ? "About" : undefined}>
+          <div className="sidebar-about-heading">
+            <span className="sidebar-icon">{"\u2139"}</span>
+            <span className="sidebar-label">About</span>
+          </div>
+          <div className="sidebar-about-items">
+            <span className="sidebar-about-item">{version}</span>
+            <span className="sidebar-about-item">
+              {lastSyncedAt
+                ? `Last synced ${formatSyncTime(lastSyncedAt)}`
+                : "Not yet synced"}
+            </span>
+            <button className="sidebar-about-link" onClick={handleSyncLogClick}>
+              Sync log
+            </button>
+            <a
+              className="sidebar-about-link"
+              href={GITHUB_URL}
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              GitHub &#8599;
+            </a>
+            <a
+              className="sidebar-about-link"
+              href={DOCS_URL}
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              Read more &#8599;
+            </a>
+          </div>
+        </div>
 
         <button
           className="sidebar-toggle"
