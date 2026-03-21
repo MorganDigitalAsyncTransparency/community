@@ -69,8 +69,8 @@ seed:
 ## Restart — rebuild and relaunch after code changes
 restart: down verify build up open
 
-## Reset — clear database and re-run initial sync from scratch
-reset: down
+## Reset — rebuild, clear database, and re-run initial sync from scratch
+reset: down build
 	rm -f data/analytics.db
 	@echo "Database cleared — scheduler will run initial sync on next start."
 	$(MAKE) up open
