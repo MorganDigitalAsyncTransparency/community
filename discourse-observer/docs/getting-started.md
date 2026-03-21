@@ -10,7 +10,7 @@ make start
 
 This single command handles the full onboarding flow: installs dependencies, creates config files, runs verification, builds containers, and opens the dashboard.
 
-No Discourse forum is needed to get started. The default `.env` has no API token, so `make start` automatically seeds mock topics into a local SQLite database. The dashboard opens fully populated with realistic test data.
+No Discourse forum is needed to get started. The default `.env` points `DISCOURSE_BASE_URL` at a built-in mock Discourse server that runs as a Docker service. `make start` seeds mock topics for instant data, then the scheduler syncs from the mock server on its normal interval — the full pipeline runs end-to-end.
 
 To connect to a real forum later, edit `.env` with your Discourse credentials (see [Configure for a real forum](#configure-for-a-real-forum)). The next `make start` detects the token and skips seeding.
 
@@ -75,7 +75,7 @@ DISCOURSE_API_TOKEN=your-api-token-here
 DISCOURSE_API_USER=nickname
 ```
 
-When `DISCOURSE_API_TOKEN` has a value, `make start` skips mock seeding and the backend fetches from your forum instead.
+When `DISCOURSE_API_TOKEN` has a value, `make start` skips mock seeding. The backend syncs from whatever `DISCOURSE_BASE_URL` points to — your real forum in production, or the built-in mock server in dev mode (the default).
 
 The `.env` file is gitignored and will not be committed.
 
@@ -140,7 +140,7 @@ make down
 
 ## How it works
 
-The setup runs two containers on an internal Docker network:
+The setup runs three containers on an internal Docker network:
 
 ```text
 Browser ──:3000──▸ nginx (frontend)
@@ -149,11 +149,15 @@ Browser ──:3000──▸ nginx (frontend)
                                      │
                                 Go API (backend, internal only)
                                      │
-                                Discourse API (external)
+                    ┌────────────────┴────────────────┐
+                    │                                  │
+              mockserver:9920                  Discourse API
+             (dev — built-in)               (prod — external)
 ```
 
 - **Frontend container** — nginx serves the React build and proxies API requests to the backend. This is the only container exposed to the host.
-- **Backend container** — Go service that polls Discourse and serves the API. Not directly accessible from outside Docker.
+- **Backend container** — Go service that polls Discourse (or the mock server) and serves the API. Not directly accessible from outside Docker.
+- **Mock server container** — serves realistic Discourse API responses from built-in fixtures. Used in dev mode (default). Not needed when connecting to a real forum.
 - **Data directory** — the SQLite database (`data/analytics.db`) is bind-mounted from the project's `data/` directory, shared between host and container.
 
 ## Rebuild after code changes
