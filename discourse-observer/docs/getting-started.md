@@ -75,7 +75,7 @@ DISCOURSE_API_TOKEN=your-api-token-here
 DISCOURSE_API_USER=nickname
 ```
 
-When `DISCOURSE_API_TOKEN` has a value, `make start` skips mock seeding. The backend syncs from whatever `DISCOURSE_BASE_URL` points to — your real forum in production, or the built-in mock server in dev mode (the default).
+The backend syncs from whatever `DISCOURSE_BASE_URL` points to. With your real forum URL and credentials, it syncs from your forum. The default (mock server) requires no credentials.
 
 The `.env` file is gitignored and will not be committed.
 
