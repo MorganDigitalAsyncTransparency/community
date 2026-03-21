@@ -359,6 +359,7 @@ Response object:
   - `topics` (integer): number of topics upserted
   - `durationSeconds` (float): sync duration in seconds
   - `hasChanges` (boolean): true if new or updated data was found
+  - `error` (string): empty string for successful syncs; error message when the sync failed
 
 The log is persisted in SQLite and survives restarts. Each sync type retains its own 20 most recent entries, so infrequent events (like initial sync) are never displaced by frequent ones (like delta sync). No-change entries are deduplicated: only the most recent per type is kept. Returns empty entries array and null progress when sync is disabled. This endpoint is not filtered.
 
