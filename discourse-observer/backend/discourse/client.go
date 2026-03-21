@@ -154,7 +154,11 @@ func (c *Client) FetchCategories(ctx context.Context) ([]model.RawCategory, erro
 }
 
 // FetchTopicDetail retrieves full topic data from /t/{id}.json.
+// Respects the client's configured delay before the request.
 func (c *Client) FetchTopicDetail(ctx context.Context, topicID int) (*model.RawTopicDetail, error) {
+	if err := sleepCtx(ctx, c.pageCfg.Delay); err != nil {
+		return nil, err
+	}
 	path := fmt.Sprintf("/t/%d.json", topicID)
 	var resp model.RawTopicDetail
 	if err := c.getJSONRetry(ctx, path, &resp, c.pageCfg.MaxRetries, c.pageCfg.RetryDelay); err != nil {
@@ -164,7 +168,11 @@ func (c *Client) FetchTopicDetail(ctx context.Context, topicID int) (*model.RawT
 }
 
 // FetchPostRevision retrieves a single revision from /posts/{id}/revisions/{v}.json.
+// Respects the client's configured delay before the request.
 func (c *Client) FetchPostRevision(ctx context.Context, postID, version int) (*model.RawRevision, error) {
+	if err := sleepCtx(ctx, c.pageCfg.Delay); err != nil {
+		return nil, err
+	}
 	path := fmt.Sprintf("/posts/%d/revisions/%d.json", postID, version)
 	var resp model.RawRevision
 	if err := c.getJSONRetry(ctx, path, &resp, c.pageCfg.MaxRetries, c.pageCfg.RetryDelay); err != nil {
