@@ -12,15 +12,25 @@ import (
 	"net/http"
 	"os"
 	"os/signal"
+	"strconv"
 	"time"
 
 	"github.com/code-community/discourse-observer/backend/discourse/mockserver"
 )
 
 func main() {
+	handler := mockserver.Handler()
+	if v := os.Getenv("MOCK_PAGE_SIZE"); v != "" {
+		n, err := strconv.Atoi(v)
+		if err != nil || n <= 0 {
+			log.Fatalf("invalid MOCK_PAGE_SIZE: %s", v)
+		}
+		handler = mockserver.HandlerWithPageSize(n)
+	}
+
 	srv := &http.Server{
 		Addr:    ":9920",
-		Handler: mockserver.Handler(),
+		Handler: handler,
 	}
 
 	ctx, stop := signal.NotifyContext(context.Background(), os.Interrupt)

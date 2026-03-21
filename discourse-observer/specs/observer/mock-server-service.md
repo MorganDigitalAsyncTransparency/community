@@ -10,7 +10,7 @@ Related: [scheduler.md](scheduler.md) (SC-5), [sync-strategy.md](../../docs/sync
 
 MS-1 — **Exported handler.** The mock server package exports a `Handler()` function returning `http.Handler`. This allows both `httptest.Server` usage (tests) and standalone HTTP server usage (docker service). Existing `New()` and `NewWithPageSize()` delegate to the handler.
 
-MS-2 — **Standalone entrypoint.** A `cmd/mockserver/main.go` binary listens on `:9920` using the exported handler. It logs its listen address on startup and shuts down gracefully on SIGINT.
+MS-2 — **Standalone entrypoint.** A `cmd/mockserver/main.go` binary listens on `:9920` using the exported handler. It logs its listen address on startup and shuts down gracefully on SIGINT. The `MOCK_PAGE_SIZE` env var overrides the default page size (30); docker-compose sets it to 5 so pagination is visible in sync logs.
 
 MS-3 — **Docker service.** A `mockserver` service in `docker-compose.yml` builds from `docker/mockserver.Dockerfile` and exposes port 9920 on the internal Docker network. The backend service depends on mockserver being healthy.
 

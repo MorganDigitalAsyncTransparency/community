@@ -24,6 +24,8 @@ services:
     build:
       context: .
       dockerfile: docker/mockserver.Dockerfile
+    environment:
+      MOCK_PAGE_SIZE: 5
     expose:
       - "9920"
     healthcheck:
