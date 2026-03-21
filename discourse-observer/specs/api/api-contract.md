@@ -341,6 +341,20 @@ Response fields:
 
 This endpoint is not filtered.
 
+### Endpoint: Sync log
+
+**AC-33.** `GET /api/v1/sync-log` — Returns the most recent sync events (newest first, up to 20).
+
+Response: array of objects, each with:
+
+- `timestamp` (string): ISO 8601 UTC timestamp of sync completion
+- `mode` (string): `"initial"` or `"delta"`
+- `pages` (integer): number of pages fetched
+- `topics` (integer): number of topics upserted
+- `durationSeconds` (float): sync duration in seconds
+
+Returns an empty array when sync is disabled or no syncs have completed. This endpoint is not filtered. The log is in-memory and resets on restart.
+
 ### Cross-cutting
 
 **AC-29.** All list endpoints (AC-13, AC-14, AC-15, AC-24) include a `topicUrl` field that is a full, clickable URL to the topic on the Discourse forum.
