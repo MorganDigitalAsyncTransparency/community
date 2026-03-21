@@ -249,3 +249,15 @@ export interface AppStatus {
   lastSyncDuration: number;
   lastSyncTopics: number;
 }
+
+// ---------------------------------------------------------------------------
+// Sync log
+// ---------------------------------------------------------------------------
+
+export interface SyncLogEntry {
+  timestamp: string;
+  mode: string;
+  pages: number;
+  topics: number;
+  durationSeconds: number;
+}

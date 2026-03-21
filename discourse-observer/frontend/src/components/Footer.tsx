@@ -5,6 +5,7 @@
 interface FooterProps {
   version: string;
   lastSyncedAt: string | null;
+  onSyncLogClick?: () => void;
 }
 
 function formatSyncTime(isoString: string): string {
@@ -14,7 +15,7 @@ function formatSyncTime(isoString: string): string {
   });
 }
 
-export function Footer({ version, lastSyncedAt }: FooterProps) {
+export function Footer({ version, lastSyncedAt, onSyncLogClick }: FooterProps) {
   return (
     <footer className="footer">
       <div className="footer-inner">
@@ -25,6 +26,10 @@ export function Footer({ version, lastSyncedAt }: FooterProps) {
             ? `Last synced ${formatSyncTime(lastSyncedAt)}`
             : "Not yet synced"}
         </span>
+        <span>&middot;</span>
+        <button className="footer-link" onClick={onSyncLogClick}>
+          Sync log
+        </button>
         <span>&middot;</span>
         <a
           className="footer-link"

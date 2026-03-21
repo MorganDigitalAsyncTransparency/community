@@ -20,6 +20,7 @@ import type {
   Heatmap,
   AppConfig,
   AppStatus,
+  SyncLogEntry,
 } from "./types";
 
 // Queue
@@ -78,3 +79,7 @@ export const fetchConfig = () =>
 
 export const fetchStatus = () =>
   apiFetch<AppStatus>("/status");
+
+// Sync log
+export const fetchSyncLog = () =>
+  apiFetch<SyncLogEntry[]>("/sync-log");

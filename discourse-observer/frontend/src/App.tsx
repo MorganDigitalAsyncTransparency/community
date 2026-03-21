@@ -27,6 +27,7 @@ import type {
   ViolationGroups,
   TagCompliance,
   Heatmap,
+  SyncLogEntry,
 } from "./api/types";
 import type { FilterParams } from "./api/client";
 import type { Page } from "./types";
@@ -48,6 +49,7 @@ import {
   fetchViolations,
   fetchCompliance,
   fetchHeatmap,
+  fetchSyncLog,
 } from "./api/endpoints";
 import { SummaryCards } from "./components/SummaryCards";
 import { UnrepliedTable } from "./components/UnrepliedTable";
@@ -64,6 +66,7 @@ import { PeriodSelector } from "./components/PeriodSelector";
 import { TagSelector } from "./components/TagSelector";
 import { Sidebar } from "./components/Sidebar";
 import { Footer } from "./components/Footer";
+import { SyncLog } from "./components/SyncLog";
 import {
   type CustomRange,
   type PeriodPreset,
@@ -168,6 +171,7 @@ export function App() {
   const [distData, setDistData] = useState<DistributionData | null>(null);
   const [sloData, setSloData] = useState<SloData | null>(null);
   const [heatmapData, setHeatmapData] = useState<Heatmap | null>(null);
+  const [syncLogData, setSyncLogData] = useState<SyncLogEntry[] | null>(null);
 
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -199,6 +203,9 @@ export function App() {
           break;
         case "activity":
           setHeatmapData(await fetchHeatmap(f));
+          break;
+        case "sync-log":
+          setSyncLogData(await fetchSyncLog());
           break;
       }
     } catch (err) {
@@ -366,12 +373,17 @@ export function App() {
           {page === "activity" && heatmapData && (
             <PeakActivity data={heatmapData} />
           )}
+
+          {page === "sync-log" && syncLogData && (
+            <SyncLog entries={syncLogData} />
+          )}
         </div>
       </main>
 
       <Footer
         version={status?.version ?? ""}
         lastSyncedAt={status?.lastSyncedAt ?? null}
+        onSyncLogClick={() => setPage("sync-log")}
       />
     </div>
   );

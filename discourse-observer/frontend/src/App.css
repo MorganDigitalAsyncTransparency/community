@@ -181,10 +181,29 @@ body {
 .footer-link {
   color: var(--color-accent-primary);
   text-decoration: none;
+  background: none;
+  border: none;
+  font: inherit;
+  cursor: pointer;
+  padding: 0;
 }
 
 .footer-link:hover {
   text-decoration: underline;
+}
+
+/* ── Sync log ── */
+
+.sync-log {
+  font-family: var(--font-family-mono, monospace);
+  font-size: var(--font-size-sm);
+  line-height: 1.6;
+  color: var(--color-text-secondary);
+  background: var(--color-bg-secondary);
+  padding: var(--spacing-md);
+  border-radius: var(--radius-md);
+  overflow-x: auto;
+  white-space: pre;
 }
 
 /* ── Period selector ── */

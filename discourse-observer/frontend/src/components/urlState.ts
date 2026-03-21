@@ -17,6 +17,7 @@ const VALID_PAGES: ReadonlySet<string> = new Set<Page>([
   "distribution",
   "slo",
   "activity",
+  "sync-log",
 ]);
 
 const VALID_PRESETS: ReadonlySet<string> = new Set<PeriodPreset>([

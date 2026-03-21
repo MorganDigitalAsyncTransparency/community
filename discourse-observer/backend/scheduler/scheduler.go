@@ -10,6 +10,7 @@ import (
 	"time"
 
 	"github.com/code-community/discourse-observer/backend/config"
+	"github.com/code-community/discourse-observer/backend/model"
 	"github.com/code-community/discourse-observer/backend/observer"
 )
 
@@ -19,6 +20,8 @@ type SyncRunner interface {
 	RunDeltaSync(ctx context.Context) (observer.SyncResult, error)
 }
 
+const maxLogEntries = 20
+
 // SyncStatus holds thread-safe operational state for the API to read.
 type SyncStatus struct {
 	mu           sync.RWMutex
@@ -26,6 +29,7 @@ type SyncStatus struct {
 	LastDuration time.Duration
 	LastTopics   int
 	LastSyncedAt *time.Time
+	log          []model.SyncLogEntry
 }
 
 // GetState returns the current sync state.
@@ -54,6 +58,15 @@ func (s *SyncStatus) GetLastSyncedAt() *time.Time {
 	s.mu.RLock()
 	defer s.mu.RUnlock()
 	return s.LastSyncedAt
+}
+
+// GetLog returns the most recent sync log entries (newest first).
+func (s *SyncStatus) GetLog() []model.SyncLogEntry {
+	s.mu.RLock()
+	defer s.mu.RUnlock()
+	out := make([]model.SyncLogEntry, len(s.log))
+	copy(out, s.log)
+	return out
 }
 
 // Scheduler drives the sync lifecycle.
@@ -146,11 +159,23 @@ func (s *Scheduler) logCompleted(r observer.SyncResult, d time.Duration) {
 
 func (s *Scheduler) recordResult(r observer.SyncResult, d time.Duration) {
 	now := time.Now().UTC()
+	entry := model.SyncLogEntry{
+		Timestamp: now,
+		Mode:      r.Mode,
+		Pages:     r.PagesFetched,
+		Topics:    r.TopicsStored,
+		Duration:  d,
+	}
 	s.status.mu.Lock()
 	defer s.status.mu.Unlock()
 	s.status.LastDuration = d
 	s.status.LastTopics = r.TopicsStored
 	s.status.LastSyncedAt = &now
+	// Prepend newest first, cap at maxLogEntries.
+	s.status.log = append([]model.SyncLogEntry{entry}, s.status.log...)
+	if len(s.status.log) > maxLogEntries {
+		s.status.log = s.status.log[:maxLogEntries]
+	}
 }
 
 func (s *Scheduler) trackLowActivity(r observer.SyncResult) {
