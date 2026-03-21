@@ -160,6 +160,16 @@ Browser ──:3000──▸ nginx (frontend)
 - **Mock server container** — serves realistic Discourse API responses from built-in fixtures. Used in dev mode (default). Not needed when connecting to a real forum.
 - **Data directory** — the SQLite database (`data/analytics.db`) is bind-mounted from the project's `data/` directory, shared between host and container.
 
+## Reset database
+
+To clear all data and re-run the initial sync from scratch:
+
+```sh
+make reset
+```
+
+This stops containers, deletes the SQLite database, restarts, and opens the dashboard. The scheduler will perform a full initial sync from the mock server (or your real forum). Progress is visible on the Sync log page.
+
 ## Rebuild after code changes
 
 ```sh
@@ -175,6 +185,7 @@ This stops the running containers, rebuilds changed layers, starts everything ag
 | `make start` | One-command onboarding: setup, verify, configure, build, launch, open browser |
 | `make seed` | Populate SQLite with mock topics for development (optional — the mock server handles this automatically) |
 | `make restart` | Verify, rebuild, and relaunch after code changes |
+| `make reset` | Clear database and re-run initial sync from scratch |
 | `make verify` | Run all linters and tests |
 | `make lint` | Run all linters (Go + markdown + frontend) |
 | `make test` | Run all tests (Go + frontend) |

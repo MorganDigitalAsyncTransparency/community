@@ -1,4 +1,4 @@
-.PHONY: check setup lint lint-go lint-md lint-frontend test verify docs build up down start restart open seed
+.PHONY: check setup lint lint-go lint-md lint-frontend test verify docs build up down start restart reset open seed
 
 ## Check — verify prerequisites are installed
 check:
@@ -68,6 +68,12 @@ seed:
 
 ## Restart — rebuild and relaunch after code changes
 restart: down verify build up open
+
+## Reset — clear database and re-run initial sync from scratch
+reset: down
+	rm -f data/analytics.db
+	@echo "Database cleared — scheduler will run initial sync on next start."
+	$(MAKE) up open
 
 ## Open the dashboard in the default browser
 open:
