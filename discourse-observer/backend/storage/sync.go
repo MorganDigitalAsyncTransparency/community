@@ -78,16 +78,17 @@ func (s *SQLiteStore) SaveSyncLogEntry(ctx context.Context, e model.SyncLogEntry
 	}
 
 	// Before inserting a no-change entry, remove all previous no-change entries for this mode.
-	if !e.HasChanges {
+	// Error entries are never deduplicated — each failure is kept individually.
+	if !e.HasChanges && e.Error == "" {
 		if _, err := s.db.ExecContext(ctx,
-			`DELETE FROM sync_log WHERE mode = ? AND has_changes = 0`, e.Mode); err != nil {
+			`DELETE FROM sync_log WHERE mode = ? AND has_changes = 0 AND error = ''`, e.Mode); err != nil {
 			return err
 		}
 	}
 
 	_, err := s.db.ExecContext(ctx,
-		`INSERT INTO sync_log (timestamp, mode, pages, topics, duration_s, has_changes) VALUES (?, ?, ?, ?, ?, ?)`,
-		e.Timestamp.Format(time.RFC3339), e.Mode, e.Pages, e.Topics, e.Duration.Seconds(), hasChanges)
+		`INSERT INTO sync_log (timestamp, mode, pages, topics, duration_s, has_changes, error) VALUES (?, ?, ?, ?, ?, ?, ?)`,
+		e.Timestamp.Format(time.RFC3339), e.Mode, e.Pages, e.Topics, e.Duration.Seconds(), hasChanges, e.Error)
 	if err != nil {
 		return err
 	}
@@ -104,7 +105,7 @@ func (s *SQLiteStore) SaveSyncLogEntry(ctx context.Context, e model.SyncLogEntry
 // LoadSyncLog returns all stored sync log entries, newest first.
 func (s *SQLiteStore) LoadSyncLog(ctx context.Context) ([]model.SyncLogEntry, error) {
 	rows, err := s.db.QueryContext(ctx,
-		`SELECT timestamp, mode, pages, topics, duration_s, has_changes FROM sync_log ORDER BY timestamp DESC`)
+		`SELECT timestamp, mode, pages, topics, duration_s, has_changes, error FROM sync_log ORDER BY timestamp DESC`)
 	if err != nil {
 		return nil, err
 	}
@@ -116,7 +117,7 @@ func (s *SQLiteStore) LoadSyncLog(ctx context.Context) ([]model.SyncLogEntry, er
 		var e model.SyncLogEntry
 		var durS float64
 		var hc int
-		if err := rows.Scan(&raw, &e.Mode, &e.Pages, &e.Topics, &durS, &hc); err != nil {
+		if err := rows.Scan(&raw, &e.Mode, &e.Pages, &e.Topics, &durS, &hc, &e.Error); err != nil {
 			return nil, err
 		}
 		t, err := time.Parse(time.RFC3339, raw)

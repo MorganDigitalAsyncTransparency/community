@@ -27,6 +27,7 @@ func (s *Server) handleSyncLog(w http.ResponseWriter, _ *http.Request) {
 		Topics     int     `json:"topics"`
 		Duration   float64 `json:"durationSeconds"`
 		HasChanges bool    `json:"hasChanges"`
+		Error      string  `json:"error"`
 	}
 
 	var prog *jsonProgress
@@ -58,6 +59,7 @@ func (s *Server) handleSyncLog(w http.ResponseWriter, _ *http.Request) {
 			Topics:     e.Topics,
 			Duration:   e.Duration.Seconds(),
 			HasChanges: e.HasChanges,
+			Error:      e.Error,
 		}
 	}
 

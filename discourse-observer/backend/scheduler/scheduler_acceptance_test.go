@@ -4,6 +4,7 @@ package scheduler_test
 import (
 	"bytes"
 	"context"
+	"fmt"
 	"log"
 	"strings"
 	"sync/atomic"
@@ -11,6 +12,7 @@ import (
 	"time"
 
 	"github.com/code-community/discourse-observer/backend/config"
+	"github.com/code-community/discourse-observer/backend/model"
 	"github.com/code-community/discourse-observer/backend/observer"
 	"github.com/code-community/discourse-observer/backend/scheduler"
 )
@@ -23,6 +25,7 @@ type fakeSyncRunner struct {
 	deltaCalls   atomic.Int32
 	detailCalls  atomic.Int32
 	runResult    observer.SyncResult
+	runErr       error // if set, Run returns this error
 	deltaResult  observer.SyncResult
 	detailResult observer.SyncResult
 	runDelay     time.Duration // simulate slow sync
@@ -36,7 +39,7 @@ func (f *fakeSyncRunner) Run(_ context.Context) (observer.SyncResult, error) {
 	if f.runDelay > 0 {
 		time.Sleep(f.runDelay)
 	}
-	return f.runResult, nil
+	return f.runResult, f.runErr
 }
 
 func (f *fakeSyncRunner) RunDeltaSync(_ context.Context) (observer.SyncResult, error) {
@@ -359,5 +362,63 @@ func TestSchedulerLowActivityWindow(t *testing.T) {
 
 	if got := fake.detailCalls.Load(); got == 0 {
 		t.Error("expected detail sync when current hour is low-activity per heatmap")
+	}
+}
+
+// --- Sync error logging tests (SE-1, SE-2) ---
+
+// fakeLogStore captures saved sync log entries for testing.
+type fakeLogStore struct {
+	entries []model.SyncLogEntry
+}
+
+func (f *fakeLogStore) SaveSyncLogEntry(_ context.Context, e model.SyncLogEntry) error {
+	f.entries = append(f.entries, e)
+	return nil
+}
+
+func (f *fakeLogStore) LoadSyncLog(_ context.Context) ([]model.SyncLogEntry, error) {
+	return f.entries, nil
+}
+
+func TestSyncErrorSavedToLog(t *testing.T) {
+	fake := &fakeSyncRunner{
+		runResult: observer.SyncResult{Mode: "initial", PagesFetched: 2, TopicsStored: 15},
+		runErr:    fmt.Errorf("fetch page 3: unexpected status 500 from /latest.json"),
+	}
+	cfg := shortCfg()
+	cfg.Interval = 1 * time.Hour
+
+	logStore := &fakeLogStore{}
+	sched := scheduler.New(fake, cfg)
+	sched.SetLogStore(logStore)
+
+	ctx, cancel := context.WithTimeout(context.Background(), 100*time.Millisecond)
+	defer cancel()
+
+	sched.Start(ctx)
+
+	// The failed sync should produce an error entry in the log.
+	if len(logStore.entries) == 0 {
+		t.Fatal("expected at least one log entry after failed sync")
+	}
+	entry := logStore.entries[0]
+	if entry.Error == "" {
+		t.Error("expected non-empty error field on failed sync entry")
+	}
+	if entry.Mode != "initial" {
+		t.Errorf("mode = %q, want initial", entry.Mode)
+	}
+	if !strings.Contains(entry.Error, "500") {
+		t.Errorf("error = %q, expected to contain status code", entry.Error)
+	}
+
+	// Error entry should also appear in the in-memory status log.
+	statusLog := sched.Status().GetLog()
+	if len(statusLog) == 0 {
+		t.Fatal("expected status log to contain error entry")
+	}
+	if statusLog[0].Error == "" {
+		t.Error("expected status log entry to have non-empty error")
 	}
 }

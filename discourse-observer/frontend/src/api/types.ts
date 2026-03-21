@@ -260,6 +260,7 @@ export interface SyncLogEntry {
   topics: number;
   durationSeconds: number;
   hasChanges: boolean;
+  error: string;
 }
 
 export interface SyncProgress {

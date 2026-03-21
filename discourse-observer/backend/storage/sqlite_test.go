@@ -202,6 +202,75 @@ func TestTopicsNeedingDetailSyncLimit(t *testing.T) {
 	}
 }
 
+// --- Sync log error tests (SE-3, SE-6, SE-7) ---
+
+func TestSyncLogErrorColumn(t *testing.T) {
+	store := newTestStore(t)
+	ctx := context.Background()
+	now := time.Date(2026, 3, 21, 10, 0, 0, 0, time.UTC)
+
+	// Save a successful entry.
+	success := model.SyncLogEntry{
+		Timestamp: now, Mode: "delta", Pages: 1, Topics: 5,
+		Duration: 2 * time.Second, HasChanges: true,
+	}
+	if err := store.SaveSyncLogEntry(ctx, success); err != nil {
+		t.Fatalf("save success: %v", err)
+	}
+
+	// Save an error entry.
+	errEntry := model.SyncLogEntry{
+		Timestamp: now.Add(time.Minute), Mode: "delta",
+		Pages: 0, Topics: 0, Duration: 500 * time.Millisecond,
+		Error: "fetch page 0: unexpected status 500",
+	}
+	if err := store.SaveSyncLogEntry(ctx, errEntry); err != nil {
+		t.Fatalf("save error: %v", err)
+	}
+
+	entries, err := store.LoadSyncLog(ctx)
+	if err != nil {
+		t.Fatalf("load: %v", err)
+	}
+	if len(entries) != 2 {
+		t.Fatalf("got %d entries, want 2", len(entries))
+	}
+
+	// Newest first — error entry is first.
+	if entries[0].Error != "fetch page 0: unexpected status 500" {
+		t.Errorf("error entry: Error = %q, want error message", entries[0].Error)
+	}
+	if entries[1].Error != "" {
+		t.Errorf("success entry: Error = %q, want empty", entries[1].Error)
+	}
+}
+
+func TestSyncLogErrorRetention(t *testing.T) {
+	store := newTestStore(t)
+	ctx := context.Background()
+	base := time.Date(2026, 3, 21, 10, 0, 0, 0, time.UTC)
+
+	// Error entries should not be deduplicated like no-change entries.
+	for i := 0; i < 3; i++ {
+		e := model.SyncLogEntry{
+			Timestamp: base.Add(time.Duration(i) * time.Minute),
+			Mode:      "delta", Error: "connection refused",
+		}
+		if err := store.SaveSyncLogEntry(ctx, e); err != nil {
+			t.Fatalf("save error %d: %v", i, err)
+		}
+	}
+
+	entries, err := store.LoadSyncLog(ctx)
+	if err != nil {
+		t.Fatalf("load: %v", err)
+	}
+	// All 3 error entries should be kept (not deduplicated).
+	if len(entries) != 3 {
+		t.Errorf("got %d entries, want 3 (error entries should not be deduplicated)", len(entries))
+	}
+}
+
 // seedTopics inserts minimal topics into the database so that
 // TopicsNeedingDetailSync can join against the topics table.
 func seedTopics(t *testing.T, store *SQLiteStore, ctx context.Context, ids ...int) {

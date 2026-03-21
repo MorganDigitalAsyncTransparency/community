@@ -36,13 +36,23 @@ function topicSummary(e: SyncLogEntry): string {
   return `${e.topics} topics`;
 }
 
+function entryClass(e: SyncLogEntry): string {
+  if (e.error) return "sync-entry sync-entry-error";
+  return modeClass(e.mode);
+}
+
 function EntryRow({ e }: { e: SyncLogEntry }) {
   return (
-    <div className={modeClass(e.mode)}>
+    <div className={entryClass(e)}>
       <span className="sync-entry-time">{formatTimestamp(e.timestamp)}</span>
-      <span className="sync-entry-mode">{e.mode}</span>
-      <span className="sync-entry-stat">{topicSummary(e)}</span>
-      <span className="sync-entry-stat">{formatDuration(e.durationSeconds)}</span>
+      <span className="sync-entry-mode">{e.error ? "error" : e.mode}</span>
+      {e.error
+        ? <span className="sync-entry-error-msg">{e.error}</span>
+        : <>
+            <span className="sync-entry-stat">{topicSummary(e)}</span>
+            <span className="sync-entry-stat">{formatDuration(e.durationSeconds)}</span>
+          </>
+      }
     </div>
   );
 }

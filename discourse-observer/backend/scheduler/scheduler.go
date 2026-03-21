@@ -223,6 +223,7 @@ func (s *Scheduler) runSync(ctx context.Context, fn func(context.Context) (obser
 
 	if err != nil {
 		s.logger.Printf("sync aborted: %v (duration=%s)", err, duration)
+		s.recordError(result, duration, err)
 		return
 	}
 
@@ -234,6 +235,29 @@ func (s *Scheduler) runSync(ctx context.Context, fn func(context.Context) (obser
 func (s *Scheduler) logCompleted(r observer.SyncResult, d time.Duration) {
 	s.logger.Printf("sync completed: type=%s pages=%d topics=%d duration=%s",
 		r.Mode, r.PagesFetched, r.TopicsStored, d)
+}
+
+func (s *Scheduler) recordError(r observer.SyncResult, d time.Duration, syncErr error) {
+	now := time.Now().UTC()
+	entry := model.SyncLogEntry{
+		Timestamp: now,
+		Mode:      r.Mode,
+		Pages:     r.PagesFetched,
+		Topics:    r.TopicsStored,
+		Duration:  d,
+		Error:     syncErr.Error(),
+	}
+
+	if s.logStore != nil {
+		ctx := context.Background()
+		if err := s.logStore.SaveSyncLogEntry(ctx, entry); err != nil {
+			s.logger.Printf("failed to persist sync error log: %v", err)
+		}
+	}
+
+	s.status.mu.Lock()
+	defer s.status.mu.Unlock()
+	s.status.log = append([]model.SyncLogEntry{entry}, s.status.log...)
 }
 
 func (s *Scheduler) recordResult(r observer.SyncResult, d time.Duration) {

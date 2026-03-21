@@ -12,6 +12,7 @@ type SyncLogEntry struct {
 	Topics     int
 	Duration   time.Duration
 	HasChanges bool
+	Error      string // empty on success, error message on failure
 }
 
 // SyncProgress tracks a sync cycle in progress.

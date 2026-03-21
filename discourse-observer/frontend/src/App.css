@@ -273,6 +273,7 @@ body {
 .sync-entry-initial { border-left-color: #8b5cf6; }
 .sync-entry-delta   { border-left-color: #059669; }
 .sync-entry-detail  { border-left-color: #d97706; }
+.sync-entry-error   { border-left-color: #dc2626; }
 
 .sync-entry-time {
   color: var(--color-text-muted);
@@ -287,10 +288,16 @@ body {
 .sync-entry-initial .sync-entry-mode { color: #8b5cf6; }
 .sync-entry-delta .sync-entry-mode   { color: #059669; }
 .sync-entry-detail .sync-entry-mode  { color: #d97706; }
+.sync-entry-error .sync-entry-mode   { color: #dc2626; }
 
 .sync-entry-stat {
   color: var(--color-text-secondary);
   min-width: 6em;
+}
+
+.sync-entry-error-msg {
+  color: #dc2626;
+  flex: 1;
 }
 
 /* ── Period selector ── */
