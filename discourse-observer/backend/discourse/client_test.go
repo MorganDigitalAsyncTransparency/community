@@ -317,3 +317,139 @@ func TestMockserverPaginationBeyondLastPage(t *testing.T) {
 		t.Error("got more_topics_url beyond last page, want empty")
 	}
 }
+
+func TestFetchTopicDetail(t *testing.T) {
+	srv := mockserver.New()
+	defer srv.Close()
+
+	client := discourse.NewClient(srv.URL, "", "")
+	topics := mock.Topics()
+	// Pick a topic with tags — it will have revisions.
+	var taggedID int
+	for _, tp := range topics {
+		if len(tp.Tags) > 0 {
+			taggedID = tp.ID
+			break
+		}
+	}
+	if taggedID == 0 {
+		t.Fatal("no tagged topic found in mock data")
+	}
+
+	detail, err := client.FetchTopicDetail(context.Background(), taggedID)
+	if err != nil {
+		t.Fatalf("FetchTopicDetail: %v", err)
+	}
+	if detail.ID != taggedID {
+		t.Errorf("detail ID = %d, want %d", detail.ID, taggedID)
+	}
+	if len(detail.PostStream.Posts) == 0 {
+		t.Fatal("expected at least one post")
+	}
+	if detail.PostStream.Posts[0].Version < 2 {
+		t.Errorf("tagged topic should have version >= 2, got %d", detail.PostStream.Posts[0].Version)
+	}
+}
+
+func TestFetchTopicDetail404(t *testing.T) {
+	srv := mockserver.New()
+	defer srv.Close()
+
+	client := discourse.NewClient(srv.URL, "", "")
+	_, err := client.FetchTopicDetail(context.Background(), 999999)
+	if err == nil {
+		t.Fatal("expected error for non-existent topic")
+	}
+}
+
+func TestFetchPostRevision(t *testing.T) {
+	srv := mockserver.New()
+	defer srv.Close()
+
+	client := discourse.NewClient(srv.URL, "", "")
+	topics := mock.Topics()
+	// Find a tagged topic to get its post ID and revision.
+	var taggedID int
+	for _, tp := range topics {
+		if len(tp.Tags) > 0 {
+			taggedID = tp.ID
+			break
+		}
+	}
+
+	detail, err := client.FetchTopicDetail(context.Background(), taggedID)
+	if err != nil {
+		t.Fatalf("FetchTopicDetail: %v", err)
+	}
+	postID := detail.PostStream.Posts[0].ID
+	version := detail.PostStream.Posts[0].Version
+	if version < 2 {
+		t.Skip("topic has no revisions")
+	}
+
+	rev, err := client.FetchPostRevision(context.Background(), postID, 2)
+	if err != nil {
+		t.Fatalf("FetchPostRevision: %v", err)
+	}
+	if rev.CreatedAt.IsZero() {
+		t.Error("revision created_at should not be zero")
+	}
+	// Tagged topic's revision 2 should have tag changes.
+	if rev.Tags == nil {
+		t.Error("expected tags_changes in revision 2 of a tagged topic")
+	}
+}
+
+func TestMockServerTopicDetail(t *testing.T) {
+	srv := mockserver.New()
+	defer srv.Close()
+
+	topics := mock.Topics()
+	client := discourse.NewClient(srv.URL, "", "")
+
+	for _, tp := range topics {
+		detail, err := client.FetchTopicDetail(context.Background(), tp.ID)
+		if err != nil {
+			t.Errorf("FetchTopicDetail(%d): %v", tp.ID, err)
+			continue
+		}
+		if detail.ID != tp.ID {
+			t.Errorf("detail.ID = %d, want %d", detail.ID, tp.ID)
+		}
+		if len(detail.PostStream.Posts) == 0 {
+			t.Errorf("topic %d: no posts", tp.ID)
+		}
+	}
+}
+
+func TestMockServerRevisions(t *testing.T) {
+	srv := mockserver.New()
+	defer srv.Close()
+
+	client := discourse.NewClient(srv.URL, "", "")
+	topics := mock.Topics()
+
+	var revisionsFound int
+	for _, tp := range topics {
+		detail, err := client.FetchTopicDetail(context.Background(), tp.ID)
+		if err != nil {
+			t.Fatalf("FetchTopicDetail(%d): %v", tp.ID, err)
+		}
+		post := detail.PostStream.Posts[0]
+		for v := 2; v <= post.Version; v++ {
+			rev, err := client.FetchPostRevision(context.Background(), post.ID, v)
+			if err != nil {
+				t.Errorf("FetchPostRevision(%d, %d): %v", post.ID, v, err)
+				continue
+			}
+			if rev.CreatedAt.IsZero() {
+				t.Errorf("revision %d/%d has zero created_at", post.ID, v)
+			}
+			revisionsFound++
+		}
+	}
+
+	if revisionsFound == 0 {
+		t.Error("expected at least some revisions in mock data")
+	}
+}

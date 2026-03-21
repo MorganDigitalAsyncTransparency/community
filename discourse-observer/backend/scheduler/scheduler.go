@@ -18,6 +18,16 @@ import (
 type SyncRunner interface {
 	Run(ctx context.Context) (observer.SyncResult, error)
 	RunDeltaSync(ctx context.Context) (observer.SyncResult, error)
+	RunDetailSync(ctx context.Context) (observer.SyncResult, error)
+}
+
+// ActivityDataProvider supplies historical activity counts by hour and day.
+// The scheduler uses this to identify low-activity windows for detail sync.
+// Implemented by storage (querying topic creation times).
+type ActivityDataProvider interface {
+	// ActivityByHour returns the number of topics created during each
+	// day-of-week (0=Monday..6=Sunday) and hour (0..23) combination.
+	ActivityByHour(ctx context.Context) ([7][24]int, error)
 }
 
 // SyncLogStore persists sync log entries. Implemented by SQLiteStore.
@@ -102,13 +112,14 @@ func (s *SyncStatus) GetLog() []model.SyncLogEntry {
 
 // Scheduler drives the sync lifecycle.
 type Scheduler struct {
-	runner     SyncRunner
-	cfg        config.SyncConfig
-	status     *SyncStatus
-	logStore   SyncLogStore
-	logger     *log.Logger
-	running    sync.Mutex
-	zeroStreak int
+	runner       SyncRunner
+	cfg          config.SyncConfig
+	status       *SyncStatus
+	logStore     SyncLogStore
+	activityData ActivityDataProvider
+	logger       *log.Logger
+	running      sync.Mutex
+	zeroStreak   int
 }
 
 // New creates a Scheduler with default logging to stderr.
@@ -134,6 +145,12 @@ func NewWithLogger(runner SyncRunner, cfg config.SyncConfig, logger *log.Logger)
 // If set, entries are persisted to SQLite and loaded on startup.
 func (s *Scheduler) SetLogStore(store SyncLogStore) {
 	s.logStore = store
+}
+
+// SetActivityData sets the provider for historical activity data
+// used to detect low-activity windows for detail sync.
+func (s *Scheduler) SetActivityData(provider ActivityDataProvider) {
+	s.activityData = provider
 }
 
 // Status returns the shared status for the API to read.
@@ -165,6 +182,12 @@ func (s *Scheduler) Start(ctx context.Context) {
 		s.runSync(ctx, func(ctx context.Context) (observer.SyncResult, error) {
 			return s.runner.RunDeltaSync(ctx)
 		})
+		if s.shouldRunDetailSync(ctx) {
+			s.logger.Printf("low activity detected: triggering detail sync")
+			s.runSync(ctx, func(ctx context.Context) (observer.SyncResult, error) {
+				return s.runner.RunDetailSync(ctx)
+			})
+		}
 	}
 }
 
@@ -240,14 +263,52 @@ func (s *Scheduler) recordResult(r observer.SyncResult, d time.Duration) {
 }
 
 func (s *Scheduler) trackLowActivity(r observer.SyncResult) {
+	if r.Mode == "detail" {
+		return // detail sync results don't affect activity tracking
+	}
 	if r.TopicsStored > 0 {
 		s.zeroStreak = 0
 		return
 	}
 	s.zeroStreak++
-	if s.zeroStreak >= s.cfg.LowActivityThreshold {
-		s.logger.Printf("low activity detected: %d consecutive zero-change syncs", s.zeroStreak)
+}
+
+// shouldRunDetailSync returns true if conditions indicate a low-activity
+// window suitable for detail sync.
+func (s *Scheduler) shouldRunDetailSync(ctx context.Context) bool {
+	if s.activityData != nil {
+		grid, err := s.activityData.ActivityByHour(ctx)
+		if err == nil {
+			return isLowActivityHour(&grid, time.Now().UTC())
+		}
+		// Fall through to heuristic on error.
 	}
+	return s.zeroStreak >= s.cfg.LowActivityThreshold
+}
+
+// lowActivityThresholdPct is the fraction of peak activity below which
+// an hour is considered low-activity. 0.2 = hours with ≤20% of peak.
+const lowActivityThresholdPct = 0.2
+
+// isLowActivityHour checks if the given time falls in a low-activity hour
+// based on historical activity data.
+func isLowActivityHour(grid *[7][24]int, now time.Time) bool {
+	var peak int
+	for d := 0; d < 7; d++ {
+		for h := 0; h < 24; h++ {
+			if grid[d][h] > peak {
+				peak = grid[d][h]
+			}
+		}
+	}
+	if peak == 0 {
+		return false // no data yet
+	}
+
+	day := (int(now.Weekday()) + 6) % 7 // Monday=0
+	hour := now.Hour()
+	threshold := int(float64(peak) * lowActivityThresholdPct)
+	return grid[day][hour] <= threshold
 }
 
 func (s *Scheduler) setState(state string) {

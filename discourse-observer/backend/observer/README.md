@@ -23,7 +23,25 @@ This module does **not**:
 
 ## Current implementation
 
-`Observer` in `observer.go` coordinates sync cycles using two interfaces: `FetchClient` (implemented by `discourse/`) and `StorageBackend` (implemented by `storage/`). It supports two sync modes: initial sync (full crawl with page-by-page resume) and delta sync (incremental from a stored watermark). `Run()` auto-detects which mode to use based on whether a watermark exists. `Normalize` maps `model.RawTopic` fields to domain types, deriving outcome (solved/self-closed/open) from Discourse flags and constructing topic URLs.
+`Observer` in `observer.go` coordinates sync cycles using two interfaces: `FetchClient` (implemented by `discourse/`) and `StorageBackend` (implemented by `storage/`). It supports three sync modes:
+
+- **Initial sync** (`RunInitialSync`) — full crawl with page-by-page resume. Auto-selected when no watermark exists.
+- **Delta sync** (`RunDeltaSync`) — incremental from a stored watermark. Fetches only topics changed since last sync.
+- **Detail sync** (`RunDetailSync` in `detail_sync.go`) — fetches post revision history per topic during low-activity windows. Extracts tag change, category move, and title edit timestamps from `/t/{id}.json` and `/posts/{id}/revisions/{v}.json`. Uses delta revision fetching (tracks `last_revision` per topic, only fetches new revisions). Interruptible between topics via context cancellation. Handles deleted topics (404) by preserving history and marking as skipped.
+
+`Run()` auto-detects initial vs delta based on whether a watermark exists. Detail sync is triggered by the scheduler, not by `Run()`.
+
+`Normalize` maps `model.RawTopic` fields to domain types, deriving outcome (solved/self-closed/open) from Discourse flags and constructing topic URLs.
+
+### Key types
+
+| Type | Where | Purpose |
+|------|-------|---------|
+| `FetchClient` | `observer.go` | Interface for Discourse API calls (topics, categories, topic detail, revisions) |
+| `StorageBackend` | `observer.go` | Interface for persistence (topics, watermarks, detail sync tracking, events) |
+| `SyncResult` | `observer.go` | Return value from all sync methods (mode, pages, topics, duration) |
+| `model.TopicDetailState` | `model/revision.go` | Topic ID + last fetched revision version, for delta revision fetching |
+| `model.TopicEvent` | `model/revision.go` | Extracted event: topic ID, event type, timestamp, detail JSON |
 
 ## Design expectations
 

@@ -10,6 +10,10 @@ The storage module defines how observations are saved and retrieved. It acts as 
 
 `SQLiteStore` in `sqlite.go` persists normalized topics to a SQLite database using `modernc.org/sqlite` (pure Go, no CGO). It implements the `StorageBackend` interface defined by `observer/`. Topics are upserted by ID, making the pipeline idempotent. Schema migrations run on startup.
 
+Sync metadata methods live in `sync.go`: watermark and page tracking for initial/delta sync, detail sync progress tracking (`SaveDetailSync`, `TopicsNeedingDetailSync` with `last_revision` for delta revision fetching), topic event storage (`SaveTopicEvents`, `LoadTopicEvents`), and sync log persistence.
+
+The `ActivityByHour` method provides historical topic creation counts by day-of-week and hour, used by the scheduler to identify low-activity windows for detail sync.
+
 The abstraction allows swapping to a different backend (PostgreSQL, in-memory for testing) without changing the observer or model layers.
 
 ## Boundaries

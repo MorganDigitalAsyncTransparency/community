@@ -78,8 +78,36 @@ The observer module is the data pipeline — it fetches, normalizes, and stores 
 
 ---
 
+## Detail sync
+
+| Use case | Spec | Requirements | Verification |
+|----------|------|-------------|--------------|
+| UC-1 through UC-20 (all) | [detail-sync.md](detail-sync.md) | DS-1 — Topic detail response | `backend/observer/detail_sync_test.go`: `TestFetchTopicDetail` |
+| | | DS-2 — Revision response | `backend/observer/detail_sync_test.go`: `TestFetchPostRevision` |
+| | | DS-3 — Topic event | `backend/observer/detail_sync_test.go`: `TestDetailSyncEndToEnd` |
+| | | DS-4 — FetchTopicDetail | `backend/discourse/client_test.go`: `TestFetchTopicDetail` |
+| | | DS-5 — FetchPostRevision | `backend/discourse/client_test.go`: `TestFetchPostRevision` |
+| | | DS-6 — FetchClient expansion | `backend/observer/detail_sync_test.go`: compile-time check |
+| | | DS-7 — StorageBackend expansion | `backend/observer/detail_sync_test.go`: compile-time check |
+| | | DS-8 — Topic events table | `backend/storage/sqlite_test.go`: `TestTopicEventsStorage` |
+| | | DS-9 — Detail sync tracking | `backend/storage/sqlite_test.go`: `TestDetailSyncTracking` |
+| | | DS-10 — Prioritization query | `backend/observer/detail_sync_test.go`: `TestDetailSyncPrioritization` |
+| | | DS-11 — RunDetailSync | `backend/observer/detail_sync_test.go`: `TestDetailSyncEndToEnd` |
+| | | DS-12 — Interruptibility | `backend/observer/detail_sync_test.go`: `TestDetailSyncInterruptible` |
+| | | DS-13 — No-revision topics | `backend/observer/detail_sync_test.go`: `TestDetailSyncNoRevisions` |
+| | | DS-14 — Deleted topic handling | `backend/observer/detail_sync_test.go`: `TestDetailSyncDeletedTopic` |
+| | | DS-15 — Mock topic detail endpoint | `backend/observer/detail_sync_test.go`: `TestMockServerTopicDetail` |
+| | | DS-16 — Mock revision endpoint | `backend/observer/detail_sync_test.go`: `TestMockServerRevisions` |
+| | | DS-17 — SyncRunner expansion | `backend/scheduler/scheduler_acceptance_test.go`: compile-time check |
+| | | DS-18 — Low-activity window detection | `backend/scheduler/scheduler_acceptance_test.go`: `TestSchedulerLowActivityWindow` |
+| | | DS-19 — Detail sync triggering | `backend/scheduler/scheduler_acceptance_test.go`: `TestSchedulerTriggersDetailSync` |
+| | | DS-20 — Detail sync logging | `backend/scheduler/scheduler_acceptance_test.go`: `TestSchedulerTriggersDetailSync` |
+| | | DS-21 — Module dependencies | `go build ./backend/...` |
+
+---
+
 ## Gaps
 
 | Gap | Status |
 |-----|--------|
-| Detail sync (revision history for tag/category transitions) | Not yet specified — planned for PR 5 |
+| (none) | All observer responsibilities are specified |

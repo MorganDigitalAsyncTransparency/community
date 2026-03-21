@@ -100,6 +100,7 @@ func startSyncIfConfigured(ctx context.Context, store *storage.SQLiteStore, srv 
 
 	sched := scheduler.New(obs, syncCfg)
 	sched.SetLogStore(store)
+	sched.SetActivityData(store)
 	srv.SyncStatus = sched.Status()
 	obs.SetProgressFunc(sched.Status().UpdateProgress)
 

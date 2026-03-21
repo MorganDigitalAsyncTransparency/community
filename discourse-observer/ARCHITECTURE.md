@@ -77,13 +77,13 @@ This isolation means that if the Discourse API changes, only this module needs t
 
 Responsible for change detection, normalization, and coordinating the fetch-observe-store cycle. The observer defines interfaces for its dependencies (`FetchClient`, `StorageBackend`) and works entirely in terms of `model` types.
 
-The observer supports two sync modes — initial (full crawl) and delta (incremental from watermark) — selected automatically based on stored state. Both modes paginate through topics page by page, normalizing and storing each page before advancing. See [initial-delta-sync spec](specs/observer/initial-delta-sync.md) for details.
+The observer supports three sync modes — initial (full crawl), delta (incremental from watermark), and detail (revision history enrichment) — selected automatically or triggered by the scheduler. Initial and delta sync paginate through topics page by page, normalizing and storing each page before advancing. Detail sync fetches per-topic revision history during low-activity windows, extracting tag change, category move, and title edit timestamps. See [initial-delta-sync spec](specs/observer/initial-delta-sync.md) and [detail-sync spec](specs/observer/detail-sync.md) for details.
 
 The observer does not import `discourse` or `storage`. Those modules are injected at startup. This keeps the core logic independent of API details and persistence implementation.
 
 ### backend/scheduler/
 
-Drives the sync lifecycle. Runs an initial or delta sync immediately on startup, then repeats delta syncs on a configurable interval with random jitter. Detects low-activity windows (consecutive zero-change syncs) and exposes thread-safe sync status for the API.
+Drives the sync lifecycle. Runs an initial or delta sync immediately on startup, then repeats delta syncs on a configurable interval with random jitter. Detects low-activity windows using peak activity data (with a zero-streak heuristic as fallback) and triggers detail sync during those windows. Exposes thread-safe sync status for the API.
 
 The scheduler defines a `SyncRunner` interface that `*observer.Observer` satisfies. It does not import `observer`, `discourse`, or `storage` — those are wired together in `main.go`. See [scheduler spec](specs/observer/scheduler.md) for details.
 

@@ -70,6 +70,7 @@ nav:
       - Observer:
           - Observer Behavior: specs/observer/observer-behavior.md
           - Initial and Delta Sync: specs/observer/initial-delta-sync.md
+          - Detail Sync: specs/observer/detail-sync.md
           - Scheduler: specs/observer/scheduler.md
           - Mock Server Service: specs/observer/mock-server-service.md
           - Sync Metadata: specs/observer/sync-metadata.md

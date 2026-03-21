@@ -50,10 +50,15 @@ func HandlerWithPageSize(pageSize int) http.Handler {
 	rawTopics := convertTopics(topics, categories)
 	sortByBumpedAtDesc(rawTopics)
 
+	topicMap := buildTopicMap(rawTopics)
+	postData := buildPostData(topics, rawTopics, categories)
+
 	mux := http.NewServeMux()
 	mux.HandleFunc("GET /about.json", handleAbout(len(rawTopics)))
 	mux.HandleFunc("GET /latest.json", handleLatest(rawTopics, pageSize))
 	mux.HandleFunc("GET /categories.json", handleCategories(categories))
+	mux.HandleFunc("GET /t/{id}", handleTopicDetail(topicMap, postData))
+	mux.HandleFunc("GET /posts/{postID}/revisions/{version}", handlePostRevision(postData))
 
 	return mux
 }
