@@ -1,16 +1,25 @@
-// Spec: specs/observer/mock-server-service.md
+// Spec: specs/api/api-contract.md (AC-33)
 // Tests: backend/api/contract_test.go
 package api
 
-import "net/http"
+import (
+	"net/http"
+	"time"
+)
 
 func (s *Server) handleSyncLog(w http.ResponseWriter, _ *http.Request) {
 	if s.SyncStatus == nil {
-		respondJSON(w, []any{})
+		respondJSON(w, map[string]any{"progress": nil, "entries": []any{}})
 		return
 	}
 
-	entries := s.SyncStatus.GetLog()
+	type jsonProgress struct {
+		Mode     string  `json:"mode"`
+		Pages    int     `json:"pages"`
+		Topics   int     `json:"topics"`
+		ElapsedS float64 `json:"elapsedSeconds"`
+	}
+
 	type jsonEntry struct {
 		Timestamp string  `json:"timestamp"`
 		Mode      string  `json:"mode"`
@@ -19,6 +28,17 @@ func (s *Server) handleSyncLog(w http.ResponseWriter, _ *http.Request) {
 		Duration  float64 `json:"durationSeconds"`
 	}
 
+	var prog *jsonProgress
+	if p := s.SyncStatus.GetProgress(); p != nil {
+		prog = &jsonProgress{
+			Mode:     p.Mode,
+			Pages:    p.Pages,
+			Topics:   p.Topics,
+			ElapsedS: time.Since(p.StartedAt).Seconds(),
+		}
+	}
+
+	entries := s.SyncStatus.GetLog()
 	out := make([]jsonEntry, len(entries))
 	for i, e := range entries {
 		out[i] = jsonEntry{
@@ -29,5 +49,6 @@ func (s *Server) handleSyncLog(w http.ResponseWriter, _ *http.Request) {
 			Duration:  e.Duration.Seconds(),
 		}
 	}
-	respondJSON(w, out)
+
+	respondJSON(w, map[string]any{"progress": prog, "entries": out})
 }

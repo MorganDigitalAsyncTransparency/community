@@ -261,3 +261,15 @@ export interface SyncLogEntry {
   topics: number;
   durationSeconds: number;
 }
+
+export interface SyncProgress {
+  mode: string;
+  pages: number;
+  topics: number;
+  elapsedSeconds: number;
+}
+
+export interface SyncLogResponse {
+  progress: SyncProgress | null;
+  entries: SyncLogEntry[];
+}

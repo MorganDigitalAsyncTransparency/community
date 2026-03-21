@@ -44,14 +44,20 @@ var errStopPagination = errors.New("stop pagination")
 
 // Observer coordinates fetch, normalization, and storage.
 type Observer struct {
-	fetch   FetchClient
-	store   StorageBackend
-	baseURL string
+	fetch      FetchClient
+	store      StorageBackend
+	baseURL    string
+	onProgress model.ProgressFunc
 }
 
 // New creates an Observer. baseURL is the forum URL used to construct topic links.
 func New(fetch FetchClient, store StorageBackend, baseURL string) *Observer {
 	return &Observer{fetch: fetch, store: store, baseURL: baseURL}
+}
+
+// SetProgressFunc sets an optional callback invoked after each page.
+func (o *Observer) SetProgressFunc(fn model.ProgressFunc) {
+	o.onProgress = fn
 }
 
 // Run executes one sync cycle, auto-detecting mode:
@@ -181,6 +187,9 @@ func (o *Observer) storeAndTrack(ctx context.Context, raws []model.RawTopic, cat
 	result.PagesFetched++
 	result.TopicsStored += len(topics)
 	trackMaxBump(maxBump, raws)
+	if o.onProgress != nil {
+		o.onProgress(result.Mode, result.PagesFetched, result.TopicsStored)
+	}
 	return nil
 }
 

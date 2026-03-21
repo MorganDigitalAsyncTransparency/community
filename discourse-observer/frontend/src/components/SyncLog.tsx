@@ -1,10 +1,10 @@
-// Spec: specs/observer/mock-server-service.md
+// Spec: specs/api/api-contract.md (AC-33)
 // Tests: manual (sync log rendering)
 
-import type { SyncLogEntry } from "../api/types";
+import type { SyncLogResponse, SyncProgress, SyncLogEntry } from "../api/types";
 
 interface SyncLogProps {
-  entries: SyncLogEntry[];
+  data: SyncLogResponse;
 }
 
 function formatTimestamp(iso: string): string {
@@ -26,14 +26,28 @@ function formatEntry(e: SyncLogEntry): string {
   return `${formatTimestamp(e.timestamp)}  ${e.mode}  ${e.pages} pages  ${e.topics} topics  ${formatDuration(e.durationSeconds)}`;
 }
 
-export function SyncLog({ entries }: SyncLogProps) {
+function formatProgress(p: SyncProgress): string {
+  const elapsed = formatDuration(p.elapsedSeconds);
+  const mode = p.mode || "sync";
+  if (p.pages === 0) {
+    return `${mode} running... fetching first page  ${elapsed}`;
+  }
+  return `${mode} running... ${p.pages} pages  ${p.topics} topics  ${elapsed}`;
+}
+
+export function SyncLog({ data }: SyncLogProps) {
   return (
     <section>
       <h2 className="app-section-title">Sync log</h2>
+
+      {data.progress && (
+        <div className="sync-progress">{formatProgress(data.progress)}</div>
+      )}
+
       <pre className="sync-log">{
-        entries.length === 0
+        data.entries.length === 0
           ? "No sync events yet."
-          : entries.map(formatEntry).join("\n")
+          : data.entries.map(formatEntry).join("\n")
       }</pre>
     </section>
   );

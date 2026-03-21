@@ -27,7 +27,7 @@ import type {
   ViolationGroups,
   TagCompliance,
   Heatmap,
-  SyncLogEntry,
+  SyncLogResponse,
 } from "./api/types";
 import type { FilterParams } from "./api/client";
 import type { Page } from "./types";
@@ -171,7 +171,7 @@ export function App() {
   const [distData, setDistData] = useState<DistributionData | null>(null);
   const [sloData, setSloData] = useState<SloData | null>(null);
   const [heatmapData, setHeatmapData] = useState<Heatmap | null>(null);
-  const [syncLogData, setSyncLogData] = useState<SyncLogEntry[] | null>(null);
+  const [syncLogData, setSyncLogData] = useState<SyncLogResponse | null>(null);
 
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -384,7 +384,7 @@ export function App() {
           )}
 
           {page === "sync-log" && syncLogData && (
-            <SyncLog entries={syncLogData} />
+            <SyncLog data={syncLogData} />
           )}
         </div>
       </main>

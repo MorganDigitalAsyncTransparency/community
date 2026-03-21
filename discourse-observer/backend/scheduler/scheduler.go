@@ -30,6 +30,7 @@ type SyncStatus struct {
 	LastTopics   int
 	LastSyncedAt *time.Time
 	log          []model.SyncLogEntry
+	progress     *model.SyncProgress
 }
 
 // GetState returns the current sync state.
@@ -58,6 +59,29 @@ func (s *SyncStatus) GetLastSyncedAt() *time.Time {
 	s.mu.RLock()
 	defer s.mu.RUnlock()
 	return s.LastSyncedAt
+}
+
+// GetProgress returns the current in-progress sync, or nil if idle.
+func (s *SyncStatus) GetProgress() *model.SyncProgress {
+	s.mu.RLock()
+	defer s.mu.RUnlock()
+	if s.progress == nil {
+		return nil
+	}
+	cp := *s.progress
+	return &cp
+}
+
+// UpdateProgress records per-page progress during a sync cycle.
+func (s *SyncStatus) UpdateProgress(mode string, pages, topics int) {
+	s.mu.Lock()
+	defer s.mu.Unlock()
+	if s.progress == nil {
+		return
+	}
+	s.progress.Mode = mode
+	s.progress.Pages = pages
+	s.progress.Topics = topics
 }
 
 // GetLog returns the most recent sync log entries (newest first).
@@ -134,8 +158,18 @@ func (s *Scheduler) runSync(ctx context.Context, fn func(context.Context) (obser
 	s.setState("running")
 	defer s.setState("idle")
 
+	now := time.Now()
+	s.status.mu.Lock()
+	s.status.progress = &model.SyncProgress{StartedAt: now}
+	s.status.mu.Unlock()
+	defer func() {
+		s.status.mu.Lock()
+		s.status.progress = nil
+		s.status.mu.Unlock()
+	}()
+
 	s.logger.Printf("sync started")
-	start := time.Now()
+	start := now
 
 	// Use a detached context so in-progress syncs finish during shutdown.
 	syncCtx := context.WithoutCancel(ctx)

@@ -17,6 +17,7 @@ type SyncStateProvider interface {
 	GetLastTopics() int
 	GetLastSyncedAt() *time.Time
 	GetLog() []model.SyncLogEntry
+	GetProgress() *model.SyncProgress
 }
 
 // Server holds shared state for all API handlers.
