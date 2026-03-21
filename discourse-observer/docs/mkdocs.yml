@@ -74,6 +74,7 @@ nav:
           - Scheduler: specs/observer/scheduler.md
           - Mock Server Service: specs/observer/mock-server-service.md
           - Sync Metadata: specs/observer/sync-metadata.md
+          - Sync Error Logging: specs/observer/sync-error-logging.md
       - Discourse:
           - Source Model: specs/discourse/discourse-source-model.md
   - Decisions:
