@@ -42,7 +42,7 @@ type SyncRunner interface {
 
 SC-4 — **Immediate first sync.** On `Start`, the scheduler runs one sync cycle immediately using `SyncRunner.Run` (which auto-detects initial vs delta). It does not wait for the interval before the first sync.
 
-SC-5 — **Dev-mode skip.** If Discourse credentials are absent (`DISCOURSE_API_TOKEN` is empty), the scheduler does not start. The server still runs for the API. A log message explains why sync is disabled. This matches the existing `maybe-seed` convention in the Makefile.
+SC-5 — **Dev-mode skip.** If `DISCOURSE_BASE_URL` is empty, the scheduler does not start. The server still runs for the API. A log message explains why sync is disabled. When the URL points to the mock server service (default in `.env.example`), sync runs normally without an API token — the mock server does not require authentication. See also [mock-server-service.md](mock-server-service.md) (MS-5).
 
 ---
 

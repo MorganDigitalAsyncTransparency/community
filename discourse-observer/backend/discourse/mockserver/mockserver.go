@@ -14,6 +14,10 @@
 //	srv := mockserver.New()
 //	defer srv.Close()
 //	client := discourse.NewClient(srv.URL, "", "")
+//
+// Usage as a standalone server:
+//
+//	http.ListenAndServe(":9920", mockserver.Handler())
 package mockserver
 
 import (
@@ -32,15 +36,15 @@ import (
 
 const defaultPageSize = 30
 
-// New starts an httptest.Server that serves Discourse-format responses
-// built from mock.Topics().
-func New() *httptest.Server {
-	return NewWithPageSize(defaultPageSize)
+// Handler returns an http.Handler serving Discourse-format responses
+// built from mock.Topics(). Suitable for both httptest.Server and
+// standalone HTTP servers.
+func Handler() http.Handler {
+	return HandlerWithPageSize(defaultPageSize)
 }
 
-// NewWithPageSize starts an httptest.Server with a custom page size.
-// Useful for tests that need to verify pagination with small pages.
-func NewWithPageSize(pageSize int) *httptest.Server {
+// HandlerWithPageSize returns an http.Handler with a custom page size.
+func HandlerWithPageSize(pageSize int) http.Handler {
 	topics := mock.Topics()
 	categories := buildCategories(topics)
 	rawTopics := convertTopics(topics, categories)
@@ -50,7 +54,19 @@ func NewWithPageSize(pageSize int) *httptest.Server {
 	mux.HandleFunc("GET /latest.json", handleLatest(rawTopics, pageSize))
 	mux.HandleFunc("GET /categories.json", handleCategories(categories))
 
-	return httptest.NewServer(mux)
+	return mux
+}
+
+// New starts an httptest.Server that serves Discourse-format responses
+// built from mock.Topics().
+func New() *httptest.Server {
+	return httptest.NewServer(Handler())
+}
+
+// NewWithPageSize starts an httptest.Server with a custom page size.
+// Useful for tests that need to verify pagination with small pages.
+func NewWithPageSize(pageSize int) *httptest.Server {
+	return httptest.NewServer(HandlerWithPageSize(pageSize))
 }
 
 func handleLatest(topics []model.RawTopic, pageSize int) http.HandlerFunc {

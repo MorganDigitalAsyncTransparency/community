@@ -76,17 +76,17 @@ func main() {
 	}
 }
 
-// startSyncIfConfigured creates and starts the scheduler if Discourse
-// credentials are present. Returns a channel that closes when the scheduler
-// stops, or nil if sync is disabled (dev mode).
+// startSyncIfConfigured creates and starts the scheduler if a Discourse
+// base URL is configured. Returns a channel that closes when the scheduler
+// stops, or nil if sync is disabled (no URL).
 func startSyncIfConfigured(ctx context.Context, store *storage.SQLiteStore, srv *api.Server) <-chan struct{} {
-	apiKey := os.Getenv("DISCOURSE_API_TOKEN")
-	if apiKey == "" {
-		log.Println("DISCOURSE_API_TOKEN not set — sync disabled (dev mode)")
+	discourseURL := os.Getenv("DISCOURSE_BASE_URL")
+	if discourseURL == "" {
+		log.Println("DISCOURSE_BASE_URL not set — sync disabled")
 		return nil
 	}
 
-	discourseURL := os.Getenv("DISCOURSE_BASE_URL")
+	apiKey := os.Getenv("DISCOURSE_API_TOKEN")
 	apiUser := os.Getenv("DISCOURSE_API_USER")
 	syncCfg := config.LoadSyncConfig()
 

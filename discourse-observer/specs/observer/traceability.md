@@ -64,6 +64,20 @@ The observer module is the data pipeline — it fetches, normalizes, and stores 
 
 ---
 
+## Mock server service
+
+| Use case | Spec | Requirements | Verification |
+|----------|------|-------------|--------------|
+| (infrastructure) | [mock-server-service.md](mock-server-service.md) | MS-1 — Exported handler | Existing mock server tests pass unchanged |
+| | | MS-2 — Standalone entrypoint | `go build ./backend/cmd/mockserver` |
+| | | MS-3 — Docker service | `docker compose config` validates |
+| | | MS-4 — Dockerfile | `docker compose build mockserver` succeeds |
+| | | MS-5 — Dev-mode detection | Backend logs "sync scheduler started" with mock URL |
+| | | MS-6 — Environment defaults | `.env.example` inspection |
+| | | MS-7 — Backward compatibility | `make start` seeds then scheduler syncs |
+
+---
+
 ## Gaps
 
 | Gap | Status |
