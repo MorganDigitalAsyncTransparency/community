@@ -173,7 +173,7 @@ func (o *Observer) RunDeltaSync(ctx context.Context) (SyncResult, error) {
 func (o *Observer) fetchCategoryMap(ctx context.Context) (map[int]string, error) {
 	cats, err := o.fetch.FetchCategories(ctx)
 	if err != nil {
-		return nil, fmt.Errorf("fetch categories: %w", err)
+		return nil, err
 	}
 	return buildCategoryMap(cats), nil
 }

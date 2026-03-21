@@ -6,6 +6,7 @@ import (
 	"context"
 	"log"
 	"math/rand/v2"
+	"strings"
 	"sync"
 	"time"
 
@@ -255,6 +256,32 @@ func (s *Scheduler) logCompleted(r observer.SyncResult, d time.Duration) {
 		r.Mode, r.PagesFetched, r.TopicsStored, d)
 }
 
+// shortenError produces a human-readable error message for the sync log.
+// It strips Go-internal details (dial tcp, DNS resolver addresses) that
+// are noise for operators.
+func shortenError(err error) string {
+	msg := err.Error()
+	// "dial tcp: lookup mockserver on 127.0.0.11:53: no such host"
+	// → "server unreachable (mockserver)"
+	if i := strings.Index(msg, "dial tcp: lookup "); i >= 0 {
+		sub := msg[i+len("dial tcp: lookup "):]
+		host := sub
+		if sp := strings.IndexAny(sub, " :"); sp >= 0 {
+			host = sub[:sp]
+		}
+		prefix := msg[:i]
+		return prefix + "server unreachable (" + host + ")"
+	}
+	// "dial tcp 1.2.3.4:9920: connect: connection refused"
+	// → "connection refused"
+	if i := strings.Index(msg, "dial tcp "); i >= 0 {
+		if j := strings.Index(msg, "connection refused"); j >= 0 {
+			return msg[:i] + "connection refused"
+		}
+	}
+	return msg
+}
+
 func (s *Scheduler) recordError(r observer.SyncResult, d time.Duration, syncErr error) {
 	now := time.Now().UTC()
 	entry := model.SyncLogEntry{
@@ -263,7 +290,7 @@ func (s *Scheduler) recordError(r observer.SyncResult, d time.Duration, syncErr 
 		Pages:     r.PagesFetched,
 		Topics:    r.TopicsStored,
 		Duration:  d,
-		Error:     syncErr.Error(),
+		Error:     shortenError(syncErr),
 	}
 
 	if s.logStore != nil {
