@@ -274,14 +274,14 @@ func TestStatusReflectsSyncState(t *testing.T) {
 
 	sched.Start(ctx)
 
-	snap := sched.Status().Snapshot()
-	if snap.State != "idle" {
-		t.Errorf("state = %q, want idle", snap.State)
+	status := sched.Status()
+	if got := status.GetState(); got != "idle" {
+		t.Errorf("state = %q, want idle", got)
 	}
-	if snap.LastTopics != 7 {
-		t.Errorf("LastTopics = %d, want 7", snap.LastTopics)
+	if got := status.GetLastTopics(); got != 7 {
+		t.Errorf("LastTopics = %d, want 7", got)
 	}
-	if snap.LastSyncedAt == nil {
+	if status.GetLastSyncedAt() == nil {
 		t.Error("LastSyncedAt should be set after sync")
 	}
 }

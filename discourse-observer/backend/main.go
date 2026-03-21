@@ -51,7 +51,7 @@ func main() {
 	ctx, stop := signal.NotifyContext(context.Background(), os.Interrupt)
 	defer stop()
 
-	sched := startSyncIfConfigured(ctx, store, srv)
+	schedDone := startSyncIfConfigured(ctx, store, srv)
 
 	mux := http.NewServeMux()
 	mux.HandleFunc("GET /api/health", handleHealth)
@@ -70,15 +70,16 @@ func main() {
 		log.Printf("server stopped: %v", err)
 	}
 
-	if sched != nil {
-		// Context is already canceled; scheduler will finish its in-progress sync and return.
+	if schedDone != nil {
 		log.Println("waiting for scheduler shutdown...")
+		<-schedDone
 	}
 }
 
 // startSyncIfConfigured creates and starts the scheduler if Discourse
-// credentials are present. Returns nil if sync is disabled (dev mode).
-func startSyncIfConfigured(ctx context.Context, store *storage.SQLiteStore, srv *api.Server) *scheduler.Scheduler {
+// credentials are present. Returns a channel that closes when the scheduler
+// stops, or nil if sync is disabled (dev mode).
+func startSyncIfConfigured(ctx context.Context, store *storage.SQLiteStore, srv *api.Server) <-chan struct{} {
 	discourseURL := os.Getenv("DISCOURSE_BASE_URL")
 	if discourseURL == "" {
 		log.Println("DISCOURSE_BASE_URL not set — sync disabled (dev mode)")
@@ -100,10 +101,14 @@ func startSyncIfConfigured(ctx context.Context, store *storage.SQLiteStore, srv 
 	sched := scheduler.New(obs, syncCfg)
 	srv.SyncStatus = sched.Status()
 
-	go sched.Start(ctx)
+	done := make(chan struct{})
+	go func() {
+		sched.Start(ctx)
+		close(done)
+	}()
 	log.Println("sync scheduler started")
 
-	return sched
+	return done
 }
 
 func handleHealth(w http.ResponseWriter, _ *http.Request) {

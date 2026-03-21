@@ -28,18 +28,6 @@ type SyncStatus struct {
 	LastSyncedAt *time.Time
 }
 
-// Snapshot returns a copy of the current status.
-func (s *SyncStatus) Snapshot() StatusSnapshot {
-	s.mu.RLock()
-	defer s.mu.RUnlock()
-	return StatusSnapshot{
-		State:        s.State,
-		LastDuration: s.LastDuration,
-		LastTopics:   s.LastTopics,
-		LastSyncedAt: s.LastSyncedAt,
-	}
-}
-
 // GetState returns the current sync state.
 func (s *SyncStatus) GetState() string {
 	s.mu.RLock()
@@ -66,14 +54,6 @@ func (s *SyncStatus) GetLastSyncedAt() *time.Time {
 	s.mu.RLock()
 	defer s.mu.RUnlock()
 	return s.LastSyncedAt
-}
-
-// StatusSnapshot is a point-in-time copy of SyncStatus, safe to read without locks.
-type StatusSnapshot struct {
-	State        string
-	LastDuration time.Duration
-	LastTopics   int
-	LastSyncedAt *time.Time
 }
 
 // Scheduler drives the sync lifecycle.

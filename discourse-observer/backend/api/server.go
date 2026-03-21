@@ -25,7 +25,6 @@ type Server struct {
 	ResolvedTags   map[string]model.ResolvedTag
 	BucketCeilings []int
 	Version        string
-	LastSyncedAt   *time.Time
 	SyncStatus     SyncStateProvider
 	Now            func() time.Time
 }

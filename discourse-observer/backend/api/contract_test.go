@@ -18,6 +18,17 @@ import (
 	"github.com/code-community/discourse-observer/backend/storage"
 )
 
+// fakeSyncState satisfies SyncStateProvider for contract tests.
+type fakeSyncState struct {
+	state    string
+	syncedAt *time.Time
+}
+
+func (f *fakeSyncState) GetState() string               { return f.state }
+func (f *fakeSyncState) GetLastDuration() time.Duration { return 0 }
+func (f *fakeSyncState) GetLastTopics() int             { return 0 }
+func (f *fakeSyncState) GetLastSyncedAt() *time.Time    { return f.syncedAt }
+
 func testServer(t *testing.T) (ts *httptest.Server, srv *Server) {
 	t.Helper()
 
@@ -66,7 +77,7 @@ func testServer(t *testing.T) (ts *httptest.Server, srv *Server) {
 		ResolvedTags:   domain.ResolveAllTags(&cfg),
 		BucketCeilings: []int{1, 4, 12, 24, 48, 96, 168},
 		Version:        "0.1.0",
-		LastSyncedAt:   &synced,
+		SyncStatus:     &fakeSyncState{state: "idle", syncedAt: &synced},
 		Now:            func() time.Time { return now },
 	}
 
