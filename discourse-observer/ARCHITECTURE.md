@@ -11,6 +11,11 @@ discourse-observer is organized into layers that separate concerns cleanly. Each
 Data flow at runtime:
 
 ```text
+                    ┌─────────────────┐
+                    │ backend/scheduler/ │ — runs sync on interval with jitter
+                    └────────┬────────┘
+                             │ triggers sync cycle
+                             ▼
 Discourse Forum (external)
         │ HTTP
         ▼
@@ -53,8 +58,9 @@ The arrows above show *data flow*, not *import dependencies*. Imports follow dep
 - `model` has no imports. It is the innermost layer.
 - `observer` imports only `model`. It defines interfaces (`FetchClient`, `StorageBackend`) for the adapters.
 - `discourse` and `storage` import `model`. They implement the interfaces defined by `observer`. At runtime they are injected into the observer — the observer never imports them.
+- `scheduler` imports `config` and `model`. It defines a `SyncRunner` interface that `*observer.Observer` satisfies at runtime. The scheduler never imports `observer`, `discourse`, or `storage` directly. It also exposes a thread-safe `SyncStatus` struct that the API reads through a `SyncStateProvider` interface.
 - `domain` imports only `model`. It contains pure calculation functions with no framework or I/O dependencies.
-- `api` imports `domain` and `model`. It defines the `TopicReader` interface and handles HTTP concerns (routing, JSON, filter parsing). At runtime, `storage.SQLiteStore` is injected as the `TopicReader` implementation. Handlers delegate computation to `domain`.
+- `api` imports `domain` and `model`. It defines the `TopicReader` and `SyncStateProvider` interfaces and handles HTTP concerns (routing, JSON, filter parsing). At runtime, `storage.SQLiteStore` is injected as the `TopicReader` implementation and the scheduler satisfies `SyncStateProvider`. Handlers delegate computation to `domain`.
 - `storage` also implements `api.TopicReader` (via `QueryTopics`), satisfying the interface implicitly. The `api` package never imports `storage` — the dependency is inverted through the interface.
 - `mock` imports only `model`. It provides hardcoded topic fixtures used by the mock Discourse server for pipeline integration tests.
 - `config` has no imports. Config values are read at startup and passed into module constructors.
@@ -74,6 +80,12 @@ Responsible for change detection, normalization, and coordinating the fetch-obse
 The observer supports two sync modes — initial (full crawl) and delta (incremental from watermark) — selected automatically based on stored state. Both modes paginate through topics page by page, normalizing and storing each page before advancing. See [initial-delta-sync spec](specs/observer/initial-delta-sync.md) for details.
 
 The observer does not import `discourse` or `storage`. Those modules are injected at startup. This keeps the core logic independent of API details and persistence implementation.
+
+### backend/scheduler/
+
+Drives the sync lifecycle. Runs an initial or delta sync immediately on startup, then repeats delta syncs on a configurable interval with random jitter. Detects low-activity windows (consecutive zero-change syncs) and exposes thread-safe sync status for the API.
+
+The scheduler defines a `SyncRunner` interface that `*observer.Observer` satisfies. It does not import `observer`, `discourse`, or `storage` — those are wired together in `main.go`. See [scheduler spec](specs/observer/scheduler.md) for details.
 
 ### backend/model/
 

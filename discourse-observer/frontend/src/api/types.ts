@@ -245,4 +245,7 @@ export interface AppConfig {
 export interface AppStatus {
   lastSyncedAt: string | null;
   version: string;
+  syncState: string;
+  lastSyncDuration: number;
+  lastSyncTopics: number;
 }

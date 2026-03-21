@@ -335,6 +335,9 @@ Response fields:
 
 - `lastSyncedAt` (timestamp or null): when the last successful sync completed; null if no sync has run
 - `version` (string): application version
+- `syncState` (string): `"idle"`, `"running"`, or `"disabled"` (when no Discourse credentials are configured)
+- `lastSyncDuration` (float): duration of the last completed sync in seconds; 0 if no sync has run
+- `lastSyncTopics` (integer): number of topics upserted in the last completed sync; 0 if no sync has run
 
 This endpoint is not filtered.
 
