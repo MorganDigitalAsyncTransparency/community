@@ -77,7 +77,7 @@ func (s *SyncStatus) GetProgress() *model.SyncProgress {
 }
 
 // UpdateProgress records per-page progress during a sync cycle.
-func (s *SyncStatus) UpdateProgress(mode string, pages, topics int) {
+func (s *SyncStatus) UpdateProgress(mode string, pages, topics, totalTopics int) {
 	s.mu.Lock()
 	defer s.mu.Unlock()
 	if s.progress == nil {
@@ -86,6 +86,9 @@ func (s *SyncStatus) UpdateProgress(mode string, pages, topics int) {
 	s.progress.Mode = mode
 	s.progress.Pages = pages
 	s.progress.Topics = topics
+	if totalTopics > 0 {
+		s.progress.TotalTopics = totalTopics
+	}
 }
 
 // GetLog returns the most recent sync log entries (newest first).

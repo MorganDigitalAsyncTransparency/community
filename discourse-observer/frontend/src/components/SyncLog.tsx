@@ -43,9 +43,20 @@ function EntryRow({ e }: { e: SyncLogEntry }) {
   );
 }
 
+function formatEta(etaSeconds: number): string {
+  const now = new Date();
+  const done = new Date(now.getTime() + etaSeconds * 1000);
+  return done.toLocaleTimeString(undefined, { timeStyle: "medium" });
+}
+
 function ProgressRow({ p }: { p: SyncProgress }) {
   const elapsed = formatDuration(p.elapsedSeconds);
   const mode = p.mode || "sync";
+  const hasTotal = p.totalTopics > 0;
+  const topicLabel = hasTotal
+    ? `${p.topics}/${p.totalTopics} topics`
+    : `${p.topics} topics`;
+
   return (
     <div className="sync-progress">
       <span className="sync-entry-mode">{mode}</span>
@@ -53,10 +64,13 @@ function ProgressRow({ p }: { p: SyncProgress }) {
         ? <span className="sync-entry-stat">fetching first page...</span>
         : <>
             <span className="sync-entry-stat">{p.pages} pages</span>
-            <span className="sync-entry-stat">{p.topics} topics</span>
+            <span className="sync-entry-stat">{topicLabel}</span>
           </>
       }
       <span className="sync-entry-stat">{elapsed}</span>
+      {p.etaSeconds > 0 && (
+        <span className="sync-entry-stat">done ~{formatEta(p.etaSeconds)}</span>
+      )}
     </div>
   );
 }

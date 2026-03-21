@@ -14,10 +14,12 @@ func (s *Server) handleSyncLog(w http.ResponseWriter, _ *http.Request) {
 	}
 
 	type jsonProgress struct {
-		Mode     string  `json:"mode"`
-		Pages    int     `json:"pages"`
-		Topics   int     `json:"topics"`
-		ElapsedS float64 `json:"elapsedSeconds"`
+		Mode        string  `json:"mode"`
+		Pages       int     `json:"pages"`
+		Topics      int     `json:"topics"`
+		TotalTopics int     `json:"totalTopics"`
+		ElapsedS    float64 `json:"elapsedSeconds"`
+		EtaSeconds  float64 `json:"etaSeconds"`
 	}
 
 	type jsonEntry struct {
@@ -30,11 +32,22 @@ func (s *Server) handleSyncLog(w http.ResponseWriter, _ *http.Request) {
 
 	var prog *jsonProgress
 	if p := s.SyncStatus.GetProgress(); p != nil {
+		elapsed := time.Since(p.StartedAt).Seconds()
+		var eta float64
+		if p.TotalTopics > 0 && p.Topics > 0 {
+			rate := elapsed / float64(p.Topics)
+			remaining := float64(p.TotalTopics-p.Topics) * rate
+			if remaining > 0 {
+				eta = remaining
+			}
+		}
 		prog = &jsonProgress{
-			Mode:     p.Mode,
-			Pages:    p.Pages,
-			Topics:   p.Topics,
-			ElapsedS: time.Since(p.StartedAt).Seconds(),
+			Mode:        p.Mode,
+			Pages:       p.Pages,
+			Topics:      p.Topics,
+			TotalTopics: p.TotalTopics,
+			ElapsedS:    elapsed,
+			EtaSeconds:  eta,
 		}
 	}
 

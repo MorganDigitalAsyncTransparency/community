@@ -51,6 +51,7 @@ func HandlerWithPageSize(pageSize int) http.Handler {
 	sortByBumpedAtDesc(rawTopics)
 
 	mux := http.NewServeMux()
+	mux.HandleFunc("GET /about.json", handleAbout(len(rawTopics)))
 	mux.HandleFunc("GET /latest.json", handleLatest(rawTopics, pageSize))
 	mux.HandleFunc("GET /categories.json", handleCategories(categories))
 
@@ -100,6 +101,20 @@ func handleLatest(topics []model.RawTopic, pageSize int) http.HandlerFunc {
 			resp.TopicList.MoreTopicsURL = "/latest.json?page=" + strconv.Itoa(page+1)
 		}
 
+		writeJSON(w, resp)
+	}
+}
+
+func handleAbout(topicCount int) http.HandlerFunc {
+	return func(w http.ResponseWriter, _ *http.Request) {
+		resp := struct {
+			About struct {
+				Stats struct {
+					TopicCount int `json:"topic_count"`
+				} `json:"stats"`
+			} `json:"about"`
+		}{}
+		resp.About.Stats.TopicCount = topicCount
 		writeJSON(w, resp)
 	}
 }

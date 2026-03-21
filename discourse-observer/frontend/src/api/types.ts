@@ -266,7 +266,9 @@ export interface SyncProgress {
   mode: string;
   pages: number;
   topics: number;
+  totalTopics: number;
   elapsedSeconds: number;
+  etaSeconds: number;
 }
 
 export interface SyncLogResponse {

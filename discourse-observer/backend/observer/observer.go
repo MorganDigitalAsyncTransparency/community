@@ -16,6 +16,7 @@ type FetchClient interface {
 	FetchTopics(ctx context.Context) ([]model.RawTopic, error)
 	FetchTopicsPages(ctx context.Context, startPage int, fn func(topics []model.RawTopic, page int) error) error
 	FetchCategories(ctx context.Context) ([]model.RawCategory, error)
+	FetchTopicCount(ctx context.Context) int
 }
 
 // StorageBackend persists normalized topics and sync metadata.
@@ -44,10 +45,11 @@ var errStopPagination = errors.New("stop pagination")
 
 // Observer coordinates fetch, normalization, and storage.
 type Observer struct {
-	fetch      FetchClient
-	store      StorageBackend
-	baseURL    string
-	onProgress model.ProgressFunc
+	fetch       FetchClient
+	store       StorageBackend
+	baseURL     string
+	onProgress  model.ProgressFunc
+	totalTopics int
 }
 
 // New creates an Observer. baseURL is the forum URL used to construct topic links.
@@ -76,6 +78,8 @@ func (o *Observer) Run(ctx context.Context) (SyncResult, error) {
 // RunInitialSync performs a full crawl of all pages.
 func (o *Observer) RunInitialSync(ctx context.Context) (SyncResult, error) {
 	start := time.Now()
+
+	o.totalTopics = o.fetch.FetchTopicCount(ctx)
 
 	catMap, err := o.fetchCategoryMap(ctx)
 	if err != nil {
@@ -113,6 +117,7 @@ func (o *Observer) RunInitialSync(ctx context.Context) (SyncResult, error) {
 // RunDeltaSync fetches pages until all topics on a page are at or below
 // the stored watermark.
 func (o *Observer) RunDeltaSync(ctx context.Context) (SyncResult, error) {
+	o.totalTopics = 0
 	start := time.Now()
 
 	wm, err := o.store.LoadWatermark(ctx)
@@ -188,7 +193,7 @@ func (o *Observer) storeAndTrack(ctx context.Context, raws []model.RawTopic, cat
 	result.TopicsStored += len(topics)
 	trackMaxBump(maxBump, raws)
 	if o.onProgress != nil {
-		o.onProgress(result.Mode, result.PagesFetched, result.TopicsStored)
+		o.onProgress(result.Mode, result.PagesFetched, result.TopicsStored, o.totalTopics)
 	}
 	return nil
 }

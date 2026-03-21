@@ -15,11 +15,13 @@ type SyncLogEntry struct {
 
 // SyncProgress tracks a sync cycle in progress.
 type SyncProgress struct {
-	Mode      string
-	Pages     int
-	Topics    int
-	StartedAt time.Time
+	Mode        string
+	Pages       int
+	Topics      int
+	TotalTopics int
+	StartedAt   time.Time
 }
 
 // ProgressFunc is called after each page during a sync cycle.
-type ProgressFunc func(mode string, pages, topics int)
+// totalTopics is the estimated total (0 if unknown).
+type ProgressFunc func(mode string, pages, topics, totalTopics int)
