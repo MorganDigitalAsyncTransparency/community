@@ -372,8 +372,8 @@ type fakeLogStore struct {
 	entries []model.SyncLogEntry
 }
 
-func (f *fakeLogStore) SaveSyncLogEntry(_ context.Context, e model.SyncLogEntry) error {
-	f.entries = append(f.entries, e)
+func (f *fakeLogStore) SaveSyncLogEntry(_ context.Context, e *model.SyncLogEntry) error {
+	f.entries = append(f.entries, *e)
 	return nil
 }
 

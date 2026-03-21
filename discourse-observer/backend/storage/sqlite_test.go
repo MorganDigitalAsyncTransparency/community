@@ -214,7 +214,7 @@ func TestSyncLogErrorColumn(t *testing.T) {
 		Timestamp: now, Mode: "delta", Pages: 1, Topics: 5,
 		Duration: 2 * time.Second, HasChanges: true,
 	}
-	if err := store.SaveSyncLogEntry(ctx, success); err != nil {
+	if err := store.SaveSyncLogEntry(ctx, &success); err != nil {
 		t.Fatalf("save success: %v", err)
 	}
 
@@ -224,7 +224,7 @@ func TestSyncLogErrorColumn(t *testing.T) {
 		Pages: 0, Topics: 0, Duration: 500 * time.Millisecond,
 		Error: "fetch page 0: unexpected status 500",
 	}
-	if err := store.SaveSyncLogEntry(ctx, errEntry); err != nil {
+	if err := store.SaveSyncLogEntry(ctx, &errEntry); err != nil {
 		t.Fatalf("save error: %v", err)
 	}
 
@@ -256,7 +256,7 @@ func TestSyncLogErrorRetention(t *testing.T) {
 			Timestamp: base.Add(time.Duration(i) * time.Minute),
 			Mode:      "delta", Error: "connection refused",
 		}
-		if err := store.SaveSyncLogEntry(ctx, e); err != nil {
+		if err := store.SaveSyncLogEntry(ctx, &e); err != nil {
 			t.Fatalf("save error %d: %v", i, err)
 		}
 	}

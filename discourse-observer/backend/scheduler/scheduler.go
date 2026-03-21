@@ -32,7 +32,7 @@ type ActivityDataProvider interface {
 
 // SyncLogStore persists sync log entries. Implemented by SQLiteStore.
 type SyncLogStore interface {
-	SaveSyncLogEntry(ctx context.Context, e model.SyncLogEntry) error
+	SaveSyncLogEntry(ctx context.Context, e *model.SyncLogEntry) error
 	LoadSyncLog(ctx context.Context) ([]model.SyncLogEntry, error)
 }
 
@@ -250,7 +250,7 @@ func (s *Scheduler) recordError(r observer.SyncResult, d time.Duration, syncErr 
 
 	if s.logStore != nil {
 		ctx := context.Background()
-		if err := s.logStore.SaveSyncLogEntry(ctx, entry); err != nil {
+		if err := s.logStore.SaveSyncLogEntry(ctx, &entry); err != nil {
 			s.logger.Printf("failed to persist sync error log: %v", err)
 		}
 	}
@@ -273,7 +273,7 @@ func (s *Scheduler) recordResult(r observer.SyncResult, d time.Duration) {
 
 	if s.logStore != nil {
 		ctx := context.Background()
-		if err := s.logStore.SaveSyncLogEntry(ctx, entry); err != nil {
+		if err := s.logStore.SaveSyncLogEntry(ctx, &entry); err != nil {
 			s.logger.Printf("failed to persist sync log: %v", err)
 		}
 	}
