@@ -257,29 +257,37 @@ func (s *Scheduler) logCompleted(r observer.SyncResult, d time.Duration) {
 }
 
 // shortenError produces a human-readable error message for the sync log.
-// It strips Go-internal details (dial tcp, DNS resolver addresses) that
-// are noise for operators.
+// It strips Go-internal details (dial tcp, DNS resolver addresses, full
+// URLs) that are noise for operators.
 func shortenError(err error) string {
 	msg := err.Error()
-	// "dial tcp: lookup mockserver on 127.0.0.11:53: no such host"
-	// → "server unreachable (mockserver)"
-	if i := strings.Index(msg, "dial tcp: lookup "); i >= 0 {
-		sub := msg[i+len("dial tcp: lookup "):]
-		host := sub
-		if sp := strings.IndexAny(sub, " :"); sp >= 0 {
-			host = sub[:sp]
-		}
-		prefix := msg[:i]
-		return prefix + "server unreachable (" + host + ")"
+	if strings.Contains(msg, "dial tcp: lookup ") {
+		return extractHost(msg, "dial tcp: lookup ")
 	}
-	// "dial tcp 1.2.3.4:9920: connect: connection refused"
-	// → "connection refused"
-	if i := strings.Index(msg, "dial tcp "); i >= 0 {
-		if j := strings.Index(msg, "connection refused"); j >= 0 {
-			return msg[:i] + "connection refused"
+	if strings.Contains(msg, "connection refused") {
+		return "connection refused"
+	}
+	if strings.Contains(msg, "no such host") {
+		return "server unreachable"
+	}
+	// Strip "failed after N attempts: " wrapper — the attempt count is
+	// visible in the retry progress, not needed in the final message.
+	if i := strings.Index(msg, "failed after "); i >= 0 {
+		if j := strings.Index(msg[i:], ": "); j >= 0 {
+			msg = msg[:i] + msg[i+j+2:]
 		}
 	}
 	return msg
+}
+
+func extractHost(msg, marker string) string {
+	i := strings.Index(msg, marker)
+	sub := msg[i+len(marker):]
+	host := sub
+	if sp := strings.IndexAny(sub, " :"); sp >= 0 {
+		host = sub[:sp]
+	}
+	return "server unreachable (" + host + ")"
 }
 
 func (s *Scheduler) recordError(r observer.SyncResult, d time.Duration, syncErr error) {
