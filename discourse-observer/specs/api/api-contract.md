@@ -343,17 +343,25 @@ This endpoint is not filtered.
 
 ### Endpoint: Sync log
 
-**AC-33.** `GET /api/v1/sync-log` — Returns the most recent sync events (newest first, up to 20).
+**AC-33.** `GET /api/v1/sync-log` — Returns sync log and live progress.
 
-Response: array of objects, each with:
+Response object:
 
-- `timestamp` (string): ISO 8601 UTC timestamp of sync completion
-- `mode` (string): `"initial"` or `"delta"`
-- `pages` (integer): number of pages fetched
-- `topics` (integer): number of topics upserted
-- `durationSeconds` (float): sync duration in seconds
+- `progress` (object or null): present when a sync is running
+  - `mode` (string): `"initial"` or `"delta"`
+  - `pages` (integer): pages fetched so far
+  - `topics` (integer): topics upserted so far
+  - `totalTopics` (integer): estimated total from `/about.json` (0 if unknown)
+  - `elapsedSeconds` (float): time since sync started
+  - `etaSeconds` (float): estimated seconds remaining (0 if unknown)
+- `entries` (array): most recent completed syncs, newest first, up to 20 per type
+  - `timestamp` (string): ISO 8601 UTC timestamp of sync completion
+  - `mode` (string): `"initial"`, `"delta"`, or `"detail"`
+  - `pages` (integer): number of pages fetched
+  - `topics` (integer): number of topics upserted
+  - `durationSeconds` (float): sync duration in seconds
 
-Returns an empty array when sync is disabled or no syncs have completed. This endpoint is not filtered. The log is in-memory and resets on restart.
+The log is persisted in SQLite and survives restarts. Each sync type retains its own 20 most recent entries, so infrequent events (like initial sync) are never displaced by frequent ones (like delta sync). Returns empty entries array and null progress when sync is disabled. This endpoint is not filtered.
 
 ### Cross-cutting
 
