@@ -69,11 +69,22 @@ func (s *SQLiteStore) ClearLastPage(ctx context.Context) error {
 const maxLogPerType = 20
 
 // SaveSyncLogEntry appends a sync log entry, keeping at most 20 per mode.
+// No-change entries (has_changes=0) are deduplicated: only the most recent
+// no-change entry per mode is kept.
 func (s *SQLiteStore) SaveSyncLogEntry(ctx context.Context, e model.SyncLogEntry) error {
 	hasChanges := 0
 	if e.HasChanges {
 		hasChanges = 1
 	}
+
+	// Before inserting a no-change entry, remove all previous no-change entries for this mode.
+	if !e.HasChanges {
+		if _, err := s.db.ExecContext(ctx,
+			`DELETE FROM sync_log WHERE mode = ? AND has_changes = 0`, e.Mode); err != nil {
+			return err
+		}
+	}
+
 	_, err := s.db.ExecContext(ctx,
 		`INSERT INTO sync_log (timestamp, mode, pages, topics, duration_s, has_changes) VALUES (?, ?, ?, ?, ?, ?)`,
 		e.Timestamp.Format(time.RFC3339), e.Mode, e.Pages, e.Topics, e.Duration.Seconds(), hasChanges)
