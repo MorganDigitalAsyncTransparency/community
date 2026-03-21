@@ -10,7 +10,7 @@ make start
 
 This single command handles the full onboarding flow: installs dependencies, creates config files, runs verification, builds containers, and opens the dashboard.
 
-No Discourse forum is needed to get started. The default `.env` points `DISCOURSE_BASE_URL` at a built-in mock Discourse server that runs as a Docker service. On first launch the scheduler performs a full initial sync from the mock server — the full pipeline runs end-to-end. Progress is visible on the Sync log page (link in the footer).
+No Discourse forum is needed to get started. The default `.env` points `DISCOURSE_BASE_URL` at a built-in mock Discourse server that runs as a Docker service. On first launch the scheduler performs a full initial sync from the mock server — the full pipeline runs end-to-end. Progress is visible on the Sync log page (link in the sidebar's About section).
 
 To connect to a real forum later, edit `.env` with your Discourse credentials (see [Configure for a real forum](#configure-for-a-real-forum)).
 

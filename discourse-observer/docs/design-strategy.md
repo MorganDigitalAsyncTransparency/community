@@ -8,7 +8,7 @@ The goal is a dashboard that can be rebranded by changing variable values in one
 
 ## Layout structure
 
-The page shell is a CSS Grid with two columns: a collapsible sidebar and a main area. The main area is subdivided into three rows: filter bar, content, and footer.
+The page shell is a CSS Grid with two columns: a collapsible sidebar and a main area. The main area is subdivided into two rows: filter bar and content. Operational information (version, sync status, links) lives in the sidebar's About section rather than a separate footer region.
 
 ```text
 ┌──────────┬───────────────────────────────────────┐
@@ -17,8 +17,7 @@ The page shell is a CSS Grid with two columns: a collapsible sidebar and a main 
 │ sidebar  │                                       │
 │          │            content                     │
 │          │                                       │
-│          ├───────────────────────────────────────┤
-│          │            footer                      │
+│          │                                       │
 └──────────┴───────────────────────────────────────┘
 ```
 
@@ -27,11 +26,10 @@ Grid definition:
 ```css
 .shell {
   display: grid;
-  grid-template: auto 1fr auto / auto 1fr;
+  grid-template: auto 1fr / auto 1fr;
   grid-template-areas:
     "sidebar  filter-bar"
-    "sidebar  content"
-    "sidebar  footer";
+    "sidebar  content";
   min-height: 100vh;
 }
 ```
@@ -42,7 +40,7 @@ Grid definition:
 
 ### Sidebar
 
-The sidebar holds the logo, navigation links, and a collapse toggle. It spans the full viewport height. Because the content area handles its own scrolling (via `overflow-y: auto`), the sidebar stays visually fixed without needing `position: fixed`.
+The sidebar holds the logo, navigation links, an About section (version, sync status, links), and a collapse toggle. It spans the full viewport height. Because the content area handles its own scrolling (via `overflow-y: auto`), the sidebar stays visually fixed without needing `position: fixed`.
 
 | State | Width | Content |
 |-------|-------|---------|
@@ -69,13 +67,7 @@ Note: `position: sticky` is not needed. The grid layout keeps the filter bar fix
 
 ### Content
 
-The scrollable area for page-specific components (tables, charts, cards). Content scrolls independently within its grid cell and constrains width to `var(--content-max-width)` (1400px), applied to the filter bar, content, and footer regions.
-
-### Footer
-
-Sits at the bottom of the main area. Contains version, last sync time, and a repository link.
-
-Content example: `v0.1.0 · Last synced 2026-03-18 14:32 UTC · GitHub ↗`
+The scrollable area for page-specific components (tables, charts, cards). Content scrolls independently within its grid cell and constrains width to `var(--content-max-width)` (1400px), applied to the filter bar and content regions.
 
 ---
 
@@ -202,7 +194,7 @@ When rebranding, these pairs must maintain sufficient contrast. Changing one wit
 |----------|-----------------|
 | `--font-family-base` | System font stack for all text |
 | `--font-size-xs` | Smallest text (heatmap cells, timezone labels) |
-| `--font-size-sm` | Small text (filter labels, table headers, footer) |
+| `--font-size-sm` | Small text (filter labels, table headers, sidebar about section) |
 | `--font-size-md` | Default body text and table cells |
 | `--font-size-lg` | Section headings |
 | `--font-size-xl` | Page title |
@@ -220,7 +212,7 @@ A 4px-based scale: 4, 8, 16, 24, 32.
 | Variable | Semantic meaning |
 |----------|-----------------|
 | `--spacing-xs` | Tight padding (heatmap cells, compact controls) |
-| `--spacing-sm` | Small padding (filter bar, footer, button padding) |
+| `--spacing-sm` | Small padding (filter bar, sidebar about section, button padding) |
 | `--spacing-md` | Standard padding (horizontal content padding, gaps) |
 | `--spacing-lg` | Section spacing (vertical content padding) |
 | `--spacing-xl` | Large separation (between major sections) |
@@ -260,7 +252,7 @@ Layout dimension values are defined in the document (not just the stylesheet) be
 |----------|-----------------|-------|
 | `--sidebar-width-expanded` | Sidebar width when showing icon + text | 200px |
 | `--sidebar-width-collapsed` | Sidebar width when showing icon only | 48px |
-| `--content-max-width` | Maximum width of the filter bar, content area, and footer | 1400px |
+| `--content-max-width` | Maximum width of the filter bar and content area | 1400px |
 
 ---
 

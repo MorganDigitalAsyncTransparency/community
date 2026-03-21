@@ -352,7 +352,7 @@ CSS class prefix: `rd-chart-` for chart-specific elements.
 
 ## Sidebar
 
-Accepts four props:
+Accepts seven props:
 
 | Prop | Type | Purpose |
 |------|------|---------|
@@ -360,12 +360,28 @@ Accepts four props:
 | `onNavigate` | `(page: Page) => void` | Called when a navigation link is clicked |
 | `mobileOpen` | `boolean \| undefined` | When `true`, sidebar renders as a fixed overlay (mobile breakpoint) |
 | `onMobileClose` | `(() => void) \| undefined` | Called to close the mobile overlay — triggered by backdrop click or navigation |
+| `version` | `string` | Application version string (e.g. "0.1.0") |
+| `lastSyncedAt` | `string \| null` | ISO 8601 timestamp of the last data sync, or null |
+| `onSyncLogClick` | `(() => void) \| undefined` | Navigates to the sync log page when clicked |
 
 Renders a vertical sidebar spanning the full viewport height with:
 
 - A logo section showing "discourse-observer" (expanded) or "d-o" (collapsed).
 - Five navigation links — Queue, Response metrics, Distribution, SLO, Activity — each with an icon and text label. The active page is visually distinguished (`sidebar-link-active`).
+- An "About" section between the navigation and the collapse toggle (see [sidebar-about-section.md](sidebar-about-section.md) for requirements DS-15 through DS-18).
 - A collapse/expand toggle at the bottom.
+
+### About section
+
+Renders below the navigation and above the collapse toggle. Contains a heading row (ℹ icon + "About" label) followed by five info rows, each on its own line:
+
+1. Version string.
+2. Last sync time (formatted as locale-aware short date/time) or "Not yet synced".
+3. "Sync log" — clickable, calls `onSyncLogClick`.
+4. "GitHub" — external link to the repository.
+5. "Read more" — external link to the GitHub Pages documentation site.
+
+When collapsed, the About section shows only the ℹ icon with a "About" tooltip. Info rows are hidden via the same CSS mechanism as nav labels (opacity 0, width 0).
 
 **States:**
 
@@ -381,24 +397,6 @@ Width transition is ~200ms ease for visual continuity.
 **Mobile overlay (< 768px):** When `mobileOpen` is `true`, the sidebar renders as a fixed overlay (`sidebar-mobile-open`) above a semi-transparent backdrop (`sidebar-backdrop`). Clicking the backdrop or any navigation link calls `onMobileClose`. The backdrop and mobile-open class are only styled in the `<= 767px` media query — at wider viewports they have no visual effect.
 
 CSS class prefix: `sidebar-` for all elements specific to this component.
-
----
-
-## Footer
-
-Accepts three props:
-
-| Prop | Type | Purpose |
-|------|------|---------|
-| `version` | `string` | Application version string (e.g. "v0.1.0") |
-| `lastSyncedAt` | `string \| null` | ISO 8601 timestamp of the last data sync, or null |
-| `onSyncLogClick` | `() => void` (optional) | Navigates to the sync log page when clicked |
-
-Renders a footer bar at the bottom of the main area containing version, formatted last sync time, a "Sync log" link, and a GitHub repository link.
-
-`Footer` is a pure function component — no hooks, no state.
-
-CSS class prefix: `footer-` for all elements specific to this component.
 
 ---
 
@@ -432,9 +430,8 @@ All time displays — both topic age and response time metrics — use a single 
   | `unreplied-` | UnrepliedTable |
   | `untagged-` | UntaggedTable |
   | `response-` | ResponseMetricsCards |
-  | `sidebar-` | Sidebar (includes `sidebar-backdrop`, `sidebar-mobile-open`) |
+  | `sidebar-` | Sidebar (includes `sidebar-backdrop`, `sidebar-mobile-open`, `sidebar-about-*`) |
   | `hamburger` | Mobile menu button |
-  | `footer-` | Footer |
   | `period-` | PeriodSelector |
   | `tag-` | TagSelector |
   | `volume-chart-` | VolumeChart |
