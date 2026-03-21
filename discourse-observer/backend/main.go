@@ -80,13 +80,13 @@ func main() {
 // credentials are present. Returns a channel that closes when the scheduler
 // stops, or nil if sync is disabled (dev mode).
 func startSyncIfConfigured(ctx context.Context, store *storage.SQLiteStore, srv *api.Server) <-chan struct{} {
-	discourseURL := os.Getenv("DISCOURSE_BASE_URL")
-	if discourseURL == "" {
-		log.Println("DISCOURSE_BASE_URL not set — sync disabled (dev mode)")
+	apiKey := os.Getenv("DISCOURSE_API_TOKEN")
+	if apiKey == "" {
+		log.Println("DISCOURSE_API_TOKEN not set — sync disabled (dev mode)")
 		return nil
 	}
 
-	apiKey := os.Getenv("DISCOURSE_API_TOKEN")
+	discourseURL := os.Getenv("DISCOURSE_BASE_URL")
 	apiUser := os.Getenv("DISCOURSE_API_USER")
 	syncCfg := config.LoadSyncConfig()
 
