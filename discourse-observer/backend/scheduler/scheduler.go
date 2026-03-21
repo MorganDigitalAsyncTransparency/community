@@ -216,11 +216,12 @@ func (s *Scheduler) logCompleted(r observer.SyncResult, d time.Duration) {
 func (s *Scheduler) recordResult(r observer.SyncResult, d time.Duration) {
 	now := time.Now().UTC()
 	entry := model.SyncLogEntry{
-		Timestamp: now,
-		Mode:      r.Mode,
-		Pages:     r.PagesFetched,
-		Topics:    r.TopicsStored,
-		Duration:  d,
+		Timestamp:  now,
+		Mode:       r.Mode,
+		Pages:      r.PagesFetched,
+		Topics:     r.TopicsStored,
+		Duration:   d,
+		HasChanges: r.HasChanges,
 	}
 
 	if s.logStore != nil {

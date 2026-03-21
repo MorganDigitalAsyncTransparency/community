@@ -31,13 +31,17 @@ function modeClass(mode: string): string {
   }
 }
 
+function topicSummary(e: SyncLogEntry): string {
+  if (!e.hasChanges) return "up to date";
+  return `${e.topics} topics`;
+}
+
 function EntryRow({ e }: { e: SyncLogEntry }) {
   return (
     <div className={modeClass(e.mode)}>
       <span className="sync-entry-time">{formatTimestamp(e.timestamp)}</span>
       <span className="sync-entry-mode">{e.mode}</span>
-      <span className="sync-entry-stat">{e.pages} pages</span>
-      <span className="sync-entry-stat">{e.topics} topics</span>
+      <span className="sync-entry-stat">{topicSummary(e)}</span>
       <span className="sync-entry-stat">{formatDuration(e.durationSeconds)}</span>
     </div>
   );
@@ -60,12 +64,9 @@ function ProgressRow({ p }: { p: SyncProgress }) {
   return (
     <div className="sync-progress">
       <span className="sync-entry-mode">{mode}</span>
-      {p.pages === 0
-        ? <span className="sync-entry-stat">fetching first page...</span>
-        : <>
-            <span className="sync-entry-stat">{p.pages} pages</span>
-            <span className="sync-entry-stat">{topicLabel}</span>
-          </>
+      {p.topics === 0
+        ? <span className="sync-entry-stat">starting...</span>
+        : <span className="sync-entry-stat">{topicLabel}</span>
       }
       <span className="sync-entry-stat">{elapsed}</span>
       {p.etaSeconds > 0 && (

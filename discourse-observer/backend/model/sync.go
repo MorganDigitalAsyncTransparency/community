@@ -6,11 +6,12 @@ import "time"
 
 // SyncLogEntry records one completed sync cycle for the sync log.
 type SyncLogEntry struct {
-	Timestamp time.Time
-	Mode      string
-	Pages     int
-	Topics    int
-	Duration  time.Duration
+	Timestamp  time.Time
+	Mode       string
+	Pages      int
+	Topics     int
+	Duration   time.Duration
+	HasChanges bool
 }
 
 // SyncProgress tracks a sync cycle in progress.

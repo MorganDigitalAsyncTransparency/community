@@ -37,6 +37,7 @@ type SyncResult struct {
 	TopicsStored int
 	NewWatermark *time.Time
 	Duration     time.Duration
+	HasChanges   bool
 }
 
 // errStopPagination is a sentinel error used by delta sync to signal that
@@ -110,6 +111,7 @@ func (o *Observer) RunInitialSync(ctx context.Context) (SyncResult, error) {
 	if err := o.finalizeInitialSync(ctx, &result, maxBump); err != nil {
 		return result, err
 	}
+	result.HasChanges = result.TopicsStored > 0
 	result.Duration = time.Since(start)
 	return result, nil
 }
@@ -152,6 +154,7 @@ func (o *Observer) RunDeltaSync(ctx context.Context) (SyncResult, error) {
 	newWM := *wm
 	if maxBump.After(newWM) {
 		newWM = maxBump
+		result.HasChanges = true
 	}
 	if err := o.store.SaveWatermark(ctx, newWM); err != nil {
 		return result, fmt.Errorf("save watermark: %w", err)

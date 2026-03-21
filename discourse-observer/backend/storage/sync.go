@@ -70,9 +70,13 @@ const maxLogPerType = 20
 
 // SaveSyncLogEntry appends a sync log entry, keeping at most 20 per mode.
 func (s *SQLiteStore) SaveSyncLogEntry(ctx context.Context, e model.SyncLogEntry) error {
+	hasChanges := 0
+	if e.HasChanges {
+		hasChanges = 1
+	}
 	_, err := s.db.ExecContext(ctx,
-		`INSERT INTO sync_log (timestamp, mode, pages, topics, duration_s) VALUES (?, ?, ?, ?, ?)`,
-		e.Timestamp.Format(time.RFC3339), e.Mode, e.Pages, e.Topics, e.Duration.Seconds())
+		`INSERT INTO sync_log (timestamp, mode, pages, topics, duration_s, has_changes) VALUES (?, ?, ?, ?, ?, ?)`,
+		e.Timestamp.Format(time.RFC3339), e.Mode, e.Pages, e.Topics, e.Duration.Seconds(), hasChanges)
 	if err != nil {
 		return err
 	}
@@ -89,7 +93,7 @@ func (s *SQLiteStore) SaveSyncLogEntry(ctx context.Context, e model.SyncLogEntry
 // LoadSyncLog returns all stored sync log entries, newest first.
 func (s *SQLiteStore) LoadSyncLog(ctx context.Context) ([]model.SyncLogEntry, error) {
 	rows, err := s.db.QueryContext(ctx,
-		`SELECT timestamp, mode, pages, topics, duration_s FROM sync_log ORDER BY timestamp DESC`)
+		`SELECT timestamp, mode, pages, topics, duration_s, has_changes FROM sync_log ORDER BY timestamp DESC`)
 	if err != nil {
 		return nil, err
 	}
@@ -100,7 +104,8 @@ func (s *SQLiteStore) LoadSyncLog(ctx context.Context) ([]model.SyncLogEntry, er
 		var raw string
 		var e model.SyncLogEntry
 		var durS float64
-		if err := rows.Scan(&raw, &e.Mode, &e.Pages, &e.Topics, &durS); err != nil {
+		var hc int
+		if err := rows.Scan(&raw, &e.Mode, &e.Pages, &e.Topics, &durS, &hc); err != nil {
 			return nil, err
 		}
 		t, err := time.Parse(time.RFC3339, raw)
@@ -109,6 +114,7 @@ func (s *SQLiteStore) LoadSyncLog(ctx context.Context) ([]model.SyncLogEntry, er
 		}
 		e.Timestamp = t
 		e.Duration = time.Duration(durS * float64(time.Second))
+		e.HasChanges = hc != 0
 		entries = append(entries, e)
 	}
 	return entries, rows.Err()

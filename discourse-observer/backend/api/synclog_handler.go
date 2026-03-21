@@ -15,7 +15,6 @@ func (s *Server) handleSyncLog(w http.ResponseWriter, _ *http.Request) {
 
 	type jsonProgress struct {
 		Mode        string  `json:"mode"`
-		Pages       int     `json:"pages"`
 		Topics      int     `json:"topics"`
 		TotalTopics int     `json:"totalTopics"`
 		ElapsedS    float64 `json:"elapsedSeconds"`
@@ -23,11 +22,11 @@ func (s *Server) handleSyncLog(w http.ResponseWriter, _ *http.Request) {
 	}
 
 	type jsonEntry struct {
-		Timestamp string  `json:"timestamp"`
-		Mode      string  `json:"mode"`
-		Pages     int     `json:"pages"`
-		Topics    int     `json:"topics"`
-		Duration  float64 `json:"durationSeconds"`
+		Timestamp  string  `json:"timestamp"`
+		Mode       string  `json:"mode"`
+		Topics     int     `json:"topics"`
+		Duration   float64 `json:"durationSeconds"`
+		HasChanges bool    `json:"hasChanges"`
 	}
 
 	var prog *jsonProgress
@@ -43,7 +42,6 @@ func (s *Server) handleSyncLog(w http.ResponseWriter, _ *http.Request) {
 		}
 		prog = &jsonProgress{
 			Mode:        p.Mode,
-			Pages:       p.Pages,
 			Topics:      p.Topics,
 			TotalTopics: p.TotalTopics,
 			ElapsedS:    elapsed,
@@ -55,11 +53,11 @@ func (s *Server) handleSyncLog(w http.ResponseWriter, _ *http.Request) {
 	out := make([]jsonEntry, len(entries))
 	for i, e := range entries {
 		out[i] = jsonEntry{
-			Timestamp: e.Timestamp.UTC().Format("2006-01-02T15:04:05Z"),
-			Mode:      e.Mode,
-			Pages:     e.Pages,
-			Topics:    e.Topics,
-			Duration:  e.Duration.Seconds(),
+			Timestamp:  e.Timestamp.UTC().Format("2006-01-02T15:04:05Z"),
+			Mode:       e.Mode,
+			Topics:     e.Topics,
+			Duration:   e.Duration.Seconds(),
+			HasChanges: e.HasChanges,
 		}
 	}
 

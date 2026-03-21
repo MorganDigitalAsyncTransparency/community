@@ -257,14 +257,13 @@ export interface AppStatus {
 export interface SyncLogEntry {
   timestamp: string;
   mode: string;
-  pages: number;
   topics: number;
   durationSeconds: number;
+  hasChanges: boolean;
 }
 
 export interface SyncProgress {
   mode: string;
-  pages: number;
   topics: number;
   totalTopics: number;
   elapsedSeconds: number;
