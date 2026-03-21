@@ -50,8 +50,8 @@ down:
 	docker compose down --timeout 10 --remove-orphans
 
 ## Start — one-command onboarding: setup, configure, build, launch, open browser
-## Seeds mock data automatically when DISCOURSE_API_TOKEN is empty in .env.
-start: setup .env config/tagConfig.json verify maybe-seed build up open
+## The mock server service provides data in dev mode — no seeding needed.
+start: setup .env config/tagConfig.json verify build up open
 
 .env:
 	cp .env.example .env
