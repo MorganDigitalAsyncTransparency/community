@@ -201,6 +201,24 @@ export interface Heatmap {
 }
 
 // ---------------------------------------------------------------------------
+// AC-34: Triage time
+// ---------------------------------------------------------------------------
+
+export interface TriageTagEntry {
+  tag: string;
+  medianHours: number | null;
+  count: number;
+}
+
+export interface TriageTime {
+  overall: {
+    medianHours: number | null;
+    count: number;
+  };
+  byTag: TriageTagEntry[];
+}
+
+// ---------------------------------------------------------------------------
 // AC-27: Config
 // ---------------------------------------------------------------------------
 

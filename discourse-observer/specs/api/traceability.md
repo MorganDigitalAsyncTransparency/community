@@ -56,6 +56,14 @@ This matrix shows how use cases decompose into API contract requirements and ver
 
 ---
 
+## Workflow insights
+
+| Use case | Spec | Requirements | Verification |
+|----------|------|-------------|--------------|
+| Triage responsiveness | [triage-time.md](triage-time.md) | TT-1 through TT-13 | `backend/domain/triage_unit_test.go`, `backend/api/triage-time_contract_test.go` |
+
+---
+
 ## Filtering and navigation
 
 | Use case | Spec | Requirements | Verification |
