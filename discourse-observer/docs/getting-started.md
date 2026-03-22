@@ -39,7 +39,7 @@ The following tools are needed. Go and Node.js are only required for local devel
 | **[Go 1.26+](https://go.dev/dl/)** | `choco install golang` | `brew install go` | [go.dev/dl](https://go.dev/dl/) (distro packages are often outdated) |
 | **[Node.js 24+](https://nodejs.org/)** | `choco install nodejs-lts` | `brew install node` | `sudo apt install nodejs npm` (Debian) / `sudo dnf install nodejs npm` (Fedora) |
 
-To connect to a real Discourse forum, you also need an API token (read-only is sufficient). This is not required for local development with mock data.
+To connect to a real Discourse forum, you also need an API token (see [API key scopes](#api-key-scopes)). This is not required for local development with mock data.
 
 ### VS Code extensions
 
@@ -64,6 +64,19 @@ New terminal panels will then run commands like `make start` and `sh scripts/set
 ## Configure for a real forum
 
 `make start` works out of the box with mock data. This section is only needed when you want to connect to a real Discourse forum.
+
+### API key scopes
+
+Create a granular API key in Discourse Admin → API → New API Key. The observer is read-only and needs these four scopes:
+
+| Scope | Action | Endpoints used |
+|---|---|---|
+| **topics** | read | `/t/{id}.json` |
+| **topics** | read_lists | `/latest.json` |
+| **categories** | list | `/categories.json`, `/site.json` |
+| **revisions** | read | `/posts/{id}/revisions/{v}.json` |
+
+No write, admin, or global scopes are required.
 
 ### Discourse credentials
 

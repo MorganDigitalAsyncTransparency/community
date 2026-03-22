@@ -388,7 +388,7 @@ Response object:
 - `progress` (object or null): present when a sync is running
   - `mode` (string): `"initial"` or `"delta"`
   - `topics` (integer): topics upserted so far
-  - `totalTopics` (integer): estimated total from `/about.json` (0 if unknown)
+  - `totalTopics` (integer): estimated total from `/site.json` category counts (0 if unknown)
   - `elapsedSeconds` (float): time since sync started
   - `etaSeconds` (float): estimated seconds remaining (0 if unknown)
   - `retryAttempt` (integer): 0 when not retrying; positive during retry attempts

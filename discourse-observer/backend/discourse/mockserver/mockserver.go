@@ -2,8 +2,9 @@
 // Tests: backend/discourse/client_test.go, backend/pipeline_test.go, backend/sync_test.go
 //
 // Package mockserver provides an HTTP server that mimics the Discourse API
-// using the project's existing mock dataset. It serves /latest.json and
-// /categories.json in the same JSON shape as a real Discourse instance.
+// using the project's existing mock dataset. It serves /latest.json,
+// /categories.json, and /site.json in the same JSON shape as a real
+// Discourse instance.
 //
 // The server supports pagination: /latest.json?page=N returns a page of
 // topics (default 30 per page) and includes more_topics_url when more
@@ -54,7 +55,7 @@ func HandlerWithPageSize(pageSize int) http.Handler {
 	postData := buildPostData(topics, rawTopics, categories)
 
 	mux := http.NewServeMux()
-	mux.HandleFunc("GET /about.json", handleAbout(len(rawTopics)))
+	mux.HandleFunc("GET /site.json", handleSite(categories))
 	mux.HandleFunc("GET /latest.json", handleLatest(rawTopics, pageSize))
 	mux.HandleFunc("GET /categories.json", handleCategories(categories))
 	mux.HandleFunc("GET /t/{id}", handleTopicDetail(topicMap, postData))
@@ -110,16 +111,11 @@ func handleLatest(topics []model.RawTopic, pageSize int) http.HandlerFunc {
 	}
 }
 
-func handleAbout(topicCount int) http.HandlerFunc {
+func handleSite(categories []model.RawCategory) http.HandlerFunc {
 	return func(w http.ResponseWriter, _ *http.Request) {
 		resp := struct {
-			About struct {
-				Stats struct {
-					TopicCount int `json:"topic_count"`
-				} `json:"stats"`
-			} `json:"about"`
-		}{}
-		resp.About.Stats.TopicCount = topicCount
+			Categories []model.RawCategory `json:"categories"`
+		}{Categories: categories}
 		writeJSON(w, resp)
 	}
 }
@@ -144,8 +140,13 @@ func writeJSON(w http.ResponseWriter, v any) {
 }
 
 // buildCategories extracts unique category names from topics and assigns IDs.
+// Each category's TopicCount reflects how many topics belong to it.
 func buildCategories(topics []model.Topic) []model.RawCategory {
-	seen := map[string]int{}
+	type catEntry struct {
+		index int
+		id    int
+	}
+	seen := map[string]catEntry{}
 	var cats []model.RawCategory
 	nextID := 1
 	for i := range topics {
@@ -153,14 +154,16 @@ func buildCategories(topics []model.Topic) []model.RawCategory {
 		if name == "" {
 			continue
 		}
-		if _, ok := seen[name]; ok {
+		if entry, ok := seen[name]; ok {
+			cats[entry.index].TopicCount++
 			continue
 		}
-		seen[name] = nextID
+		seen[name] = catEntry{index: len(cats), id: nextID}
 		cats = append(cats, model.RawCategory{
-			ID:   nextID,
-			Name: name,
-			Slug: slugify(name),
+			ID:         nextID,
+			Name:       name,
+			Slug:       slugify(name),
+			TopicCount: 1,
 		})
 		nextID++
 	}
