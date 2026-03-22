@@ -27,9 +27,11 @@ type RawTopic struct {
 	ClosedAt         *time.Time `json:"closed_at,omitempty"`
 }
 
-// RawCategory represents a category from the Discourse API /categories.json.
+// RawCategory represents a category from the Discourse API /categories.json
+// and /site.json endpoints.
 type RawCategory struct {
-	ID   int    `json:"id"`
-	Name string `json:"name"`
-	Slug string `json:"slug"`
+	ID         int    `json:"id"`
+	Name       string `json:"name"`
+	Slug       string `json:"slug"`
+	TopicCount int    `json:"topic_count"`
 }

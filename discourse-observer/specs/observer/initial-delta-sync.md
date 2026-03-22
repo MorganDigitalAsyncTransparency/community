@@ -21,7 +21,7 @@ FetchTopicCount(ctx context.Context) int
 
 `FetchTopicsPages` paginates from `startPage` and calls `fn` for each page. If `fn` returns an error, pagination stops and that error is returned. The observer does not import `discourse.PageConfig` — timing configuration is internal to the concrete client.
 
-`FetchTopicCount` retrieves the total topic count from `/about.json` for progress estimation during initial sync. Returns 0 if unavailable.
+`FetchTopicCount` retrieves the total topic count from `/site.json` by summing `topic_count` across all categories. Used for progress estimation during initial sync. Returns 0 if unavailable.
 
 The existing `FetchTopics` method remains on the interface for backward compatibility.
 
