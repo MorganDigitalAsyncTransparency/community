@@ -70,6 +70,7 @@ nav:
           - API Contract Verification: specs/api/api-contract_verification.md
           - Triage Time: specs/api/triage-time.md
           - Tag Flows: specs/api/tag-flows.md
+          - Escalations: specs/api/escalations.md
       - Observer:
           - Observer Behavior: specs/observer/observer-behavior.md
           - Initial and Delta Sync: specs/observer/initial-delta-sync.md

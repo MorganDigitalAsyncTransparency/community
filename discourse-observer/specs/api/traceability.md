@@ -62,6 +62,7 @@ This matrix shows how use cases decompose into API contract requirements and ver
 |----------|------|-------------|--------------|
 | Triage responsiveness | [triage-time.md](triage-time.md) | TT-1 through TT-13 | `backend/domain/triage_unit_test.go`, `backend/api/triage-time_contract_test.go` |
 | Tag flow patterns | [tag-flows.md](tag-flows.md) | TF-1 through TF-21 | `backend/domain/tagflows_unit_test.go`, `backend/api/tag-flows_contract_test.go` |
+| Escalation patterns | [escalations.md](escalations.md) | EP-1 through EP-12 | `backend/domain/escalations_unit_test.go`, `backend/api/escalations_contract_test.go` |
 
 ---
 

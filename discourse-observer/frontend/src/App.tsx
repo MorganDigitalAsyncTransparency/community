@@ -22,6 +22,7 @@ import type {
   MetricsDistribution,
   TriageTime,
   TagFlows,
+  Escalations,
   TagVolume,
   TagResolution,
   TagBacklog,
@@ -46,6 +47,7 @@ import {
   fetchDistribution,
   fetchTriageTime,
   fetchTagFlows,
+  fetchEscalations,
   fetchTagVolume,
   fetchTagResolution,
   fetchTagBacklog,
@@ -72,6 +74,7 @@ import { Sidebar } from "./components/Sidebar";
 import { SyncLog } from "./components/SyncLog";
 import { TriageTimeCard } from "./components/TriageTimeCard";
 import { TagFlowsPage } from "./components/TagFlowsPage";
+import { EscalationCard } from "./components/EscalationCard";
 import {
   type CustomRange,
   type PeriodPreset,
@@ -96,6 +99,7 @@ interface ResponseMetricsData {
   medianTrends: MedianTrends;
   distribution: MetricsDistribution;
   triageTime: TriageTime;
+  escalations: Escalations;
 }
 
 interface DistributionData {
@@ -125,14 +129,15 @@ async function loadQueueData(f: FilterParams): Promise<QueueData> {
 }
 
 async function loadResponseMetricsData(f: FilterParams): Promise<ResponseMetricsData> {
-  const [summary, volume, medianTrends, distribution, triageTime] = await Promise.all([
+  const [summary, volume, medianTrends, distribution, triageTime, escalations] = await Promise.all([
     fetchMetricsSummary(f),
     fetchVolume(f),
     fetchMedianTrends(f),
     fetchDistribution(f),
     fetchTriageTime(f),
+    fetchEscalations(f),
   ]);
-  return { summary, volume, medianTrends, distribution, triageTime };
+  return { summary, volume, medianTrends, distribution, triageTime, escalations };
 }
 
 async function loadDistributionData(f: FilterParams): Promise<DistributionData> {
@@ -338,6 +343,7 @@ export function App() {
             <>
               <ResponseMetricsCards data={metricsData.summary} />
               <TriageTimeCard data={metricsData.triageTime} />
+              <EscalationCard data={metricsData.escalations} />
 
               <section>
                 <h2 className="app-section-title">Topic volume</h2>
