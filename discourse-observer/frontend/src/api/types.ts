@@ -249,6 +249,28 @@ export interface TagFlows {
 }
 
 // ---------------------------------------------------------------------------
+// AC-36: Escalation patterns
+// ---------------------------------------------------------------------------
+
+export interface EscalationPeriod {
+  period: string;
+  count: number;
+}
+
+export interface EscalationPatternEntry {
+  originalTags: string[];
+  addedAfterReply: string[];
+  count: number;
+}
+
+export interface Escalations {
+  total: number;
+  rate: number | null;
+  byPeriod: EscalationPeriod[];
+  commonPatterns: EscalationPatternEntry[];
+}
+
+// ---------------------------------------------------------------------------
 // AC-27: Config
 // ---------------------------------------------------------------------------
 

@@ -54,6 +54,7 @@ func (s *Server) RegisterRoutes(mux *http.ServeMux) {
 	mux.HandleFunc("GET /api/v1/metrics/distribution", s.handleMetricsDistribution)
 	mux.HandleFunc("GET /api/v1/metrics/triage-time", s.handleTriageTime)
 	mux.HandleFunc("GET /api/v1/metrics/tag-flows", s.handleTagFlows)
+	mux.HandleFunc("GET /api/v1/metrics/escalations", s.handleEscalations)
 
 	mux.HandleFunc("GET /api/v1/distribution/volume", s.handleDistributionVolume)
 	mux.HandleFunc("GET /api/v1/distribution/resolution", s.handleDistributionResolution)
