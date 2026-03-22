@@ -318,6 +318,19 @@ Response fields:
 
 Supports: `period`, `from`/`to`, `tag`.
 
+### Endpoint: Escalation patterns
+
+**AC-36.** `GET /api/v1/metrics/escalations` — Returns escalation pattern metrics computed from revision data. See [escalations.md](escalations.md) for full specification.
+
+Response fields:
+
+- `total` (integer): topics with tag changes after first reply
+- `rate` (float or null): fraction of replied topics that are escalations
+- `byPeriod` (array): `[{ "period": string, "count": integer }]`
+- `commonPatterns` (array): `[{ "originalTags": string[], "addedAfterReply": string[], "count": integer }]`
+
+Supports: `period`, `from`/`to`, `tag`.
+
 ### Endpoint: Tag flows
 
 **AC-35.** `GET /api/v1/metrics/tag-flows` — Returns tag flow metrics computed from revision data. See [tag-flows.md](tag-flows.md) for full specification.
