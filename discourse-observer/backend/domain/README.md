@@ -18,6 +18,7 @@ Pure calculation functions implementing domain aggregates for the API.
 - Peak activity heatmap (7x24 UTC grid)
 - Triage time analysis (median duration from creation to first tag)
 - Tag flow analysis (transitions, co-occurring pairs, instability)
+- Escalation detection (tag changes after first reply)
 - Tag configuration resolution (merging per-tag overrides with defaults)
 
 ## Does not
