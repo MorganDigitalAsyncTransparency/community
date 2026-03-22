@@ -17,6 +17,7 @@ Pure calculation functions implementing domain aggregates for the API.
 - SLO violation detection and compliance computation
 - Peak activity heatmap (7x24 UTC grid)
 - Triage time analysis (median duration from creation to first tag)
+- Tag flow analysis (transitions, co-occurring pairs, instability)
 - Tag configuration resolution (merging per-tag overrides with defaults)
 
 ## Does not
