@@ -68,6 +68,7 @@ nav:
       - API:
           - API Contract: specs/api/api-contract.md
           - API Contract Verification: specs/api/api-contract_verification.md
+          - Triage Time: specs/api/triage-time.md
       - Observer:
           - Observer Behavior: specs/observer/observer-behavior.md
           - Initial and Delta Sync: specs/observer/initial-delta-sync.md

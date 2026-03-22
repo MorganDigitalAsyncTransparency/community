@@ -305,6 +305,19 @@ Supports: `period`, `from`/`to`, `tag`.
 
 Serves: UC-19.
 
+### Endpoint: Triage time
+
+**AC-34.** `GET /api/v1/metrics/triage-time` — Returns triage time metrics computed from revision data. See [triage-time.md](triage-time.md) for full specification.
+
+Response fields:
+
+- `overall` (object): `{ "medianHours": float or null, "count": integer }`
+- `byTag` (array): `[{ "tag": string, "medianHours": float or null, "count": integer }]`
+
+`medianHours` is the median duration in hours from topic creation to first tag addition. Null when count is 0.
+
+Supports: `period`, `from`/`to`, `tag`.
+
 ### Endpoint: Configuration
 
 **AC-27.** `GET /api/v1/config` — Returns the resolved tag configuration needed for UI rendering (area navigation, tag labels, SLO threshold display).
