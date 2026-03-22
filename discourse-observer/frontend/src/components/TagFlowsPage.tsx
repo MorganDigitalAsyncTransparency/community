@@ -59,59 +59,55 @@ export function TagFlowsPage({ data }: TagFlowsPageProps) {
         </div>
       </div>
 
-      <section>
+      <section className="app-section">
         <h2 className="app-section-title">Tag transitions</h2>
         {transitions.length === 0 ? (
-          <p className="chart-empty">No tag transitions recorded</p>
+          <p className="dist-empty">No tag transitions recorded</p>
         ) : (
-          <div className="table-scroll">
-            <table className="data-table">
-              <thead>
-                <tr>
-                  <th>From</th>
-                  <th>To</th>
-                  <th>Count</th>
-                  <th>Median duration</th>
+          <table className="dist-table">
+            <thead>
+              <tr>
+                <th className="dist-th">From</th>
+                <th className="dist-th">To</th>
+                <th className="dist-th dist-th-count">Count</th>
+                <th className="dist-th dist-th-metric">Median duration</th>
+              </tr>
+            </thead>
+            <tbody>
+              {transitions.map((tr, i) => (
+                <tr key={i} className="dist-row">
+                  <td className="dist-td">{formatTagSet(tr.from)}</td>
+                  <td className="dist-td">{formatTagSet(tr.to)}</td>
+                  <td className="dist-td dist-td-count">{tr.count}</td>
+                  <td className="dist-td dist-td-metric">{formatHours(tr.medianDurationHours)}</td>
                 </tr>
-              </thead>
-              <tbody>
-                {transitions.map((tr, i) => (
-                  <tr key={i}>
-                    <td>{formatTagSet(tr.from)}</td>
-                    <td>{formatTagSet(tr.to)}</td>
-                    <td>{tr.count}</td>
-                    <td>{formatHours(tr.medianDurationHours)}</td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
+              ))}
+            </tbody>
+          </table>
         )}
       </section>
 
-      <section>
+      <section className="app-section">
         <h2 className="app-section-title">Tag pairs</h2>
         {tagPairs.length === 0 ? (
-          <p className="chart-empty">No tag pairs recorded</p>
+          <p className="dist-empty">No tag pairs recorded</p>
         ) : (
-          <div className="table-scroll">
-            <table className="data-table">
-              <thead>
-                <tr>
-                  <th>Tags</th>
-                  <th>Count</th>
+          <table className="dist-table">
+            <thead>
+              <tr>
+                <th className="dist-th">Tags</th>
+                <th className="dist-th dist-th-count">Count</th>
+              </tr>
+            </thead>
+            <tbody>
+              {tagPairs.map((pair, i) => (
+                <tr key={i} className="dist-row">
+                  <td className="dist-td">{pair.tags.join(" + ")}</td>
+                  <td className="dist-td dist-td-count">{pair.count}</td>
                 </tr>
-              </thead>
-              <tbody>
-                {tagPairs.map((pair, i) => (
-                  <tr key={i}>
-                    <td>{pair.tags.join(" + ")}</td>
-                    <td>{pair.count}</td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
+              ))}
+            </tbody>
+          </table>
         )}
       </section>
     </>
