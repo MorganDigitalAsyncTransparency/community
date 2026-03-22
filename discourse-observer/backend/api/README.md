@@ -4,7 +4,7 @@ HTTP handlers for all `/api/v1/` endpoints defined in the [API contract](../../s
 
 ## Responsibility
 
-- Route registration for all 18 endpoints
+- Route registration for all 20 endpoints
 - Query parameter parsing and validation (`period`, `from`/`to`, `tag`)
 - Filter application (delegated to `domain/` functions)
 - JSON response encoding with correct field names and types

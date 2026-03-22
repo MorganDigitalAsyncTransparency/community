@@ -318,6 +318,18 @@ Response fields:
 
 Supports: `period`, `from`/`to`, `tag`.
 
+### Endpoint: Tag flows
+
+**AC-35.** `GET /api/v1/metrics/tag-flows` — Returns tag flow metrics computed from revision data. See [tag-flows.md](tag-flows.md) for full specification.
+
+Response fields:
+
+- `transitions` (array): `[{ "from": string[], "to": string[], "count": integer, "medianDurationHours": float }]`
+- `tagPairs` (array): `[{ "tags": string[], "count": integer }]`
+- `summary` (object): `{ "topicsWithTagChanges": integer, "totalTopics": integer, "medianChangesPerTopic": float or null, "mostCommonFirstTag": string or null, "mostUnstableTag": string or null }`
+
+Supports: `period`, `from`/`to`, `tag`.
+
 ### Endpoint: Configuration
 
 **AC-27.** `GET /api/v1/config` — Returns the resolved tag configuration needed for UI rendering (area navigation, tag labels, SLO threshold display).

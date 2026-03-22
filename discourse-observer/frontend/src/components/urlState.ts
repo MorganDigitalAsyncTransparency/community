@@ -17,6 +17,7 @@ const VALID_PAGES: ReadonlySet<string> = new Set<Page>([
   "distribution",
   "slo",
   "activity",
+  "tag-flows",
   "sync-log",
 ]);
 

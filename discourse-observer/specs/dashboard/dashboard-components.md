@@ -367,7 +367,7 @@ Accepts seven props:
 Renders a vertical sidebar spanning the full viewport height with:
 
 - A logo section showing "discourse-observer" (expanded) or "d-o" (collapsed).
-- Five navigation links — Queue, Response metrics, Distribution, SLO, Activity — each with an icon and text label. The active page is visually distinguished (`sidebar-link-active`).
+- Six navigation links — Queue, Response metrics, Distribution, SLO, Activity, Tag flows — each with an icon and text label. The active page is visually distinguished (`sidebar-link-active`).
 - An "About" section between the navigation and the collapse toggle (see [sidebar-about-section.md](sidebar-about-section.md) for requirements DS-15 through DS-18).
 - A collapse/expand toggle at the bottom.
 

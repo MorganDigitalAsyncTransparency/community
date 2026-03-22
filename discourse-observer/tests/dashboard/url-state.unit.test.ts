@@ -14,7 +14,7 @@ describe("parseUrlState — page", () => {
   });
 
   it("parses all valid page values", () => {
-    const pages = ["queue", "response-metrics", "distribution", "slo", "activity"] as const;
+    const pages = ["queue", "response-metrics", "distribution", "slo", "activity", "tag-flows", "sync-log"] as const;
     for (const page of pages) {
       expect(parseUrlState(`?page=${page}`).page).toBe(page);
     }

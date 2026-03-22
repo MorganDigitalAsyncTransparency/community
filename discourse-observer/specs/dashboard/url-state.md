@@ -24,7 +24,7 @@ This file defines *what* is persisted and how URL state maps to application stat
 
 | State | Parameter | Valid values | Default (omitted) |
 |-------|-----------|-------------|-------------------|
-| Page | `page` | `queue`, `response-metrics`, `distribution`, `slo`, `activity` | `queue` |
+| Page | `page` | `queue`, `response-metrics`, `distribution`, `slo`, `activity`, `tag-flows`, `sync-log` | `queue` |
 | Period preset | `period` | `last7`, `last30`, `lastYear`, `allTime` | `allTime` |
 | Custom range start | `from` | ISO date `YYYY-MM-DD` | *(none)* |
 | Custom range end | `to` | ISO date `YYYY-MM-DD` | *(none)* |
