@@ -105,11 +105,11 @@ Persists normalized topics in SQLite (decided in [ADR 0006](docs/decisions/0006-
 
 ### backend/api/
 
-HTTP handlers for all `/api/v1/` endpoints defined in the [API contract](specs/api/api-contract.md). Responsible for routing, query parameter parsing and validation, filter application, and JSON response encoding. Defines the `TopicReader` interface — the abstraction through which handlers load topics from the store. Each handler resolves filter parameters to `model.QueryOpts`, queries the store, then delegates computation to `backend/domain/`. Does not contain business logic.
+HTTP handlers for all `/api/v1/` endpoints defined in the [API contract](specs/api/api-contract.md). Responsible for routing, query parameter parsing and validation, filter application, and JSON response encoding. Defines the `TopicReader` and `EventReader` interfaces — the abstractions through which handlers load topics and revision events from the store. Each handler resolves filter parameters to `model.QueryOpts`, queries the store, then delegates computation to `backend/domain/`. Does not contain business logic.
 
 ### backend/domain/
 
-Pure calculation functions implementing domain aggregates: medians, time bucketing, histogram distribution, tag rankings, SLO violation detection, compliance computation, and heatmap generation. These functions receive pre-filtered topic slices and return computed results. No HTTP, I/O, or framework dependencies.
+Pure calculation functions implementing domain aggregates: medians, time bucketing, histogram distribution, tag rankings, SLO violation detection, compliance computation, heatmap generation, and triage time analysis. These functions receive pre-filtered topic slices (and revision events where applicable) and return computed results. No HTTP, I/O, or framework dependencies.
 
 ### backend/mock/
 
