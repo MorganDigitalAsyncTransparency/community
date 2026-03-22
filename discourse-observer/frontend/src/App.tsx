@@ -21,6 +21,7 @@ import type {
   MedianTrends,
   MetricsDistribution,
   TriageTime,
+  TagFlows,
   TagVolume,
   TagResolution,
   TagBacklog,
@@ -44,6 +45,7 @@ import {
   fetchMedianTrends,
   fetchDistribution,
   fetchTriageTime,
+  fetchTagFlows,
   fetchTagVolume,
   fetchTagResolution,
   fetchTagBacklog,
@@ -69,6 +71,7 @@ import { TagSelector } from "./components/TagSelector";
 import { Sidebar } from "./components/Sidebar";
 import { SyncLog } from "./components/SyncLog";
 import { TriageTimeCard } from "./components/TriageTimeCard";
+import { TagFlowsPage } from "./components/TagFlowsPage";
 import {
   type CustomRange,
   type PeriodPreset,
@@ -175,6 +178,7 @@ export function App() {
   const [distData, setDistData] = useState<DistributionData | null>(null);
   const [sloData, setSloData] = useState<SloData | null>(null);
   const [heatmapData, setHeatmapData] = useState<Heatmap | null>(null);
+  const [tagFlowsData, setTagFlowsData] = useState<TagFlows | null>(null);
   const [syncLogData, setSyncLogData] = useState<SyncLogResponse | null>(null);
 
   const [loading, setLoading] = useState(false);
@@ -207,6 +211,9 @@ export function App() {
           break;
         case "activity":
           setHeatmapData(await fetchHeatmap(f));
+          break;
+        case "tag-flows":
+          setTagFlowsData(await fetchTagFlows(f));
           break;
         case "sync-log":
           setSyncLogData(await fetchSyncLog());
@@ -389,6 +396,10 @@ export function App() {
 
           {page === "activity" && heatmapData && (
             <PeakActivity data={heatmapData} />
+          )}
+
+          {page === "tag-flows" && tagFlowsData && (
+            <TagFlowsPage data={tagFlowsData} />
           )}
 
           {page === "sync-log" && syncLogData && (

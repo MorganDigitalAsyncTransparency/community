@@ -17,6 +17,7 @@ const NAV_ITEMS: NavItem[] = [
   { page: "distribution", label: "Distribution", icon: "\u25D4" },
   { page: "slo", label: "SLO", icon: "\u25C9" },
   { page: "activity", label: "Activity", icon: "\u26A1" },
+  { page: "tag-flows", label: "Tag flows", icon: "\u21C4" },
 ];
 
 const STORAGE_KEY = "sidebar-collapsed";

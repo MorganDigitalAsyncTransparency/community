@@ -219,6 +219,36 @@ export interface TriageTime {
 }
 
 // ---------------------------------------------------------------------------
+// AC-35: Tag flows
+// ---------------------------------------------------------------------------
+
+export interface TagFlowTransition {
+  from: string[];
+  to: string[];
+  count: number;
+  medianDurationHours: number | null;
+}
+
+export interface TagFlowPair {
+  tags: [string, string];
+  count: number;
+}
+
+export interface TagFlowSummary {
+  topicsWithTagChanges: number;
+  totalTopics: number;
+  medianChangesPerTopic: number | null;
+  mostCommonFirstTag: string | null;
+  mostUnstableTag: string | null;
+}
+
+export interface TagFlows {
+  transitions: TagFlowTransition[];
+  tagPairs: TagFlowPair[];
+  summary: TagFlowSummary;
+}
+
+// ---------------------------------------------------------------------------
 // AC-27: Config
 // ---------------------------------------------------------------------------
 
