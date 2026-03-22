@@ -76,6 +76,7 @@ func testServer(t *testing.T) (ts *httptest.Server, srv *Server) {
 
 	srv = &Server{
 		Store:          store,
+		Events:         store,
 		TagConfig:      cfg,
 		ResolvedTags:   domain.ResolveAllTags(&cfg),
 		BucketCeilings: []int{1, 4, 12, 24, 48, 96, 168},
@@ -113,6 +114,7 @@ func testServerFromFile(t *testing.T, dbPath string) (ts *httptest.Server, srv *
 
 	srv = &Server{
 		Store:          store,
+		Events:         store,
 		TagConfig:      cfg,
 		ResolvedTags:   domain.ResolveAllTags(&cfg),
 		BucketCeilings: []int{1, 4, 12, 24, 48, 96, 168},

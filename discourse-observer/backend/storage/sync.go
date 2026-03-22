@@ -212,6 +212,33 @@ func (s *SQLiteStore) SaveTopicEvents(ctx context.Context, events []model.TopicE
 	return tx.Commit()
 }
 
+// LoadAllTopicEvents returns all stored events grouped by topic ID, ordered by time.
+func (s *SQLiteStore) LoadAllTopicEvents(ctx context.Context) (map[int][]model.TopicEvent, error) {
+	rows, err := s.db.QueryContext(ctx, `
+		SELECT id, topic_id, event_type, happened_at, detail
+		FROM topic_events
+		ORDER BY topic_id ASC, happened_at ASC`)
+	if err != nil {
+		return nil, err
+	}
+	defer func() { _ = rows.Close() }()
+
+	result := map[int][]model.TopicEvent{}
+	for rows.Next() {
+		var e model.TopicEvent
+		var ts string
+		if err := rows.Scan(&e.ID, &e.TopicID, &e.EventType, &ts, &e.Detail); err != nil {
+			return nil, err
+		}
+		e.HappenedAt, err = time.Parse(time.RFC3339, ts)
+		if err != nil {
+			return nil, err
+		}
+		result[e.TopicID] = append(result[e.TopicID], e)
+	}
+	return result, rows.Err()
+}
+
 // LoadTopicEvents returns all stored events for a topic, ordered by time.
 func (s *SQLiteStore) LoadTopicEvents(ctx context.Context, topicID int) ([]model.TopicEvent, error) {
 	rows, err := s.db.QueryContext(ctx, `

@@ -11,6 +11,7 @@ import type {
   VolumeBucket,
   MedianTrends,
   MetricsDistribution,
+  TriageTime,
   TagVolume,
   TagResolution,
   TagBacklog,
@@ -48,6 +49,9 @@ export const fetchMedianTrends = (f: FilterParams) =>
 
 export const fetchDistribution = (f: FilterParams) =>
   apiFetch<MetricsDistribution>("/metrics/distribution", f);
+
+export const fetchTriageTime = (f: FilterParams) =>
+  apiFetch<TriageTime>("/metrics/triage-time", f);
 
 // Distribution
 export const fetchTagVolume = (f: FilterParams) =>

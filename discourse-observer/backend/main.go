@@ -41,6 +41,7 @@ func main() {
 
 	srv := &api.Server{
 		Store:          store,
+		Events:         store,
 		TagConfig:      tagConfig,
 		ResolvedTags:   domain.ResolveAllTags(&tagConfig),
 		BucketCeilings: buckets.BucketCeilingsHours,
